@@ -31,10 +31,6 @@ export default function SubBar({selectedProject,onBackToProjects,onNewProjectCli
       </div>
 
       <div className="flex items-center gap-2.5">
-        <button className="flex items-center gap-1.5 px-3 py-1 border border-[#1f1f23] text-white hover:bg-[#18181b] text-xs font-medium transition-colors rounded">
-          <Filter className="size-3.5 text-muted-foreground" />
-          Filter
-        </button>
         {selectedProject ? ( 
              <button onClick={onNewRunClick} className="flex items-center gap-1.5 px-3 py-1 bg-indigo-650 hover:bg-indigo-700 border border-indigo-500 text-white text-xs font-semibold transition-colors rounded shadow-sm">
           <Play className="size-3.5" />

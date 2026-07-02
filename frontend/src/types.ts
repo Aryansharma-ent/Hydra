@@ -11,6 +11,8 @@ export interface TestRun {
   _id: string;
   projectId: string;
   status: 'PASSED' | 'FAILED' | 'RUNNING';
+   stagingUrl?: string    
+    productionUrl?: string 
   mismatchPercentage: number;
   totalPixelsCompared: number;
   mismatchPixelsCount: number;

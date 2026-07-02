@@ -90,6 +90,29 @@ function postJson(url,headers,body){
 }
 
 
+function getJson(url) {
+    return new Promise((resolve, reject) => {
+        http.get(url, (res) => {
+            let data = '';
+            res.on('data', chunk => data += chunk);
+            res.on('end', () => {
+                try {
+                    const parsed = JSON.parse(data);
+                    if (res.statusCode >= 400) {
+                        reject(new Error(parsed.message || `HTTP ${res.statusCode}`));
+                    } else {
+                        resolve(parsed);
+                    }
+                } catch (e) {
+                    reject(new Error(`Failed to parse response: ${data}`));
+                }
+            });
+        }).on('error', reject);
+    });
+}
+
+
+
 async function run() {
     const baseUrl = 'http://localhost:8000';
     console.log(`\n\x1b[36m Spectre AI: Triggering visual regression test...\x1b[0m`);

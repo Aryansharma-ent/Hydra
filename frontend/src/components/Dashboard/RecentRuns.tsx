@@ -53,15 +53,15 @@ const CardContent = (
     <div className="flex justify-between items-start z-10">
       <div className="flex flex-col gap-1">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-white font-mono truncate max-w-[200px] lg:max-w-[380px]">{stagingUrl}</span>
+          <span className="text-xs font-semibold text-white font-mono truncate max-w-[200px] lg:max-w-[380px]">{Run.stagingUrl || stagingUrl}</span>
           <ArrowRight className="size-3 text-muted-foreground/60" />
-          <span className="text-xs text-muted-foreground font-mono truncate max-w-[200px] lg:max-w-[380px]">{productionUrl}</span>
+          <span className="text-xs text-muted-foreground font-mono truncate max-w-[200px] lg:max-w-[380px]">{Run.productionUrl || productionUrl}</span>
         </div>
         
         <div className="flex items-center gap-2 text-xs text-muted-foreground/80 mt-1 font-mono">
           {isRunning ? (
             <>
-              <span className="flex items-center gap-1 text-indigo-400">⏱ Running now</span>
+              <span className="flex items-center gap-1 text-indigo-400">Running now</span>
               <span>•</span>
               <span className="text-muted-foreground/60">Capturing screenshots...</span>
             </>
@@ -107,7 +107,7 @@ if (isRunning) {
 }
 
 return (
-  <Link key={Run._id} to={`/runs/${Run._id}`} className="block cursor-pointer">
+  <Link key={Run._id} to={`/runs/${Run._id}?projectId=${Run.projectId}`} className="block cursor-pointer">
     {CardContent}
   </Link>
 )

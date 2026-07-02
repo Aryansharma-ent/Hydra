@@ -8,8 +8,7 @@ import TopBar from "@/components/Dashboard/TopBar"
 import SubBar from "@/components/Dashboard/SubBar"
 import StatsRow from "@/components/Dashboard/StatsRow"
 import RecentRuns from "@/components/Dashboard/RecentRuns"
-// import InspectorPanel from "@/components/InspectorPanel"
-import FooterBar from "@/components/Dashboard/FooterBar"
+
 
 export default function Dashboard() {
   const [projects, setProjects] = useState<Project[]>([])
@@ -23,8 +22,10 @@ export default function Dashboard() {
   const [isTesting, setIsTesting] = useState<boolean>(false)
   const [searchParams,setSearchParams] = useSearchParams()
   const [run,setRun] = useState<TestRun[]>([])
+  const [saveAsDefault,setSaveAsDefault] = useState<boolean>(false);
 
-  const navigate = useNavigate()
+
+     const navigate = useNavigate()
 
 
 const fetchProjects = async () => {
@@ -86,6 +87,32 @@ const handleOpenRunModal = () => {
 const handleRunProject = async(e : React.FormEvent) => {
     e.preventDefault()
     setIsTesting(true)
+  if(saveAsDefault){
+     try {
+   
+      const res = await axios.put(`http://localhost:8000/api/projects/${selectedProject?._id}`,{
+        stagingUrl,
+        productionUrl
+      },{
+        headers : {
+           "x-api-key": selectedProject?.apikey
+        }
+      })
+
+           if (res.data.success) {
+          const updatedProject = res.data.data;
+          // 1. Update the selected project cockpit display
+          setSelectedProject(updatedProject);
+          // 2. Update the projects registry list array
+          setProjects(prev => prev.map(p => 
+            p._id === selectedProject?._id ? updatedProject : p
+          ));
+        }
+  }catch{
+    console.log("error while updating the url's")
+  }
+}
+
     try {
    
       setShowRunTest(false)
@@ -103,6 +130,7 @@ const handleRunProject = async(e : React.FormEvent) => {
         const newRun = res.data.data;
         setStagingUrl("")
         setProductionUrl("")
+         setSaveAsDefault(false)
         setRun(prev => [newRun, ...prev])
       }
 
@@ -166,7 +194,8 @@ useEffect(()=>{
   return (
     <div className="flex h-screen w-screen bg-[#09090b] text-[#c9d1d9] overflow-hidden font-sans select-none antialiased">
       {/* 1. Left Sidebar Navigation */}
-      <Sidebar />
+      <Sidebar 
+      />
 
       {/* Main Panel Area */}
       <div className="flex-1 flex flex-col min-w-0">
@@ -192,7 +221,7 @@ useEffect(()=>{
             {loading ? (<p>loading.....</p>) : selectedProject ? (
               <>
             <StatsRow
-            
+             runs={run}
             />
             <RecentRuns
              RunData={run}
@@ -242,7 +271,7 @@ useEffect(()=>{
         </div>
 
 
-        <FooterBar />
+    
 
 
 {showCreateProject && (
@@ -367,6 +396,11 @@ useEffect(()=>{
             onChange={(e) => setProductionUrl(e.target.value)}
             required
           />
+        </div>
+        <div className='text-xs text-gray-300 '>
+          <input type="checkbox" 
+           checked = {saveAsDefault}
+          onChange={(e)=> setSaveAsDefault(e.target.checked) } /> Save as Default Project URL's
         </div>
 
         <div className="flex justify-end gap-3 mt-2 border-t border-[#1f1f23]/40 pt-2 ">

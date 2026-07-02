@@ -41,6 +41,45 @@ export const createProject = AsyncHandler(async(req : Request,res : Response) : 
 
 
 
+
+
+
+
+
+export const updateProject = AsyncHandler(async(req : Request,res : Response) : Promise<void> => {
+    const { id } = req.params
+    const { name, stagingUrl, productionUrl } = req.body
+      
+    const project = await Project.findById(id)
+
+ 
+    if (!project) {
+        res.status(404)
+        throw new Error("Project not found")
+    }
+
+      if (name !== undefined) project.name = name
+    if (stagingUrl !== undefined) project.stagingUrl = stagingUrl
+    if (productionUrl !== undefined) project.productionUrl = productionUrl
+    
+    await project.save()
+
+    res.status(201).json({
+        success : true,
+        data : project
+    })
+})
+
+
+
+
+
+
+
+
+
+
+
 export const getProjectRuns = AsyncHandler(async(req : Request,res : Response) : Promise<void> => {
      const {projectId} = req.params
 
@@ -159,10 +198,7 @@ export const generateApikey = AsyncHandler(async(req : Request,res : Response)=>
       }
 
       let token;
-      if(project.apikey){
-        res.status(400)
-        throw new Error("api key is already associated with this project")
-      }
+      
 
       token = crypto.randomBytes(24).toString("hex");
 

@@ -68,8 +68,15 @@ We are building the core visual engine of **Spectre AI (The Visual Regression De
 * [x] **Step 1 (Backend)**: Add `apiKey` schema field to `Project` model and create an API Key generation endpoint.
 * [x] **Step 2 (Backend)**: Build authentication middleware to restrict test run triggers via CLI to valid API keys.
 * [x] **Step 3 (CLI)**: Write the lightweight Node.js CLI script `spectre-cli.js` to trigger scans from terminal/CI environments.
-* [ ] **Step 4 (Frontend)**: Design the Developer Settings page displaying the API key generator and copy-pasteable GitHub Actions YAML scripts.
-* [ ] **Step 5 (Automation)**: Set up a sample GitHub Action workflow configuration in our project repository.
+* [x] **Step 4 (Frontend)**: Design the Developer Settings page displaying the API key generator and copy-pasteable GitHub Actions YAML scripts.
+* [x] **Step 5 (Automation)**: Set up a sample GitHub Action workflow configuration in our project repository.
+
+### ⚡ Milestone 7: SaaS Pages, UI Polish & Live Metrics Integration
+* [x] **Step 1 (UI Polish)**: Redesign the detected regressions list inside `ChatSidebar.tsx` to render beautiful bug cards with class selectors and badge labels.
+* [x] **Step 2 (Data Integration)**: Connect the dashboard stats row component to calculate real metrics (total runs, average drifts, passed vs failed count).
+* [ ] **Step 3 (Header/Footer)**: Polish `TopBar.tsx` and `FooterBar.tsx` default layout text placeholders.
+* [ ] **Step 4 (SaaS Pages)**: Create the SaaS landing page (`LandingPage.tsx`) along with custom Login/Signup layouts.
+* [ ] **Step 5 (Docs Guide)**: Create a developer documentation and integration guide page (`Docs.tsx`).
 
 ---
 

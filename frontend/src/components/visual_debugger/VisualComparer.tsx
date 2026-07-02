@@ -159,6 +159,7 @@ export default function VisualComparer({ runData }: VisualComparerProps) {
         )}
 
         {/* VIEW 2: Slider Overlay comparison wipe */}
+               {/* VIEW 2: Slider Overlay comparison wipe */}
         {viewMode === 'slider' && (
           <div className="w-full max-w-[800px] flex flex-col bg-[#0c0c0e] border border-[#1f1f23] rounded-lg overflow-hidden">
             <div className="bg-[#0e0e11] border-b border-[#1f1f23] px-4 py-2">
@@ -169,8 +170,10 @@ export default function VisualComparer({ runData }: VisualComparerProps) {
             <div className="p-6 bg-[#09090b]/80 flex justify-center items-center">
               <div className="relative w-full aspect-[1440/900] select-none overflow-hidden border border-[#1f1f23] rounded">
                 
-                {/* Background master: Production */}
+                {/* Background master: Production (used to calculate scale ref) */}
                 <img 
+                  ref={imgRef}
+                  onLoad={handleLoad}
                   src={getFullUrl(runData.productionScreenshotUrl)} 
                   alt="Production master"
                   className="absolute inset-0 w-full h-full object-cover pointer-events-none"
@@ -188,13 +191,32 @@ export default function VisualComparer({ runData }: VisualComparerProps) {
                 
                 {/* Visual slider divider bar */}
                 <div 
-                  className="absolute inset-y-0 w-0.5 bg-indigo-500 pointer-events-none flex items-center justify-center"
+                  className="absolute inset-y-0 w-0.5 bg-indigo-500 pointer-events-none flex items-center justify-center z-20"
                   style={{ left: `${sliderPos}%` }}
                 >
                   <div className="size-6 bg-indigo-600 border border-indigo-400 rounded-full flex items-center justify-center shadow-lg -translate-x-1/2 cursor-ew-resize">
                     <span className="text-[10px] text-white select-none">↔</span>
                   </div>
                 </div>
+
+                {/* Dynamic absolute bounding boxes overlaying the slider comparison */}
+                {runData.visualBugs && runData.visualBugs.map((bug, index) => (
+                  <div 
+                    key={index}
+                    className="absolute border border-dashed border-red-500 bg-red-500/10 group cursor-pointer hover:bg-red-500/25 transition-all z-10"
+                    style={{
+                      left: `${bug.location.x * scale}px`,
+                      top: `${bug.location.y * scale}px`,
+                      width: `${bug.location.width * scale}px`,
+                      height: `${bug.location.height * scale}px`,
+                    }}
+                  >
+                    {/* Bounding box hover description bubble */}
+                    <div className="absolute -top-6 left-0 bg-red-600 text-white font-mono text-[8px] font-bold px-1.5 py-0.5 rounded shadow pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-30 whitespace-nowrap">
+                      {bug.element}: {bug.description}
+                    </div>
+                  </div>
+                ))}
                 
                 {/* Standard HTML range input placed over the screen for dragging actions */}
                 <input 
@@ -203,7 +225,7 @@ export default function VisualComparer({ runData }: VisualComparerProps) {
                   max="100"
                   value={sliderPos}
                   onChange={(e) => setSliderPos(Number(e.target.value))}
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize"
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-30"
                 />
               </div>
             </div>

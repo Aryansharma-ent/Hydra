@@ -32,7 +32,7 @@ const captureScreenshot = async (url: string): Promise<CaptureResult> => {
 
         await page.setViewport({ width: 1280, height: 800 });
 
-        await page.goto(url, { waitUntil: 'networkidle0', timeout: 30000 });
+        await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
 
         await page.addStyleTag({
     content: `
@@ -50,6 +50,8 @@ const captureScreenshot = async (url: string): Promise<CaptureResult> => {
         }
     `
 });
+
+  await autoScroll(page, 15);
 
 
 
@@ -112,5 +114,38 @@ const captureScreenshot = async (url: string): Promise<CaptureResult> => {
         await browser.close()
     }
 }
+
+
+// Helper function to simulate natural scrolling, loading lazy assets, and capping infinite scroll
+async function autoScroll(page: any, maxScrolls = 15): Promise<void> {
+    await page.evaluate(async (max: number) => {
+        await new Promise<void>((resolve) => {
+            let totalHeight = 0;
+            const distance = 150; // Scroll 150px at a time
+            let scrollCount = 0;
+
+            const timer = setInterval(() => {
+                const scrollHeight = document.body.scrollHeight;
+                window.scrollBy(0, distance);
+                totalHeight += distance;
+                scrollCount++;
+
+                // Stop scrolling if we reached the bottom or hit the maximum cap
+                if (totalHeight >= scrollHeight || scrollCount >= max) {
+                    clearInterval(timer);
+                    // Scroll back to the top so screenshot starts from 0,0 coordinate
+                    window.scrollTo(0, 0);
+                    resolve();
+                }
+            }, 80); // Wait 80ms between scroll ticks
+        });
+    }, maxScrolls);
+}
+
+
+
+
+
+
 
 export default captureScreenshot

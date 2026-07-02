@@ -1,31 +1,42 @@
-import { Settings, HelpCircle } from "lucide-react"
+import { Settings, HelpCircle, ChevronRight, LayoutGrid } from "lucide-react"
+import { Link, useLocation } from "react-router-dom"
 
 export default function DebuggerHeader() {
+  const location = useLocation()
+
+  // Grab the project context from query params if available
+  const searchParams = new URLSearchParams(location.search)
+  const projectId = searchParams.get("projectId")
+
   return (
-    <header className="h-14 border-b border-[#1f1f23] flex items-center justify-between px-6 bg-[#09090b] shrink-0">
-      <div className="flex h-full items-end gap-1.5">
-        <button className="px-4 py-3 text-xs font-semibold text-white border-b-2 border-indigo-500 transition-all font-mono">
+    <header className="h-14 border-b border-[#1f1f23] flex items-center justify-between px-6 bg-[#09090b] shrink-0 select-none">
+      
+      {/* Premium Breadcrumb trail */}
+      <div className="flex items-center gap-2 font-mono text-[11px] font-medium tracking-wide">
+        <Link to="/" className="text-muted-foreground hover:text-indigo-400 transition-colors flex items-center gap-1.5">
+          <LayoutGrid className="size-3 text-indigo-400" />
+          Projects
+        </Link>
+        <ChevronRight className="size-3 text-muted-foreground/30" />
+        <Link to={projectId ? `/?projectId=${projectId}` : "/"} className="text-muted-foreground hover:text-indigo-400 transition-colors uppercase">
+          Active Workspace
+        </Link>
+        <ChevronRight className="size-3 text-muted-foreground/30" />
+        <span className="text-white font-semibold">
           Visual Debugger
-        </button>
-        <button className="px-4 py-3 text-xs font-semibold text-muted-foreground hover:text-white border-b-2 border-transparent transition-all">
-          DOM Inspector
-        </button>
-        <button className="px-4 py-3 text-xs font-semibold text-muted-foreground hover:text-white border-b-2 border-transparent transition-all">
-          Network Trace
-        </button>
+        </span>
       </div>
 
+      {/* Right Controls */}
       <div className="flex items-center gap-4">
-        <button className="text-muted-foreground hover:text-white transition-colors">
+        <Link to={projectId ? `/projects/${projectId}/settings` : "/settings"} className="text-muted-foreground hover:text-white transition-colors">
           <Settings className="size-4" />
-        </button>
-        <button className="text-muted-foreground hover:text-white transition-colors">
-          <HelpCircle className="size-4" />
-        </button>
-        <div className="w-6 h-6 rounded-full bg-slate-800 border border-[#1f1f23] flex items-center justify-center text-[10px] font-bold text-white shrink-0">
+        </Link>
+        <div className="w-6 h-6 rounded-full bg-indigo-950 border border-indigo-500/30 flex items-center justify-center text-[10px] font-bold text-indigo-400 shrink-0">
           A
         </div>
       </div>
+
     </header>
   )
 }

@@ -1,8 +1,7 @@
-import { Send,Loader2 } from "lucide-react"
-import { useState,useRef,useEffect } from "react"
+import { Send, Loader2, AlertTriangle, Sparkles } from "lucide-react"
+import { useState, useRef, useEffect } from "react"
 import axios from "axios"
 import type { TestRun } from "@/types"
-
 interface Message{
   sender : 'user' | 'ai'
   text : string
@@ -135,46 +134,59 @@ export default function ChatSidebar({ runData , chatMessages , setChatMessages }
       {/* AI Assistant Header Info */}
       <div className="p-4 border-b border-[#1f1f23]/60">
         <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest block font-mono">
-          🔮 Spectre Copilot
+           Spectre Copilot
         </span>
         <p className="text-[11px] text-muted-foreground mt-0.5">
           Generative AI layout diagnostic analysis and fixes.
         </p>
       </div>
 
-      {/* Layout Drift Anomalies list */}
-      <div className="p-4 border-b h-25 border-[#1f1f23]/60 overflow-y-auto flex flex-col gap-2.5 bg-[#0c0c0e]/30">
-        <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest block font-mono">
-         Detected Regressions : {runData.visualBugs?.length || 0}
+  
+          {/* Layout Drift Anomalies list */}
+      <div className="p-4 border-b max-h-[220px] border-[#1f1f23]/60 overflow-y-auto flex flex-col border gap-2 h-35 bg-[#0c0c0e]/30 select-none scrollbar-thin">
+        <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest block font-mono mb-1">
+          Detected Regressions : {runData.visualBugs?.length || 0}
         </span>
 
-        
-      
-            {!runData.visualBugs || runData.visualBugs.length === 0 ? (
-              
-        <div className="bg-[#101013] border border-[#1f1f23] rounded p-3 flex flex-col gap-1.5 hover:border-red-500/20 transition-all cursor-pointer">
-          <div className="flex items-center justify-between">
-               <p className="text-[10px] text-muted-foreground font-mono">No visual regressions detected.</p>
-               </div>
-               </div>
-            ) : (
-              runData.visualBugs.map((bug,index)=>(
-             <div key={index}
-              onClick={()=> setInput(`Tell me about Bug #${index + 1} ("${bug.element}") and how to fix it.`)}>
-             <div className="bg-[#101013] border border-[#1f1f23] rounded p-3 flex flex-col gap-1.5 hover:border-red-500/20 transition-all cursor-pointer overflow-y-auto">
-          <div className="flex items-center justify-between">
-                bug element : {bug.element}
-                
-                </div>
-                </div>
-                </div>
-              ))
-            )
-          }
+        {!runData.visualBugs || runData.visualBugs.length === 0 ? (
+          <div className="bg-[#101013] border border-[#1f1f23] rounded p-3 flex flex-col gap-1.5">
+            <p className="text-[10px] text-muted-foreground font-mono">No visual regressions detected.</p>
           </div>
-           
-          
+        ) : (
+          runData.visualBugs.map((bug, index) => (
+            <div 
+              key={index}
+              onClick={() => setInput(`Tell me about Bug #${index + 1} ("${bug.element}") and how to fix it.`)}
+              className="bg-[#101013] border border-[#1f1f23] hover:border-red-500/30 rounded p-2.5 flex flex-col gap-1.5 transition-all cursor-pointer hover:bg-red-950/5 group"
+            >
+              {/* Card Header: Badge and Quick Sparkle action */}
+              <div className="flex items-center justify-between">
+                <span className="text-[9px] font-bold font-mono px-1.5 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/20">
+                  BUG #{index + 1}
+                </span>
+                <span className="text-[9px] text-muted-foreground group-hover:text-indigo-400 transition-colors font-mono flex items-center gap-0.5">
+                  Ask Copilot <Sparkles className="size-2.5 text-indigo-400" />
+                </span>
+              </div>
 
+              {/* Card Body: Selector and description */}
+              <div className="flex items-start gap-2 mt-0.5">
+                <AlertTriangle className="size-3.5 text-red-500 shrink-0 mt-0.5" />
+                <div className="min-w-0 flex-1">
+                  <code className="text-[10px] font-mono text-[#c9d1d9] bg-black/40 px-1 py-0.5 rounded border border-[#1f1f23] break-all block">
+                    {bug.element}
+                  </code>
+                  {bug.description && (
+                    <p className="text-[10px] text-muted-foreground mt-1 leading-normal font-sans">
+                      {bug.description}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
 
        
       
