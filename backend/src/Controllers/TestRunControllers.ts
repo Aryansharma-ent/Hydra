@@ -1,6 +1,7 @@
 import { Request,Response } from "express";
 import AsyncHandler from 'express-async-handler'
 import mongoose from "mongoose";
+import { uploadScreenshot } from "../services/storage";
 import  captureScreenshot  from '../services/photographer'; 
 import  CompareScreenshots  from '../services/spotter';
 import TestRun from "../models/TestRun";
@@ -23,35 +24,24 @@ const runBackgroundCapture = async (
   testRunId: string
 ) => {
   try {
-    // 1. The Photographer snaps screenshots in-memory
+    
+  // 1. Photographer snaps screenshots in RAM
     const stagingBuffer = await captureScreenshot(stagingUrl);
     const productionBuffer = await captureScreenshot(productionUrl);
 
-    // 2. Establish file directories and unique filenames
-    const stagingFilename = `${testRunId}_staging.png`;
-    const productionFilename = `${testRunId}_production.png`;
-    const diffFilename = `${testRunId}_diff.png`;
-
-    const screenshotsDir = path.join(__dirname, '../../Public/screenshots');
-    const stagingPath = path.join(screenshotsDir, stagingFilename);
-    const productionPath = path.join(screenshotsDir, productionFilename);
-    const diffPath = path.join(screenshotsDir, diffFilename);
-
-    if (!fs.existsSync(screenshotsDir)) {
-      fs.mkdirSync(screenshotsDir, { recursive: true });
-    }
-
-    // 3. Write the image buffers from RAM onto the disk
-    fs.writeFileSync(stagingPath, stagingBuffer.buffer);
-    fs.writeFileSync(productionPath, productionBuffer.buffer);
-
     // 4. Compare screenshots and get pixel regressions (Spotter service)
     const compareResult = CompareScreenshots(
-      stagingBuffer.buffer,
+        stagingBuffer.buffer,
       productionBuffer.buffer,
-      diffPath,
       stagingBuffer.layout
     );
+
+              // 3. Stream all 3 RAM buffers directly to ImageKit CDN in parallel!
+    const [stagingCdnUrl, productionCdnUrl, diffCdnUrl] = await Promise.all([
+      uploadScreenshot(`${testRunId}_staging.png`, stagingBuffer.buffer),
+      uploadScreenshot(`${testRunId}_production.png`, productionBuffer.buffer),
+      uploadScreenshot(`${testRunId}_diff.png`, compareResult.diffBuffer),
+    ]);
 
     // 5. Query Gemini AI for CSS suggestions (Consultant service) - capped at first 5 to protect quota
     const visualBugsWithAi = [];
@@ -73,14 +63,17 @@ const runBackgroundCapture = async (
 
     // 6. Update the MongoDB document with the finished results!
     await TestRun.findByIdAndUpdate(dbRecordId, {
-      status: compareResult.mismatchPercentage > 0 ? 'FAILED' : 'PASSED',
+     status: compareResult.mismatchPercentage > 0 ? 'FAILED' : 'PASSED',
       mismatchPixelsCount: compareResult.mismatchPixels,
       mismatchPercentage: compareResult.mismatchPercentage,
       totalPixelsCompared: compareResult.totalPixels,
+      stagingScreenshotUrl: stagingCdnUrl,
+      productionScreenshotUrl: productionCdnUrl,
+      diffScreenshotUrl: diffCdnUrl,
       visualBugs: visualBugsWithAi
     });
 
-    console.log(`Visual comparison completed successfully for DB Record: ${dbRecordId}`);
+   console.log(`☁️ Pure Cloud Comparison finished with 0 disk writes for DB: ${dbRecordId}`);
 
   } catch (error) {
     console.error(` Error during background capture for DB: ${dbRecordId}`, error);

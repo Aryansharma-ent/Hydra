@@ -24,6 +24,7 @@ interface CompareResult {
   mismatchPercentage: number;
   totalPixels: number;
   visualBugs : VisualBug[];
+    diffBuffer: Buffer;
 }
 
 /* 
@@ -32,7 +33,7 @@ interface CompareResult {
   @param productionBuffer : Production image binary data
   @param diffOutputPath : given path to store the difference neon-pink image
 */
-const CompareScreenshots = (stagingBuffer : Buffer,productionBuffer : Buffer,diffOutputPath : string,stagingLayout : ElementLayout[]) : CompareResult => {
+const CompareScreenshots = (stagingBuffer: Buffer, productionBuffer: Buffer, stagingLayout: ElementLayout[]) : CompareResult => {
 
 const stagingPng = PNG.sync.read(stagingBuffer);
 const productionPng = PNG.sync.read(productionBuffer);
@@ -47,7 +48,7 @@ const mismatchPixels = pixelmatch(
       {threshold: 0.1}
     );
 
-fs.writeFileSync(diffOutputPath, PNG.sync.write(diffPng));
+const diffBuffer = PNG.sync.write(diffPng);
 
 
   // We need to loop through every pixel (y from 0 to height, x from 0 to width).
@@ -122,7 +123,8 @@ return {
     mismatchPixels,
      mismatchPercentage,
   totalPixels,
-  visualBugs
+  visualBugs,
+  diffBuffer
 }
 
 }

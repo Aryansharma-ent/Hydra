@@ -361,6 +361,7 @@ async function run() {
                 console.log(`\n\x1b[32m✔ Visual Regression Test PASSED!\x1b[0m`);
                 console.log(`   Mismatch Percentage: ${run.mismatchPercentage.toFixed(2)}%`);
                 console.log(`   No layout drifts detected.`);
+                console.log(`\n   View report: http://localhost:5173/runs/${runId}?projectId=${projectId}`);
                 process.exit(0);
             } else if (run.status === 'FAILED') {
                 console.error(`\n\x1b[31m❌ Visual Regression Test FAILED\x1b[0m`);
