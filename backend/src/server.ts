@@ -5,16 +5,20 @@ import cors from 'cors'
 import path from 'path';
 import connectDB from './config/db'
 import ErrorHandler from './Middlewares/ErrorHandler'
+import AuthRoutes from './Routes/AuthRoutes';
 import TestRunRoutes from './Routes/TestRunRoutes'
 import ProjectRoutes from './Routes/ProjectRoutes';
+import billingRoutes from './Routes/BillingRoutes';
 const app = express()
 connectDB()
 app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({extended : false}))
+app.use('/api/billing', billingRoutes);
 app.use('/screenshots', express.static(path.join(__dirname, '../Public/screenshots')));
 app.use('/api/tests',TestRunRoutes)
 app.use('/api/projects',ProjectRoutes)
+app.use('/api/auth', AuthRoutes);
 
 app.use(ErrorHandler)
 app.listen(process.env.PORT,()=>{

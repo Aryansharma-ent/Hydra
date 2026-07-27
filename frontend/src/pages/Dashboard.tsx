@@ -1,8 +1,9 @@
 import axios from 'axios'
-import { Play, Loader2 } from 'lucide-react'
+// Change line 2 to:
+import { Play, Loader2, ArrowRight } from 'lucide-react'
 import { useState, useEffect } from "react"
 import { type TestRun, type Project } from "../types"
-import { useNavigate,useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import Sidebar from "@/components/Dashboard/SideBar"
 import TopBar from "@/components/Dashboard/TopBar"
 import SubBar from "@/components/Dashboard/SubBar"
@@ -25,23 +26,28 @@ export default function Dashboard() {
   const [saveAsDefault,setSaveAsDefault] = useState<boolean>(false);
 
 
-     const navigate = useNavigate()
+
 
 
 const fetchProjects = async () => {
   try {
-    const res = await fetch("http://localhost:8000/api/projects");
-    const json = await res.json();
-    if (json.success) {
-      setProjects(json.data);
-    }
+       const token = localStorage.getItem("hydra_token");
+    
+    const res = await axios.get("http://localhost:8000/api/projects", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (res.data.success) {
+      const projectList = res.data.data;
+      setProjects(projectList);
 
-    const urlProjectId = searchParams.get('projectId')
-    if(urlProjectId){
-      const matchedProject = json.data.find((p : Project) => p._id === urlProjectId  )
-      
-      if(matchedProject){
-        setSelectedProject(matchedProject)
+      const urlProjectId = searchParams.get('projectId')
+      if(urlProjectId){
+        const matchedProject = projectList.find((p : Project) => p._id === urlProjectId)
+        if(matchedProject){
+          setSelectedProject(matchedProject)
+        }
       }
     }
   } catch (error) {
@@ -53,13 +59,18 @@ const fetchProjects = async () => {
 
 
 const handleCreateProject = async(e : React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault() 
 
     try {
+      const token = localStorage.getItem("hydra_token");
       const res = await axios.post("http://localhost:8000/api/projects",{
         name,
         stagingUrl,
         productionUrl
+      },{
+          headers: {
+          Authorization: `Bearer ${token}`,
+        },
       })
 
       if(res.data.success){
@@ -90,12 +101,13 @@ const handleRunProject = async(e : React.FormEvent) => {
   if(saveAsDefault){
      try {
    
+      const token = localStorage.getItem("hydra_token");
       const res = await axios.put(`http://localhost:8000/api/projects/${selectedProject?._id}`,{
         stagingUrl,
         productionUrl
       },{
         headers : {
-           "x-api-key": selectedProject?.apikey
+           Authorization: `Bearer ${token}`
         }
       })
 
@@ -145,7 +157,12 @@ const handleRunProject = async(e : React.FormEvent) => {
 
  const fetchTestRun = async(projectId : string) => {
      try {
-      const res = await axios.get(`http://localhost:8000/api/projects/${projectId}/runs`)
+         const token = localStorage.getItem("hydra_token");
+      const res = await axios.get(`http://localhost:8000/api/projects/${projectId}/runs` ,{
+         headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      })
 
       if(res.data.success){
          setRun(res.data.data)
@@ -154,8 +171,6 @@ const handleRunProject = async(e : React.FormEvent) => {
        console.log("couldn't fetch the test runs")
      }
  }
-
-
 
 
 
@@ -208,10 +223,10 @@ useEffect(()=>{
           selectedProject = {selectedProject}
           onBackToProjects={()=> {
             setSelectedProject(null)
-            setSearchParams({});
+            setSearchParams('/dashboard');
           }}
            onNewProjectClick={() => setShowCreateProject(true)}
-          onNewRunClick={() => setShowRunTest(true)}
+          onNewRunClick={handleOpenRunModal}
         />  
 
         {/* 4. Main workspace layout */}
@@ -231,38 +246,72 @@ useEffect(()=>{
             </>
             ) : (
               <div className="flex flex-col gap-4">
-                <div className="flex justify-between items-center">
-                      <h2 className="text-sm font-mono font-bold uppercase tracking-wider text-muted-foreground/80">
-                      Projects ({projects.length})
-                      </h2>
+                {/* Header row */}
+                <div className="flex items-center justify-between">
+                  <h2 className="text-[11px] font-medium text-[#52525b] uppercase tracking-widest">Project Registry</h2>
+                  <span className="text-[10px] text-[#3f3f46] font-mono">{projects.length} projects</span>
                 </div>
-          
-              {projects.length == 0 ? (
-                <div className="bg-[#0c0c0e] border border-[#1f1f23] rounded-lg p-8 text-center text-xm text-muted-foreground">
-                        No projects found. Create one to get started!
-                </div>    
-              ):(
-                <div className="grid grid-col-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {projects.map((project)=>(
-                <div
-                key = {project._id}
-                onClick={() => {
-                  setSelectedProject(project)
-                   setSearchParams({ projectId: project._id });
-                }}
-                className="bg-[#0c0c0e] border border-[#1f1f23] hover:border-indigo-500/50 p-5 rounded-lg flex flex-col gap-3 cursor-pointer transition-all hover:translate-y-[-2px]"> 
-                      <h3 className="font-bold text-xs text-white font-mono">{project.name}</h3>
-                                    <div className="text-[11px] text-muted-foreground flex flex-col gap-1 font-mono">
-                       <div>Staging: {project.stagingUrl}</div>
-                       <div>Prod: {project.productionUrl}</div>
-                      </div>
 
-                 </div>                  
-              ))}
-              </div>
-              )
-            }
-        
+              {projects.length === 0 ? (
+                <div className="flex flex-col items-center justify-center gap-3 py-20 border border-dashed border-[#1f1f23] rounded-lg">
+                  <p className="text-[12px] text-[#52525b]">No projects yet. Create one to get started.</p>
+                </div>
+              ) : (
+                <div className="flex flex-col border border-[#1a1a1d] rounded-lg overflow-hidden">
+                  {/* Table header */}
+                  <div className="grid grid-cols-[2fr_1fr_1fr_auto] items-center px-4 py-2.5 border-b border-[#1a1a1d] bg-[#0a0a0b]">
+                    <span className="text-[10px] font-medium text-[#3f3f46] uppercase tracking-widest">Name</span>
+                    <span className="text-[10px] font-medium text-[#3f3f46] uppercase tracking-widest">Staging</span>
+                    <span className="text-[10px] font-medium text-[#3f3f46] uppercase tracking-widest">Production</span>
+                    <span className="text-[10px] font-medium text-[#3f3f46] uppercase tracking-widest">Status</span>
+                  </div>
+
+                  {/* Rows */}
+                  {projects.map((project, idx) => {
+                    const stagingDomain = project.stagingUrl.replace(/^https?:\/\/(www\.)?/, '');
+                    const prodDomain = project.productionUrl.replace(/^https?:\/\/(www\.)?/, '');
+
+                    return (
+                      <div
+                        key={project._id}
+                        onClick={() => {
+                          setSelectedProject(project)
+                          setSearchParams({ projectId: project._id });
+                        }}
+                        className={`grid grid-cols-[2fr_1fr_1fr_auto] items-center px-4 py-3.5 cursor-pointer hover:bg-[#0d0d0f] transition-colors duration-100 group ${
+                          idx !== projects.length - 1 ? 'border-b border-[#1a1a1d]' : ''
+                        }`}
+                      >
+                        {/* Name */}
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div className="w-1.5 h-1.5 rounded-full bg-[#3f3f46] group-hover:bg-emerald-500 transition-colors shrink-0" />
+                          <span className="text-[12px] font-medium text-[#d4d4d8] group-hover:text-white transition-colors truncate">
+                            {project.name}
+                          </span>
+                        </div>
+
+                        {/* Staging */}
+                        <span className="text-[11px] font-mono text-[#71717a] truncate pr-4" title={project.stagingUrl}>
+                          {stagingDomain}
+                        </span>
+
+                        {/* Production */}
+                        <span className="text-[11px] font-mono text-[#71717a] truncate pr-4" title={project.productionUrl}>
+                          {prodDomain}
+                        </span>
+
+                        {/* Status + arrow */}
+                        <div className="flex items-center gap-3">
+                          <span className="text-[9px] font-medium text-emerald-500 bg-emerald-500/8 border border-emerald-500/15 px-2 py-0.5 rounded-full tracking-wide">
+                            Active
+                          </span>
+                          <ArrowRight className="size-3 text-[#3f3f46] group-hover:text-[#71717a] group-hover:translate-x-0.5 transition-all duration-150 shrink-0" />
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
             </div>
             )
           }
@@ -275,71 +324,69 @@ useEffect(()=>{
 
 
 {showCreateProject && (
-  <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div className="bg-[#0c0c0e] border border-[#1f1f23] w-full max-w-md p-6 rounded-lg flex flex-col gap-5 shadow-2xl">
-      <div>
-        <h3 className="text-sm font-mono font-bold text-white uppercase tracking-wider">
-          Create New Project
-        </h3>
-        <p className="text-[11px] text-muted-foreground mt-1">
-          Register a website target to start visual regression testing.
-        </p>
+  <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div className="bg-[#0d0d0f] border border-[#1f1f23] w-full max-w-[420px] rounded-xl flex flex-col shadow-2xl overflow-hidden">
+
+      {/* Modal Header */}
+      <div className="px-6 py-5 border-b border-[#1a1a1d]">
+        <h3 className="text-[13px] font-semibold text-[#e4e4e7]">New Project</h3>
+        <p className="text-[11px] text-[#52525b] mt-0.5">Register a website to start visual regression testing.</p>
       </div>
 
-      <form onSubmit={handleCreateProject} className="flex flex-col gap-4">
-        <div>
-          <label className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60 mb-2 block">
-            Project Name
-          </label>
-          <input 
-            type="text" 
-            placeholder="e.g. Acme Web App" 
-            className="bg-[#121214] border border-[#1f1f23] rounded px-3 py-2 text-xs text-white placeholder-muted-foreground/20 focus:border-indigo-500/60 outline-none w-full font-mono"
+      <form onSubmit={handleCreateProject} className="flex flex-col gap-4 p-6">
+        <div className="flex flex-col gap-1.5">
+          <label className="text-[10px] font-medium text-[#71717a] uppercase tracking-widest">Project Name</label>
+          <input
+            type="text"
+            placeholder="e.g. Acme Web App"
+            className="bg-[#080809] border border-[#1f1f23] rounded-lg px-3 py-2.5 text-[12px] text-[#e4e4e7] placeholder-[#3f3f46] focus:border-[#3f3f46] outline-none w-full font-mono transition-colors"
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
           />
         </div>
 
-        <div>
-          <label className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60 mb-2 block">
-            Staging URL
-          </label>
-          <input 
-            type="url" 
-            placeholder="https://staging.acme.com" 
-            className="bg-[#121214] border border-[#1f1f23] rounded px-3 py-2 text-xs text-white placeholder-muted-foreground/20 focus:border-indigo-500/60 outline-none w-full font-mono"
-            value={stagingUrl}
-            onChange={(e) => setStagingUrl(e.target.value)}
-            required
-          />
+        <div className="flex flex-col gap-1.5">
+          <label className="text-[10px] font-medium text-[#71717a] uppercase tracking-widest">Staging URL</label>
+          <div className="relative">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 size-1.5 rounded-full bg-amber-400" />
+            <input
+              type="url"
+              placeholder="https://staging.acme.com"
+              className="bg-[#080809] border border-[#1f1f23] rounded-lg pl-7 pr-3 py-2.5 text-[12px] text-[#e4e4e7] placeholder-[#3f3f46] focus:border-[#3f3f46] outline-none w-full font-mono transition-colors"
+              value={stagingUrl}
+              onChange={(e) => setStagingUrl(e.target.value)}
+              required
+            />
+          </div>
         </div>
 
-        <div>
-          <label className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60 mb-2 block">
-            Production URL
-          </label>
-          <input 
-            type="url" 
-            placeholder="https://acme.com" 
-            className="bg-[#121214] border border-[#1f1f23] rounded px-3 py-2 text-xs text-white placeholder-muted-foreground/20 focus:border-indigo-500/60 outline-none w-full font-mono"
-            value={productionUrl}
-            onChange={(e) => setProductionUrl(e.target.value)}
-            required
-          />
+        <div className="flex flex-col gap-1.5">
+          <label className="text-[10px] font-medium text-[#71717a] uppercase tracking-widest">Production URL</label>
+          <div className="relative">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 size-1.5 rounded-full bg-emerald-400" />
+            <input
+              type="url"
+              placeholder="https://acme.com"
+              className="bg-[#080809] border border-[#1f1f23] rounded-lg pl-7 pr-3 py-2.5 text-[12px] text-[#e4e4e7] placeholder-[#3f3f46] focus:border-[#3f3f46] outline-none w-full font-mono transition-colors"
+              value={productionUrl}
+              onChange={(e) => setProductionUrl(e.target.value)}
+              required
+            />
+          </div>
         </div>
 
-        <div className="flex justify-end gap-3 mt-2 border-t border-[#1f1f23]/40 pt-4">
-          <button 
-            type="button" 
+        <div className="flex justify-end gap-2 pt-2 border-t border-[#1a1a1d]">
+          <button
+            type="button"
             onClick={() => setShowCreateProject(false)}
-            className="px-4 py-2 text-xs font-semibold text-muted-foreground hover:text-white bg-transparent border border-[#1f1f23] rounded transition-colors cursor-pointer"
+            className="px-4 py-2 text-[11px] font-medium text-[#71717a] hover:text-[#a1a1aa] bg-transparent border border-[#1f1f23] hover:border-[#2e2e32] rounded-lg transition-all cursor-pointer"
           >
             Cancel
           </button>
-          <button 
-            type="submit" 
-            className="px-4 py-2 text-xs font-semibold text-white bg-indigo-650 hover:bg-indigo-700 border border-indigo-500 rounded transition-colors cursor-pointer"
+          <button
+            type="submit"
+            className="px-4 py-2 text-[11px] font-medium text-white bg-violet-600 hover:bg-violet-500 rounded-lg transition-all cursor-pointer"
           >
             Create Project
           </button>
@@ -357,76 +404,77 @@ useEffect(()=>{
 
 
 {showRunTest && (
-  <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div className="bg-[#0c0c0e] border border-[#1f1f23] w-full max-w-md p-6 rounded-lg flex flex-col gap-5 shadow-2xl">
-      <div>
-        <h3 className="text-sm font-mono font-bold text-white uppercase tracking-wider">
-          Run new Test case
-        </h3>
-        <p className="text-[11px] text-muted-foreground mt-1">
+  <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div className="bg-[#0d0d0f] border border-[#1f1f23] w-full max-w-[420px] rounded-xl flex flex-col shadow-2xl overflow-hidden">
 
+      {/* Modal Header */}
+      <div className="px-6 py-5 border-b border-[#1a1a1d]">
+        <h3 className="text-[13px] font-semibold text-[#e4e4e7]">Run Visual Scan</h3>
+        <p className="text-[11px] text-[#52525b] mt-0.5">
+          Capture and compare staging vs production screenshots.
         </p>
       </div>
 
-      <form onSubmit = {handleRunProject} className="flex flex-col gap-4">
-     
-        <div>
-          <label className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60 mb-2 block">
-            Staging URL
-          </label>
-          <input 
-            type="url" 
-            placeholder="https://staging.acme.com" 
-            className="bg-[#121214] border border-[#1f1f23] rounded px-3 py-2 text-xs text-white placeholder-muted-foreground/20 focus:border-indigo-500/60 outline-none w-full font-mono"
-            value={stagingUrl}
-            onChange={(e) => setStagingUrl(e.target.value)}
-            required
-          />
+      <form onSubmit={handleRunProject} className="flex flex-col gap-4 p-6">
+        <div className="flex flex-col gap-1.5">
+          <label className="text-[10px] font-medium text-[#71717a] uppercase tracking-widest">Staging URL</label>
+          <div className="relative">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 size-1.5 rounded-full bg-amber-400" />
+            <input
+              type="url"
+              placeholder="https://staging.acme.com"
+              className="bg-[#080809] border border-[#1f1f23] rounded-lg pl-7 pr-3 py-2.5 text-[12px] text-[#e4e4e7] placeholder-[#3f3f46] focus:border-[#3f3f46] outline-none w-full font-mono transition-colors"
+              value={stagingUrl}
+              onChange={(e) => setStagingUrl(e.target.value)}
+              required
+            />
+          </div>
         </div>
 
-        <div>
-          <label className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60 mb-2 block">
-            Production URL
-          </label>
-          <input 
-            type="url" 
-            placeholder="https://acme.com" 
-            className="bg-[#121214] border border-[#1f1f23] rounded px-3 py-2 text-xs text-white placeholder-muted-foreground/20 focus:border-indigo-500/60 outline-none w-full font-mono"
-            value={productionUrl}
-            onChange={(e) => setProductionUrl(e.target.value)}
-            required
-          />
-        </div>
-        <div className='text-xs text-gray-300 '>
-          <input type="checkbox" 
-           checked = {saveAsDefault}
-          onChange={(e)=> setSaveAsDefault(e.target.checked) } /> Save as Default Project URL's
+        <div className="flex flex-col gap-1.5">
+          <label className="text-[10px] font-medium text-[#71717a] uppercase tracking-widest">Production URL</label>
+          <div className="relative">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 size-1.5 rounded-full bg-emerald-400" />
+            <input
+              type="url"
+              placeholder="https://acme.com"
+              className="bg-[#080809] border border-[#1f1f23] rounded-lg pl-7 pr-3 py-2.5 text-[12px] text-[#e4e4e7] placeholder-[#3f3f46] focus:border-[#3f3f46] outline-none w-full font-mono transition-colors"
+              value={productionUrl}
+              onChange={(e) => setProductionUrl(e.target.value)}
+              required
+            />
+          </div>
         </div>
 
-        <div className="flex justify-end gap-3 mt-2 border-t border-[#1f1f23]/40 pt-2 ">
-          <button 
-            type="button" 
+        <label className="flex items-center gap-2.5 cursor-pointer group">
+          <input
+            type="checkbox"
+            checked={saveAsDefault}
+            onChange={(e) => setSaveAsDefault(e.target.checked)}
+            className="w-3.5 h-3.5 rounded border border-[#2e2e32] bg-[#080809] accent-violet-600 cursor-pointer"
+          />
+          <span className="text-[11px] text-[#71717a] group-hover:text-[#a1a1aa] transition-colors">Save as default URLs for this project</span>
+        </label>
+
+        <div className="flex justify-end gap-2 pt-2 border-t border-[#1a1a1d]">
+          <button
+            type="button"
             disabled={isTesting}
             onClick={() => setShowRunTest(false)}
-            className="px-9 py-1 text-xs font-semibold text-muted-foreground hover:text-white bg-transparent border border-[#1f1f23] rounded transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 text-[11px] font-medium text-[#71717a] hover:text-[#a1a1aa] bg-transparent border border-[#1f1f23] hover:border-[#2e2e32] rounded-lg transition-all cursor-pointer disabled:opacity-40"
           >
             Cancel
           </button>
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             disabled={isTesting}
-            className="px-9 py-1 text-xs flex justify-center items-center gap-2 font-semibold text-white bg-indigo-650 hover:bg-indigo-700 border border-indigo-500 rounded transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-5 py-2 text-[11px] font-medium text-white bg-violet-600 hover:bg-violet-500 rounded-lg transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
           >
-           {isTesting ? (
-             <>
-               <Loader2 className="w-4 h-4 animate-spin" />
-               Scanning...
-             </>
-           ) : (
-             <>
-               <Play className='w-5'/> Run 
-             </>
-           )}
+            {isTesting ? (
+              <><Loader2 className="size-3.5 animate-spin" /> Scanning…</>
+            ) : (
+              <><Play className="size-3.5" /> Run Scan</>
+            )}
           </button>
         </div>
       </form>

@@ -1,0 +1,118 @@
+===============================================================================
+ HYDRA AI — ARCHITECTURAL & SYSTEM DESIGN QUESTIONS REFERENCE
+ Personal Study Guide & Technical Interview Cheat Sheet
+===============================================================================
+
+-------------------------------------------------------------------------------
+Q1: What if the Auto-Healing Subagent fails or produces an incorrect fix?
+-------------------------------------------------------------------------------
+Answer:
+We built three explicit fail-safes to handle cases where the AI makes a mistake:
+
+1. The Max-Attempt Cap (Loop Protection):
+   The subagent is hard-capped at 3 retry attempts. If the diff percentage doesn't reach 0%, the agent stops, reverts the workspace to the original Git commit (`git checkout .`), and exits with code 1 so it never gets stuck in an infinite build loop.
+
+2. Branch Isolation Strategy (Safe Pull Requests):
+   The agent never pushes directly to the `main` or `master` branch. It creates and commits its fix to a candidate branch (`hydra-fix/layout-regressions`). The human developer still reviews the PR before it gets merged.
+
+3. Automated Re-Verification Scan:
+   After applying a patch to the local file, the subagent re-runs the visual screenshot capture engine to calculate the new pixel-diff percentage. If the patch made the layout worse, the agent discards that patch immediately.
+
+
+-------------------------------------------------------------------------------
+Q2: Does the localtunnel helper cover all cases (localhost, hosted URLs, and defaults)?
+-------------------------------------------------------------------------------
+Answer:
+Yes, it covers all 3 cases seamlessly:
+
+- Case 1 (Localhost URL): If stagingUrl is `http://localhost:3000` or `http://127.0.0.1:5173`, it spawns a temporary public tunnel (e.g., `https://temp-xyz.localtunnel.me`) so our cloud Puppeteer engine can reach local dev servers.
+- Case 2 (Hosted URL): If stagingUrl is `https://my-staging.vercel.app`, the `hostname === 'localhost'` check evaluates to false, skipping localtunnel and using the live URL directly.
+- Case 3 (Default URLs): If no stagingUrl is passed, it returns `undefined`, allowing the backend to use the project's saved default URLs in MongoDB.
+
+
+-------------------------------------------------------------------------------
+Q3: Why create an NPM package (`@hydra-ai/cli`) instead of just keeping `spectre-cli.js`?
+-------------------------------------------------------------------------------
+Answer:
+Without an NPM package, external developers or CI/CD pipelines would have to manually copy-paste `spectre-cli.js` into every repository root.
+With `@hydra-ai/cli` published to NPM, any developer or GitHub Actions runner can execute a scan in a single line:
+`npx @hydra-ai/cli --project <ID> --key <KEY>`
+It provides zero-setup execution and instant version updates.
+
+
+-------------------------------------------------------------------------------
+Q4: Why search component files (`.tsx`/`.jsx`) when using Tailwind CSS?
+-------------------------------------------------------------------------------
+Answer:
+In Tailwind CSS, utility classes live directly inside React component files (`.tsx` and `.jsx`) rather than separate `.css` files.
+Searching `.tsx` and `.jsx` files allows the Auto-Healing agent to locate the exact React component that renders the element, and perform Option B (Tailwind Class Swapping), changing classes like `ml-4` to `ml-2` directly inside the JSX without clogging `index.css` with arbitrary CSS overrides.
+
+
+-------------------------------------------------------------------------------
+Q5: Why do we need branch protection in the subagent and GitHub Actions YAML?
+-------------------------------------------------------------------------------
+Answer:
+Pushing unverified AI code directly to `main` can break production deployments.
+By setting `permissions: contents: write` and `fetch-depth: 0` in the GitHub Actions YAML, the runner receives permission to create and push a dedicated candidate branch (`hydra-fix/layout-regressions`). This opens a safe Pull Request for human code review.
+
+
+-------------------------------------------------------------------------------
+Q6: What if a user's Pro subscription expires, but they keep the Pro YAML file in their repo?
+-------------------------------------------------------------------------------
+Answer:
+The server is the single source of truth.
+When `spectre-cli.js` triggers a scan, our backend inspects `project.tier` in MongoDB in real time. If the subscription is expired, the backend returns `isPro: false`. The CLI reads `isPro === false`, prints an upgrade prompt, and exits without ever launching the Auto-Healing agent—regardless of what YAML file exists in the repo.
+
+
+-------------------------------------------------------------------------------
+Q7: How does JWT Authorization work across protected frontend endpoints?
+-------------------------------------------------------------------------------
+Answer:
+Backend routes are guarded by JWT `protect` middleware which verifies `req.headers.authorization`.
+On login/signup, the frontend saves the JWT to `localStorage.getItem("hydra_token")`. Every Axios call to protected endpoints (`/api/projects`, `/api/tests/run/:id/rerun`, `/api/tests/run/:id/chat`) includes `headers: { Authorization: "Bearer " + token }` to prevent 401 Unauthorized errors.
+
+
+-------------------------------------------------------------------------------
+Q8: Why make the GitHub Actions YAML dynamic in Settings?
+-------------------------------------------------------------------------------
+Answer:
+- Free Users: Get a clean, lightweight YAML without extra write permissions or Gemini API key requirements.
+- Pro Users: Get a full Pro YAML with `permissions: contents: write`, `fetch-depth: 0`, and `GEMINI_API_KEY` configured for automated code healing in CI.
+
+
+-------------------------------------------------------------------------------
+Q9: How do we prevent logged-out users from seeing empty dashboards when using the browser back button or leaking URL query params?
+-------------------------------------------------------------------------------
+Answer:
+1. ProtectedRoute Guard: We wrap all workspace routes (`/dashboard`, `/runs/:id`, `/settings`) inside a `<ProtectedRoute>` React Router component that checks `localStorage.getItem("hydra_token")`. If no token exists, it immediately redirects the user to `/login`.
+2. History Stack Replacement: On logout, we use `navigate("/login", { replace: true })` to replace the dashboard history entry so pressing the browser Back button cannot return to a dashboard URL.
+3. Clean Query Params: On LandingPage mount, we use `window.history.replaceState({}, document.title, window.location.pathname)` to clean any query strings like `?projectId=...` from the address bar.
+
+
+-------------------------------------------------------------------------------
+Q10: How does Backend RAM Caching (`node-cache`) work vs. Redis?
+-------------------------------------------------------------------------------
+Answer:
+- `node-cache`: Stores data directly inside the Node.js process RAM. It's lightning-fast (0.01ms) and ideal for single-server deployments without extra infrastructure overhead.
+- Redis: A dedicated distributed RAM database server used when scaling horizontally across multiple cloud instances behind a load balancer so all server instances share the exact same cached API keys and session states.
+- Invalidation Strategy: We set a 120-second TTL for API keys, and run explicit cache eviction (`cache.del("apikey_" + key)`) whenever a user rotates their key or upgrades their subscription.
+
+
+-------------------------------------------------------------------------------
+Q11: If we cache API keys, how is "the rest of the car" (TestRun status updates) handled at scale?
+-------------------------------------------------------------------------------
+Answer:
+- While `RUNNING`: Status requests use a short 1-second TTL cache to prevent database hammering during CLI polling ticks.
+- Once Finished (`PASSED` | `FAILED`): Completed test reports NEVER change again, so their final payload is cached permanently in RAM (0.1ms load times).
+- WebSockets Upgrade: To eliminate polling entirely, the server can open a WebSocket connection and push the finished event directly to the CLI: `socket.emit('test_complete', data)`.
+
+
+-------------------------------------------------------------------------------
+Q12: How do CDN & Cloud Object Storage (AWS S3 / Cloudflare R2) deliver screenshot images without overloading our server?
+-------------------------------------------------------------------------------
+Answer:
+1. Direct Upload: Puppeteer streams PNG buffers directly to Cloudflare R2 / AWS S3 object storage buckets without saving files to local server disk.
+2. Global Edge Caching: Cloudflare CDN sits in front of the bucket and caches screenshots across 300+ edge data centers worldwide.
+3. Zero-Load Delivery: Screenshots load in 10ms globally from the user's nearest CDN node with 0% CPU/bandwidth load on our Node.js app server.
+4. Generous Free Tier: Cloudflare R2 offers 10 GB storage and $0 egress fees 100% FREE forever.
+===============================================================================

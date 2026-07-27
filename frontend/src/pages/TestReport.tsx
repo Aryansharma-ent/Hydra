@@ -30,7 +30,7 @@ export default function TestReport() {
           const data = res.data.data
           setRundata(data)
           
-          // Seed initial Spectre Copilot message summarizing regressions
+          // Seed initial Hydra Copilot message summarizing regressions
           if (data.visualBugs && data.visualBugs.length > 0) {
             const bugList = data.visualBugs.map((b: any, index: number) => 
               `${index + 1}. \`${b.element}\`: ${b.description}`
@@ -63,7 +63,16 @@ export default function TestReport() {
       if( !runId || isRerunning) return 
       setIsRerunning(true)
         try {
-          const res = await axios.post(`http://localhost:8000/api/tests/run/${runId}/rerun`);
+          const token = localStorage.getItem("hydra_token");
+          const res = await axios.post(
+            `http://localhost:8000/api/tests/run/${runId}/rerun`,
+            {},
+            {
+              headers: {
+                Authorization: `Bearer ${token}`
+              }
+            }
+          );
 
               if (res.data.success) {
       // Updating state to RUNNING so it immediately triggers the loading screen and polling
@@ -119,7 +128,7 @@ export default function TestReport() {
           <div className="flex-1 flex items-center justify-center bg-black/10 font-mono text-xs text-indigo-400">
      <div className="flex flex-col items-center gap-3">
        <RefreshCw className="size-6 animate-spin text-indigo-500" />
-       <span>Spectre is capturing screenshots & running pixel-level comparisons...</span>
+       <span>Hydra AI is capturing screenshots & running pixel-level comparisons...</span>
      </div>
        </div>  
         ) : !runData ? (
@@ -142,7 +151,7 @@ export default function TestReport() {
            runData = {runData}
           />
 
-          {/* Right Area: Ask Spectre Chat Assistant */}
+          {/* Right Area: Hydra Copilot Chat Assistant */}
           <ChatSidebar
           runData={runData} 
           chatMessages={chatMessages} 

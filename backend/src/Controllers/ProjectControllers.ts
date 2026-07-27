@@ -1,12 +1,14 @@
 import TestRun from "../models/TestRun";
 import Project from "../models/Project";
+import User from "../models/User";
 import { Request,Response } from "express";
 import AsyncHandler from 'express-async-handler'
 import { GoogleGenerativeAI} from "@google/generative-ai";
 import crypto from "crypto";
 
 export const getProjects = AsyncHandler(async(req : Request,res : Response) : Promise<void> => {
-    const projects = await Project.find().sort({createdAt : -1})
+    const userId = (req as any).user._id;
+const projects = await Project.find({ owner: userId }).sort({ createdAt: -1 });
 
      res.status(200).json({
         success : true,
@@ -26,12 +28,14 @@ export const createProject = AsyncHandler(async(req : Request,res : Response) : 
      
        const apikey = crypto.randomBytes(24).toString("hex");
 
-    const project = await Project.create({
-        name,
-        stagingUrl,
-        productionUrl,
-        apikey 
-    })
+  const userId = (req as any).user._id;
+const project = await Project.create({
+    name,
+    stagingUrl,
+    productionUrl,
+    apikey,
+    owner: userId
+});
 
     res.status(201).json({
         success : true,
@@ -102,16 +106,22 @@ export const getTestRunById = AsyncHandler(async(req : Request,res : Response) :
         throw new Error("Test run not Found")
       }
 
+      const project = await Project.findById(Testrun.projectId);
+      const owner = project ? await User.findById(project.owner) : null;
+
       res.status(200).json({
         success : true,
-        data : Testrun
+        data : {
+          ...Testrun.toObject(),
+          isPro: owner?.tier === 'PRO'
+        }
       })
 })
 
 
 
 
-export const askSpectreChat = AsyncHandler(async (req: Request, res: Response): Promise<void> => {
+export const askHydraChat = AsyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { runId } = req.params;
     const { message, history } = req.body; // Extract user message & history from body
 
@@ -136,7 +146,7 @@ export const askSpectreChat = AsyncHandler(async (req: Request, res: Response): 
     const genAI = new GoogleGenerativeAI(api);  
         // 1.systemInstruction 
     const systemInstruction = `
-You are Spectre AI, an expert frontend CSS and layout debugging assistant.
+You are Hydra, an expert frontend CSS and layout debugging assistant.
 The user is viewing a visual regression test run report for their web application and wants to discuss the visual bugs found.
 
 Here is the context of the test run:

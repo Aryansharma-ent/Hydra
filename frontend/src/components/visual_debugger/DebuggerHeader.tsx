@@ -1,38 +1,62 @@
-import { Settings, HelpCircle, ChevronRight, LayoutGrid } from "lucide-react"
-import { Link, useLocation } from "react-router-dom"
+import { ChevronRight, LayoutGrid, Settings, GitBranch } from "lucide-react"
+import { Link, useLocation, useParams } from "react-router-dom"
 
 export default function DebuggerHeader() {
   const location = useLocation()
+  const { runId } = useParams<{ runId: string }>()
 
-  // Grab the project context from query params if available
   const searchParams = new URLSearchParams(location.search)
   const projectId = searchParams.get("projectId")
 
+  // Format run ID for display
+  const shortRunId = runId ? runId.substring(0, 12) + "…" : "—"
+
   return (
-    <header className="h-14 border-b border-[#1f1f23] flex items-center justify-between px-6 bg-[#09090b] shrink-0 select-none">
-      
-      {/* Premium Breadcrumb trail */}
-      <div className="flex items-center gap-2 font-mono text-[11px] font-medium tracking-wide">
-        <Link to="/" className="text-muted-foreground hover:text-indigo-400 transition-colors flex items-center gap-1.5">
-          <LayoutGrid className="size-3 text-indigo-400" />
-          Projects
+    <header className="h-11 border-b border-[#1f1f23] flex items-center justify-between px-5 bg-[#0a0a0b] shrink-0 select-none">
+
+      {/* Left: Breadcrumbs */}
+      <div className="flex items-center gap-1.5 text-[11px] text-[#525252]">
+        <Link
+          to="/dashboard"
+          className="flex items-center gap-1.5 hover:text-[#a1a1aa] transition-colors duration-150"
+        >
+          <LayoutGrid className="size-3" />
+          <span>Projects</span>
         </Link>
-        <ChevronRight className="size-3 text-muted-foreground/30" />
-        <Link to={projectId ? `/?projectId=${projectId}` : "/"} className="text-muted-foreground hover:text-indigo-400 transition-colors uppercase">
-          Active Workspace
+
+        <ChevronRight className="size-3 text-[#2e2e32]" />
+
+        <Link
+          to={projectId ? `/dashboard/?projectId=${projectId}` : "/dashboard"}
+          className="hover:text-[#a1a1aa] transition-colors duration-150 flex items-center gap-1.5"
+        >
+          <GitBranch className="size-3" />
+          <span>Active Workspace</span>
         </Link>
-        <ChevronRight className="size-3 text-muted-foreground/30" />
-        <span className="text-white font-semibold">
-          Visual Debugger
-        </span>
+
+        <ChevronRight className="size-3 text-[#2e2e32]" />
+
+        <span className="text-[#a1a1aa] font-medium">Visual Debugger</span>
+
+        {runId && (
+          <>
+            <ChevronRight className="size-3 text-[#2e2e32]" />
+            <span className="text-[#71717a] font-mono">{shortRunId}</span>
+          </>
+        )}
       </div>
 
-      {/* Right Controls */}
-      <div className="flex items-center gap-4">
-        <Link to={projectId ? `/projects/${projectId}/settings` : "/settings"} className="text-muted-foreground hover:text-white transition-colors">
-          <Settings className="size-4" />
+      {/* Right: Actions */}
+      <div className="flex items-center gap-3">
+        <Link
+          to={projectId ? `/projects/${projectId}/settings` : "/dashboard"}
+          className="p-1.5 text-[#525252] hover:text-[#a1a1aa] hover:bg-[#141416] rounded transition-all duration-150"
+        >
+          <Settings className="size-3.5" />
         </Link>
-        <div className="w-6 h-6 rounded-full bg-indigo-950 border border-indigo-500/30 flex items-center justify-center text-[10px] font-bold text-indigo-400 shrink-0">
+
+        {/* Avatar */}
+        <div className="w-6 h-6 rounded-full bg-gradient-to-br from-violet-600 to-indigo-700 flex items-center justify-center text-[9px] font-bold text-white tracking-wide shrink-0 ring-1 ring-white/10">
           A
         </div>
       </div>

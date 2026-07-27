@@ -1,11 +1,13 @@
-import { Document, Schema,model } from "mongoose";
+import { Document, Schema, model } from "mongoose";
 
-interface IProject extends Document {
+export interface IProject extends Document {
     name: string;
     stagingUrl: string;
     productionUrl: string;
     createdAt: Date;
-    apikey? : string
+    apikey?: string;
+    owner: Schema.Types.ObjectId;
+    tier: 'FREE' | 'PRO';       
 }
 
 const ProjectModel = new Schema<IProject>({
@@ -17,23 +19,31 @@ const ProjectModel = new Schema<IProject>({
     stagingUrl: {
         type: String,
         required: [true,"Staging URL is required"],
-        trim : true
+        trim: true
     },
     productionUrl: {
         type: String,
         required: [true,"Production URL is required"],
-        trim : true
+        trim: true
     },
-
-    createdAt : {
-        type : Date,
-        default : Date.now
+    createdAt: {
+        type: Date,
+        default: Date.now
     },
-    apikey : {
-        type : String,
-        trim : true,
+    apikey: {
+        type: String,
+        trim: true,
+    },
+    owner: {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+        required: true,
+    },
+    tier: {
+        type: String,
+        enum: ["FREE", "PRO"],
+        default: "FREE",
     }
 });
 
-
-export default model<IProject>('Project',ProjectModel) ;
+export default model<IProject>('Project', ProjectModel);

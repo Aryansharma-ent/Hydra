@@ -8,6 +8,7 @@ import fs from 'fs'
 import path from "path";
 import Project from "../models/Project";
 import { genAiFixSuggestion } from "../services/consultant";
+import User from "../models/User";
 
 
 /* @desc : POST request to send StagingURL and ProductionURL to the server
@@ -126,7 +127,7 @@ const runBackgroundCapture = async (
         throw new Error("Missing stagingUrl or productionUrl. Please supply both in the request body.")
      }
 
-      console.log(` Spectre AI: Dispatched visual comparison scan...`);
+      console.log(` Hydra AI: Dispatched visual comparison scan...`);
       console.log(`   Staging:    ${stagingUrl}`);
       console.log(`   Production: ${productionUrl}`);
      
@@ -141,6 +142,7 @@ const runBackgroundCapture = async (
       productionUrl
     });
   }
+  const owner = await User.findById(project.owner);
   // 2. Generate random testrunid for file naming
   const testRunId = `run_${Math.random().toString(36).substring(2, 11)}`;
   const stagingFilename = `${testRunId}_staging.png`;
@@ -162,11 +164,14 @@ const runBackgroundCapture = async (
   });
   // 4. Return instant 200 response so frontend displays the pulsing 'RUNNING' card immediately
  
-   res.status(200).json({
-     success: true,
-     message: "Visual regression comparison completed successfully",
-     data: testRun
-   });
+res.status(200).json({
+  success: true,
+  message: "Visual regression comparison completed successfully",
+  data: {
+    ...testRun.toObject(),
+    isPro: owner?.tier === 'PRO',
+  }
+});
 
 
      runBackgroundCapture(

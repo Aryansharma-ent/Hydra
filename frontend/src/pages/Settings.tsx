@@ -1,9 +1,9 @@
 import Sidebar from "@/components/Dashboard/SideBar"
 import TopBar from "@/components/Dashboard/TopBar"
-import { Copy, Key, Terminal, AlertTriangle, Check, Loader2 } from "lucide-react"
+import { Copy, Key, Terminal, AlertTriangle, Check, Loader2, Eye, EyeOff, ShieldCheck, GitBranch, ChevronDown } from "lucide-react"
 import axios from 'axios'
 import { useEffect, useState } from "react"
-import { type TestRun, type Project } from "../types"
+import { type Project } from "../types"
 
 export default function Settings() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -11,42 +11,46 @@ export default function Settings() {
   const [copiedKey, selectCopiedKey] = useState<boolean>(false)
   const [copiedYaml, selectCopiedYaml] = useState<boolean>(false)
   const [generating, setGenerating] = useState<boolean>(false)
-  const [loading, setLoading] = useState<boolean>(false)
-
-
+  const [keyVisible, setKeyVisible] = useState<boolean>(false)
 
   useEffect(() => {
     const getProjects = async () => {
-      setLoading(true)
       try {
-        const res = await axios.get("http://localhost:8000/api/projects")
-
+        const token = localStorage.getItem("hydra_token");
+        const res = await axios.get("http://localhost:8000/api/projects", {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        })
         if (res.data.success) {
           setProjects(res.data.data)
           setSelectedProject(res.data.data[0])
         }
       } catch (error) {
-        console.log("Error fetching the projects")
-      } finally {
-        setLoading(false)
+        console.log("Error fetching the projects", error)
       }
     }
-
-
     getProjects()
   }, [])
 
   let newKey = selectedProject?.apikey
   const handleGenerateKey = async () => {
+    if (!selectedProject) return;
     setGenerating(true)
     try {
-      const res = await axios.post(`http://localhost:8000/api/projects/${selectedProject?._id}/generate-key`)
-
+      const token = localStorage.getItem("hydra_token");
+      const res = await axios.post(
+        `http://localhost:8000/api/projects/${selectedProject._id}/generate-key`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      )
       if (res.data.success) {
         newKey = res.data.data
       }
-
-
       setProjects(prevProjects =>
         prevProjects.map(proj =>
           proj._id === selectedProject?._id
@@ -54,10 +58,9 @@ export default function Settings() {
             : proj
         )
       );
-
-     setSelectedProject(prev => prev ? { ...prev, apikey: newKey } : null);
+      setSelectedProject(prev => prev ? { ...prev, apikey: newKey } : null);
     } catch (error) {
-      console.log("error fetching the api key geenrated")
+      console.log("error fetching the api key generated", error)
     } finally {
       setGenerating(false)
     }
@@ -70,20 +73,53 @@ export default function Settings() {
     setTimeout(() => selectCopiedKey(false), 2000);
   };
 
-
   const copyYaml = () => {
     navigator.clipboard.writeText(githubActionsYaml);
     selectCopiedYaml(true);
     setTimeout(() => selectCopiedYaml(false), 2000);
   };
 
+  // Mask the key — show first 8 + dots + last 4
+  const maskedKey = (key: string) => {
+    if (key.length <= 12) return '•'.repeat(key.length)
+    return key.substring(0, 8) + '••••••••••••••••••••' + key.slice(-4)
+  }
 
+  const isPro = selectedProject?.tier === 'PRO';
 
-  // Mock states for visual preview (We will connect these to real hooks next!)
+  const githubActionsYaml = isPro
+    ? `name: Hydra Visual Regression Checks
 
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main ]
 
-  // Mock YAML workflow config script
-  const githubActionsYaml = `name: Spectre AI Visual Regression Checks
+# Grant write permissions so the Auto-Healing Subagent can push candidate fix branches
+permissions:
+  contents: write
+
+jobs:
+  visual-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Run Hydra Visual Scan & Auto-Healer
+        run: node spectre-cli.js --project ${selectedProject?._id || "<PROJECT_ID>"} --key \${{ secrets.HYDRA_API_KEY }}
+        env:
+          GEMINI_API_KEY: \${{ secrets.GEMINI_API_KEY }}
+`
+    : `name: Hydra Visual Regression Checks
 
 on:
   push:
@@ -103,152 +139,239 @@ jobs:
         with:
           node-version: 20
 
-      - name: Run Spectre AI Visual Scan
-        run: node spectre-cli.js --project ${selectedProject?._id || "<PROJECT_ID>"} --key \${{ secrets.SPECTRE_API_KEY }}
+      - name: Run Hydra Visual Scan
+        run: node spectre-cli.js --project ${selectedProject?._id || "<PROJECT_ID>"} --key \${{ secrets.HYDRA_API_KEY }}
 `;
 
   return (
     <div className="flex h-screen w-screen bg-[#09090b] text-[#c9d1d9] overflow-hidden font-sans select-none antialiased">
-      {/* 1. Left Sidebar Navigation */}
       <Sidebar />
 
-      {/* Main Panel Area */}
       <div className="flex-1 flex flex-col min-w-0">
-
-        {/* 2. Top Header Controls */}
         <TopBar />
 
-        {/* 3. Main Workspace Area */}
-        <main className="flex-1 p-8 overflow-y-auto flex flex-col gap-6 max-w-5xl mx-auto w-full">
+        <main className="flex-1 overflow-y-auto">
+          <div className="max-w-4xl mx-auto px-8 py-8 flex flex-col gap-8">
 
-          {/* Header Info */}
-          <div>
-            <h1 className="text-xl font-mono font-bold text-white uppercase tracking-wider">
-              Developer Settings
-            </h1>
-            <p className="text-xs text-muted-foreground mt-1">
-              Configure automated test triggers, manage project credentials, and integrate with CI/CD systems.
-            </p>
-          </div>
+            {/* ── Page Header ─────────────────────────────────────────── */}
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center gap-2.5">
+                <ShieldCheck className="size-4 text-[#71717a]" />
+                <h1 className="text-sm font-semibold text-[#e4e4e7] tracking-tight">Developer Settings</h1>
+              </div>
+              <p className="text-[11px] text-[#52525b] ml-6.5">
+                Manage API credentials and CI/CD pipeline configuration for this workspace.
+              </p>
+            </div>
 
-          <hr className="border-[#1f1f23]/60" />
+            {/* ── Project selector ────────────────────────────────────── */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[10px] font-medium text-[#71717a] uppercase tracking-widest">
+                Project
+              </label>
+              <div className="relative w-full max-w-sm">
+                <GitBranch className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-[#52525b] pointer-events-none" />
+                <select
+                  className="w-full bg-[#0d0d0f] border border-[#1f1f23] text-[12px] text-[#d4d4d8] rounded-md pl-8 pr-8 py-2 outline-none focus:border-[#3f3f46] transition-colors font-mono appearance-none cursor-pointer"
+                  value={selectedProject?._id || ""}
+                  onChange={(e) => {
+                    const matched = projects.find(p => p._id === e.target.value);
+                    if (matched) setSelectedProject(matched);
+                  }}
+                >
+                  {projects.map(p => (
+                    <option key={p._id} value={p._id}>{p.name}</option>
+                  ))}
+                </select>
+                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 size-3.5 text-[#52525b] pointer-events-none" />
+              </div>
+            </div>
 
-          {/* Project Selection Dropdown */}
-          <div className="bg-[#0c0c0e] border border-[#1f1f23] rounded-lg p-5 flex flex-col gap-3">
-            <label className="text-[10px] font-bold uppercase tracking-widest text-indigo-400 font-mono">
-              Select Project Configuration
-            </label>
-            <select className="bg-[#121214] border border-[#1f1f23] text-xs text-white rounded px-3 py-2.5 outline-none focus:border-indigo-500/60 font-mono w-full max-w-md cursor-pointer"
-               value={selectedProject?._id || ""} 
-              onChange={(e) => {
-                const matched = projects.find(p => p._id === e.target.value);
-                if (matched) setSelectedProject(matched);
-              }}>
-              {projects.map(p => (
-                <option key={p._id} value={p._id}>
-                  {p.name}
-                </option>
-              ))}
-            </select>
-          </div>
+            {/* ── Divider ─────────────────────────────────────────────── */}
+            <div className="border-t border-[#1a1a1d]" />
 
-          {/* Settings Grid Layout */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* ── Two column grid ─────────────────────────────────────── */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
 
-            {/* Column 1: API Key Management */}
-            <section className="bg-[#0c0c0e] border border-[#1f1f23] rounded-lg p-6 flex flex-col gap-5">
-              <div className="flex items-center gap-2">
-                <Key className="size-4 text-indigo-400" />
-                <h2 className="text-xs font-mono font-bold text-white uppercase tracking-wider">
-                  Secret API Key
-                </h2>
+              {/* ─── API Key Card ──────────────────────────────────────── */}
+              <div className="rounded-xl border border-[#1a1a1d] bg-[#0d0d0f] flex flex-col overflow-hidden">
+
+                {/* Card header */}
+                <div className="px-5 py-4 border-b border-[#1a1a1d] flex items-center gap-2.5">
+                  <div className="w-5 h-5 rounded bg-violet-600/15 border border-violet-500/20 flex items-center justify-center">
+                    <Key className="size-2.5 text-violet-400" />
+                  </div>
+                  <div>
+                    <p className="text-[11px] font-semibold text-[#e4e4e7]">Secret API Key</p>
+                    <p className="text-[9px] text-[#52525b]">Used to authenticate CI/CD scan triggers</p>
+                  </div>
+                </div>
+
+                {/* Card body */}
+                <div className="p-5 flex flex-col gap-4 flex-1">
+
+                  {/* Key display */}
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[9px] font-mono text-[#52525b] uppercase tracking-widest">
+                        {selectedProject?.apikey ? "API Key" : "No key generated"}
+                      </span>
+                      {selectedProject?.apikey && (
+                        <button
+                          onClick={() => setKeyVisible(v => !v)}
+                          className="flex items-center gap-1 text-[9px] text-[#52525b] hover:text-[#a1a1aa] transition-colors cursor-pointer"
+                        >
+                          {keyVisible
+                            ? <><EyeOff className="size-3" /> Hide</>
+                            : <><Eye className="size-3" /> Reveal</>
+                          }
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 bg-[#080809] border border-[#1f1f23] rounded-md px-3 py-2.5 font-mono text-[11px] overflow-hidden">
+                        {selectedProject?.apikey ? (
+                          <span className={keyVisible ? "text-[#d4d4d8]" : "text-[#52525b] tracking-[0.2em]"}>
+                            {keyVisible
+                              ? selectedProject.apikey
+                              : maskedKey(selectedProject.apikey)
+                            }
+                          </span>
+                        ) : (
+                          <span className="text-[#3f3f46] italic">Generate a key below to get started</span>
+                        )}
+                      </div>
+                      {selectedProject?.apikey && (
+                        <button
+                          onClick={copyKey}
+                          className="shrink-0 w-8 h-8 flex items-center justify-center rounded-md border border-[#1f1f23] bg-[#080809] text-[#52525b] hover:text-[#a1a1aa] hover:border-[#2e2e32] transition-all cursor-pointer"
+                        >
+                          {copiedKey ? <Check className="size-3.5 text-emerald-400" /> : <Copy className="size-3.5" />}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Warning */}
+                  {selectedProject?.apikey && (
+                    <div className="flex items-start gap-2.5 bg-amber-500/5 border border-amber-500/10 rounded-lg px-3 py-2.5">
+                      <AlertTriangle className="size-3 text-amber-500/70 shrink-0 mt-0.5" />
+                      <p className="text-[10px] text-amber-500/60 leading-relaxed">
+                        Never commit this key to source control. Store it as a <span className="font-mono text-amber-400/70">HYDRA_API_KEY</span> repository secret.
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Generate button */}
+                  <div className="mt-auto pt-1">
+                    <button
+                      onClick={handleGenerateKey}
+                      disabled={generating}
+                      className="w-full flex items-center justify-center gap-2 py-2 text-[11px] font-medium rounded-md border transition-all duration-150 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed
+                        border-[#2e2e32] text-[#a1a1aa] hover:border-[#3f3f46] hover:text-white hover:bg-[#141416]"
+                    >
+                      {generating ? (
+                        <><Loader2 className="size-3.5 animate-spin" /> Generating…</>
+                      ) : selectedProject?.apikey ? (
+                        "Rotate Key"
+                      ) : (
+                        "Generate API Key"
+                      )}
+                    </button>
+                  </div>
+                </div>
               </div>
 
-              <p className="text-[11px] text-muted-foreground leading-relaxed">
-                Use this unique token in your CI/CD runner environments to authenticate calls to trigger headless scans.
-              </p>
+              {/* ─── CI/CD Card ────────────────────────────────────────── */}
+              <div className="rounded-xl border border-[#1a1a1d] bg-[#0d0d0f] flex flex-col overflow-hidden">
 
-              {/* API Key Box */}
-              <div className="flex flex-col gap-2.5">
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    readOnly
-                    value={selectedProject?.apikey ? selectedProject.apikey : "No key generated yet."}
-                    className="bg-[#121214] border border-[#1f1f23] rounded px-3 py-2 text-[11px] font-mono text-white outline-none w-full select-all"
-                  />
+                {/* Card header */}
+                <div className="px-5 py-4 border-b border-[#1a1a1d] flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-5 h-5 rounded bg-emerald-600/15 border border-emerald-500/20 flex items-center justify-center">
+                      <Terminal className="size-2.5 text-emerald-400" />
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-semibold text-[#e4e4e7]">GitHub Actions</p>
+                      <p className="text-[9px] text-[#52525b]">.github/workflows/visual-tests.yml</p>
+                    </div>
+                  </div>
                   <button
-                    onClick={copyKey}
-                    className="px-3 bg-indigo-950/40 text-indigo-400 border border-indigo-500/20 hover:bg-indigo-900/40 rounded transition-colors text-xs font-semibold cursor-pointer"
+                    onClick={copyYaml}
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 text-[9px] font-medium rounded-md border border-[#1f1f23] text-[#71717a] hover:text-[#a1a1aa] hover:border-[#2e2e32] transition-all cursor-pointer"
                   >
-                    {copiedKey ? <Check className="size-3.5 text-emerald-400" /> : <Copy className="size-3.5" />}
+                    {copiedYaml ? <Check className="size-3 text-emerald-400" /> : <Copy className="size-3" />}
+                    {copiedYaml ? "Copied" : "Copy"}
                   </button>
                 </div>
 
-                {/* Warning Card */}
-                <div className="bg-amber-950/10 border border-amber-500/20 rounded p-3 flex gap-2.5 items-start">
-                  <AlertTriangle className="size-4 text-amber-500 shrink-0 mt-0.5" />
-                  <p className="text-[10px] text-amber-400 leading-normal font-mono">
-                    WARNING: Keep this key secret. Anyone with access to this token can trigger automated scans on your Puppeteer instance.
-                  </p>
+                {/* Code block */}
+                <div className="flex-1 overflow-auto bg-[#080809] p-4">
+                  <pre className="font-mono text-[10px] leading-[1.75] whitespace-pre">
+                    <span className="text-[#71717a]">name: </span><span className="text-[#86efac]">Hydra AI Visual Regression Checks{"\n"}</span>
+                    {"\n"}
+                    <span className="text-[#71717a]">on:{"\n"}</span>
+                    <span className="text-[#71717a]">  push:{"\n"}</span>
+                    <span className="text-[#71717a]">    branches: </span><span className="text-[#fbbf24]">[ main, dev ]{"\n"}</span>
+                    <span className="text-[#71717a]">  pull_request:{"\n"}</span>
+                    <span className="text-[#71717a]">    branches: </span><span className="text-[#fbbf24]">[ main ]{"\n"}</span>
+                    {"\n"}
+                    {isPro && (
+                      <>
+                        <span className="text-[#71717a]">permissions:{"\n"}</span>
+                        <span className="text-[#71717a]">  contents: </span><span className="text-[#86efac]">write{"\n"}</span>
+                        {"\n"}
+                      </>
+                    )}
+                    <span className="text-[#71717a]">jobs:{"\n"}</span>
+                    <span className="text-[#71717a]">  visual-tests:{"\n"}</span>
+                    <span className="text-[#71717a]">    runs-on: </span><span className="text-[#86efac]">ubuntu-latest{"\n"}</span>
+                    <span className="text-[#71717a]">    steps:{"\n"}</span>
+                    <span className="text-[#71717a]">      - name: </span><span className="text-[#c4b5fd]">Checkout Code{"\n"}</span>
+                    <span className="text-[#71717a]">        uses: </span><span className="text-[#67e8f9]">actions/checkout@v4{"\n"}</span>
+                    {isPro && (
+                      <>
+                        <span className="text-[#71717a]">        with:{"\n"}</span>
+                        <span className="text-[#71717a]">          fetch-depth: </span><span className="text-[#fbbf24]">0{"\n"}</span>
+                      </>
+                    )}
+                    {"\n"}
+                    <span className="text-[#71717a]">      - name: </span><span className="text-[#c4b5fd]">Set up Node.js{"\n"}</span>
+                    <span className="text-[#71717a]">        uses: </span><span className="text-[#67e8f9]">actions/setup-node@v4{"\n"}</span>
+                    <span className="text-[#71717a]">        with:{"\n"}</span>
+                    <span className="text-[#71717a]">          node-version: </span><span className="text-[#fbbf24]">20{"\n"}</span>
+                    {"\n"}
+                    <span className="text-[#71717a]">      - name: </span><span className="text-[#c4b5fd]">{isPro ? "Run Hydra AI Visual Scan & Auto-Healer" : "Run Hydra AI Visual Scan"}{"\n"}</span>
+                    <span className="text-[#71717a]">        run: </span>
+                    <span className="text-[#d4d4d8]">node spectre-cli.js </span>
+                    <span className="text-[#71717a]">--project </span>
+                    <span className="text-[#fbbf24]">{selectedProject?._id || "<PROJECT_ID>"} </span>
+                    <span className="text-[#71717a]">--key </span>
+                    <span className="text-[#86efac]">{"${{ secrets.HYDRA_API_KEY }}"}{"\n"}</span>
+                    {isPro && (
+                      <>
+                        <span className="text-[#71717a]">        env:{"\n"}</span>
+                        <span className="text-[#71717a]">          GEMINI_API_KEY: </span>
+                        <span className="text-[#86efac]">{"${{ secrets.GEMINI_API_KEY }}"}</span>
+                      </>
+                    )}
+                  </pre>
                 </div>
               </div>
 
-              {/* Key action button */}
-              <div className="border-t border-[#1f1f23]/40 pt-4 mt-auto">
-                <button
-                  onClick={handleGenerateKey}
-                  disabled={generating}
-                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-xs font-bold font-mono transition-all cursor-pointer disabled:opacity-50"
-                >
-                  {generating ? (
-                    <span className="flex items-center gap-1.5">
-                      <Loader2 className="size-3 text-white animate-spin" />
-                      Generating...
-                    </span>
-                  ) : selectedProject?.apikey ? (
-                    "Regenerate API Key"
-                  ) : (
-                    "Generate API Key"
-                  )}
-                </button>
-              </div>
+            </div>
 
-            </section>
-
-            {/* Column 2: CI/CD Integration Guide */}
-            <section className="bg-[#0c0c0e] border border-[#1f1f23] rounded-lg p-6 flex flex-col gap-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Terminal className="size-4 text-emerald-400" />
-                  <h2 className="text-xs font-mono font-bold text-white uppercase tracking-wider">
-                    GitHub Actions CI Pipeline
-                  </h2>
-                </div>
-                <button
-                  onClick={copyYaml}
-                  className="p-1 text-muted-foreground hover:text-white transition-colors cursor-pointer"
-                >
-                  {copiedYaml ? <Check className="size-3.5 text-emerald-400" /> : <Copy className="size-3.5" />}
-                </button>
-              </div>
-
-              <p className="text-[11px] text-muted-foreground leading-relaxed">
-                Add this workflow file under <code className="text-indigo-400">.github/workflows/visual-tests.yml</code> in your repository to run visual scans on every push automatically.
+            {/* ── Bottom info bar ─────────────────────────────────────── */}
+            <div className="flex items-center gap-2 px-3 py-2.5 bg-[#0d0d0f] border border-[#1a1a1d] rounded-lg">
+              <ShieldCheck className="size-3.5 text-emerald-400/60 shrink-0" />
+              <p className="text-[10px] text-[#52525b] leading-relaxed">
+                Keys are hashed and stored securely. Rotating a key will immediately invalidate the previous one — update your CI environment secrets after rotating.
               </p>
-
-              {/* Code window */}
-              <div className="bg-black p-3.5 border border-[#1f1f23] rounded-lg overflow-x-auto select-text">
-                <pre className="font-mono text-[10px] text-emerald-400 leading-relaxed whitespace-pre">
-                  {githubActionsYaml}
-                </pre>
-              </div>
-            </section>
+            </div>
 
           </div>
-
         </main>
-
       </div>
     </div>
   )

@@ -35,23 +35,49 @@ const captureScreenshot = async (url: string): Promise<CaptureResult> => {
         await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
 
         await page.addStyleTag({
-    content: `
-        *, *::before, *::after {
-            -webkit-transition: none !important;
-            -moz-transition: none !important;
-            -o-transition: none !important;
-            transition: none !important;
-            -webkit-animation: none !important;
-            -moz-animation: none !important;
-            -o-animation: none !important;
-            animation: none !important;
-            animation-delay: 0s !important;
-            transition-delay: 0s !important;
-        }
-    `
-});
+            content: `
+                *, *::before, *::after {
+                    -webkit-transition: none !important;
+                    -moz-transition: none !important;
+                    -o-transition: none !important;
+                    transition: none !important;
+                    -webkit-animation: none !important;
+                    -moz-animation: none !important;
+                    -o-animation: none !important;
+                    animation: none !important;
+                    animation-delay: 0s !important;
+                    transition-delay: 0s !important;
+                    caret-color: transparent !important;
+                }
+                /* Hide scrollbars to avoid shifting diffs */
+                ::-webkit-scrollbar {
+                    display: none !important;
+                }
+                html, body {
+                    scrollbar-width: none !important;
+                    -ms-overflow-style: none !important;
+                }
+            `
+        });
 
-  await autoScroll(page, 15);
+        await autoScroll(page, 15);
+
+        // Wait for web fonts to load completely
+        try {
+            await page.evaluateHandle('document.fonts.ready');
+        } catch (err) {
+            console.warn("Failed waiting for document.fonts.ready:", err);
+        }
+
+        // Blur active elements to remove cursor/caret and collapse search/autocomplete overlays
+        await page.evaluate(() => {
+            if (document.activeElement && typeof (document.activeElement as any).blur === 'function') {
+                (document.activeElement as any).blur();
+            }
+        });
+
+        // Brief delay to allow rendering layout shifts to settle
+        await new Promise(resolve => setTimeout(resolve, 400));
 
 
 

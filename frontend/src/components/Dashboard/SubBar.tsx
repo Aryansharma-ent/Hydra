@@ -1,4 +1,4 @@
-import { Filter, Play ,ArrowLeft, FolderPlus} from "lucide-react"
+import { Play ,ArrowLeft, FolderPlus} from "lucide-react"
 import type { Project } from "@/types"
 
 interface SubBarProps {
@@ -17,27 +17,27 @@ export default function SubBar({selectedProject,onBackToProjects,onNewProjectCli
     <ArrowLeft className="size-4" />
   </button>
      )}
-        <span className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-widest font-mono">
-          WORKSPACE: SPECTRE
+        <span className="text-[10px] font-bold text-white uppercase tracking-widest font-mono">
+          WORKSPACE
         </span>
         <span className="text-xs text-muted-foreground">/</span>
-        <span className="text-xs font-bold text-white font-mono">Project Registry</span>
+        <span className="text-xs font-bold text-white font-serif tracking-wider">Project Registry</span>
         {selectedProject && (
     <>
     <span className="text-xs text-muted-foreground mx-1.5">/</span>
-    <span className="text-xs font-bold text-indigo-400 font-mono">{selectedProject.name}</span>
+    <span className="text-xs font-bold text-indigo-400 font-serif tracking-wider">{selectedProject.name}</span>
     </>
     )}
       </div>
 
       <div className="flex items-center gap-2.5">
         {selectedProject ? ( 
-             <button onClick={onNewRunClick} className="flex items-center gap-1.5 px-3 py-1 bg-indigo-650 hover:bg-indigo-700 border border-indigo-500 text-white text-xs font-semibold transition-colors rounded shadow-sm">
+             <button onClick={onNewRunClick} className="flex items-center gap-1.5 px-3 py-1  hover:bg-indigo-700 border  text-white text-xs font-semibold transition-colors rounded shadow-sm">
           <Play className="size-3.5" />
           New run
         </button>
         ) : (
-          <button onClick={onNewProjectClick} className="flex items-center gap-1.5 px-3 py-1 bg-indigo-650 hover:bg-indigo-700 border border-indigo-500 text-white text-xs font-semibold transition-colors rounded shadow-sm">
+          <button onClick={onNewProjectClick} className="flex items-center gap-1.5 px-3 py-1 bg-indigo-650 hover:bg-indigo-700 border text-white text-xs font-semibold transition-colors rounded shadow-sm">
           <FolderPlus className = "size-3.5" />
           New Project
         </button>

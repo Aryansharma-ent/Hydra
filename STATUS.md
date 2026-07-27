@@ -74,17 +74,33 @@ We are building the core visual engine of **Spectre AI (The Visual Regression De
 ### ⚡ Milestone 7: SaaS Pages, UI Polish & Live Metrics Integration
 * [x] **Step 1 (UI Polish)**: Redesign the detected regressions list inside `ChatSidebar.tsx` to render beautiful bug cards with class selectors and badge labels.
 * [x] **Step 2 (Data Integration)**: Connect the dashboard stats row component to calculate real metrics (total runs, average drifts, passed vs failed count).
-* [ ] **Step 3 (Header/Footer)**: Polish `TopBar.tsx` and `FooterBar.tsx` default layout text placeholders.
-* [ ] **Step 4 (SaaS Pages)**: Create the SaaS landing page (`LandingPage.tsx`) along with custom Login/Signup layouts.
+* [x] **Step 3 (Header/Footer)**: Polish `TopBar.tsx` and `FooterBar.tsx` layout and headers to match a premium developer dashboard.
+* [x] **Step 4 (SaaS Pages)**: Create the SaaS landing page (`LandingPage.tsx`) along with Vercel-style custom Login/Signup layouts.
 * [ ] **Step 5 (Docs Guide)**: Create a developer documentation and integration guide page (`Docs.tsx`).
+
+### 🚀 Milestone 8: Authentication, Pro Billing & Auto-Healing Subagents
+* [x] **Step 1 (Auth Backend)**: Implement User schema with bcrypt password hashing, JWT authorization middleware, and auth endpoints (`/api/auth/register`, `/api/auth/login`, `/api/auth/google`, `/api/auth/me`).
+* [x] **Step 2 (Project Scoping)**: Update Project model to include `owner` and `tier`, scoping queries so developers only access their own projects.
+* [x] **Step 3 (Auth Frontend)**: Connect Vercel-style Login and Signup pages with inline error handling, local storage session persistence, and `AuthContext` header configuration.
+* [x] **Step 4 (Route Security)**: Protect `/api/projects`, `/api/tests/run/:runId/rerun`, and `/api/tests/run/:runId/chat` with JWT `protect` middleware.
+* [x] **Step 5 (Pro Tier Flag)**: Include `isPro: project.tier === 'PRO'` in test capture responses and update `spectre-cli.js` to log Pro subagent banners.
+* [x] **Step 6 (Billing - Razorpay Engine)**: Built Razorpay Order creation (`POST /api/billing/create-order`), HMAC SHA256 signature verification (`POST /api/billing/verify-payment`), account-wide `User.tier` updates in MongoDB Atlas, and Vercel-style Pro comparison modal with native Razorpay checkout in `SideBar.tsx`. (Pending `RAZORPAY_KEY_ID` & `RAZORPAY_KEY_SECRET` in `.env`).
+* [x] **Step 7 (UX - Tunneling)**: Integrated programmatic local tunneling (`localtunnel`) inside `spectre-cli.js` so developers can scan `localhost` targets automatically.
+* [x] **Step 8 (AI - Healing Subagent)**: Built recursive component file search, Option B Tailwind class swapping, candidate Git branch protection (`hydra-fix/layout-regressions`), and candidate commits in `spectre-cli.js`.
+* [x] **Step 9 (Route Security & UX)**: Created `<ProtectedRoute>` React Router guard to block unauthenticated access, fixed navigation links, and added query string URL cleanup on logout.
+* [x] **Step 10 (Q&A Reference)**: Created `my_questions_reference.txt` containing 12 system design, security, and architectural questions with interview-ready answers.
+* [ ] **Step 11 (Optimization)**: Add RAM caching (`node-cache`) on high-frequency backend requests to scale under CLI polling.
+* [ ] **Step 12 (Packaging)**: Publish CLI to the NPM registry as a public package (`@hydra-ai/cli`).
+* [ ] **Step 13 (Storage - Cloudflare R2)**: Stream PNG screenshot buffers directly to Cloudflare R2 Object Storage and save public CDN URLs in MongoDB to prevent database bloat.
 
 ---
 
 ## 🛠️ Key Architectural Decisions & Tech Stack
-* **Project Name**: Spectre AI (Visual Regression Debugger)
+* **Project Name**: Hydra AI (Visual Regression Debugger)
 * **Server Port**: `8000` (Defined in `.env`)
-* **Routing Prefix**: `/api/tests` and `/api/projects`
+* **Routing Prefix**: `/api/tests`, `/api/projects`, and `/api/auth`
 * **Errors**: Managed globally via `express-async-handler` throwing straight to `ErrorHandler.ts` middleware.
-* **Database**: MongoDB Atlas (`gamelogger` cluster, database `/PixelMatch`).
+* **Database**: MongoDB Atlas.
 * **Visual Matchers**: Puppeteer (Headless Chrome) & Pixelmatch (Byte-level comparison).
-* **AI Consultant**: Google Gen AI SDK (`gemini-1.5-flash` and `gemini-2.5-flash` models).
+* **AI Consultant**: Google Gen AI SDK (`gemini-2.5-flash` model).
+* **Cache Layer**: Node-Cache (In-memory RAM cache).

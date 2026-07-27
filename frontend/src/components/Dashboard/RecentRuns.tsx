@@ -84,7 +84,7 @@ const CardContent = (
       ) : Run.status === 'FAILED' ? (
         <span className="text-[10px] font-bold font-mono uppercase tracking-wider text-red-500 bg-red-500/10 px-2.5 py-0.5 border border-red-500/20 rounded flex items-center gap-1.5">
           <AlertTriangle className="size-2.5" />
-          FAILED ({Run.mismatchPercentage.toFixed(2)}%)
+          FAILED ({(Run.mismatchPercentage ?? 0).toFixed(2)}%)
         </span>
       ) : (
         <span className="text-[10px] font-bold font-mono uppercase tracking-wider text-emerald-500 bg-emerald-500/10 px-2.5 py-0.5 border border-emerald-500/20 rounded flex items-center gap-1.5">

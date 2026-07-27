@@ -1,67 +1,85 @@
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, RefreshCw, Clock } from "lucide-react"
 import { Link } from "react-router-dom"
 import { type TestRun } from "@/types"
-import { RefreshCw } from "lucide-react"
 
-interface DebuggerSubBarProps{
-  runData : TestRun 
-  onRerun: () => void;
-  isRerunning: boolean;
+interface DebuggerSubBarProps {
+  runData: TestRun
+  onRerun: () => void
+  isRerunning: boolean
 }
 
+function formatDate(iso: string) {
+  try {
+    return new Date(iso).toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    })
+  } catch {
+    return iso
+  }
+}
 
-export default function DebuggerSubBar({runData,onRerun,isRerunning} : DebuggerSubBarProps) {
+export default function DebuggerSubBar({ runData, onRerun, isRerunning }: DebuggerSubBarProps) {
+  const isPassed  = runData.status === "PASSED"
+  const isRunning = runData.status === "RUNNING"
+  const isFailed  = runData.status === "FAILED"
+
   return (
-    <section className="h-12 border-b border-[#1f1f23]/60 bg-[#0c0c0e]/30 flex items-center justify-between px-6 shrink-0">
-      <div className="flex items-center gap-2">
-        <Link 
-          to = {`/?projectId=${runData.projectId}`}
-          className="flex items-center justify-center p-1 text-muted-foreground hover:text-white hover:bg-[#18181b] rounded transition-colors mr-1 cursor-pointer"
-        >
-          <ArrowLeft className="size-4" />
-        </Link>
-        <span className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-widest font-mono">
-          WORKSPACE: SPECTRE
-        </span>
-        <span className="text-xs text-muted-foreground">/</span>
-        <span className="text-xs font-bold text-muted-foreground hover:text-white font-mono">
-          Default Demo Project
-        </span>
-        <span className="text-xs text-muted-foreground">/</span>
-        <span className="text-xs font-bold text-indigo-400 font-mono">{runData?.projectId}</span>
-      </div>
+    <div className="h-10 border-b border-[#1f1f23] bg-[#0a0a0b] flex items-center justify-between px-5 shrink-0 select-none">
 
+      {/* Left: Back + breadcrumb */}
       <div className="flex items-center gap-3">
-        <span className={`text-[9px] font-mono font-bold px-2 py-0.5 border rounded
-        uppercase ${
-          runData.status === 'PASSED' ? "text-emerald-500 bg-emerald-500/10 border-emerald-500/20" : "text-red-500 bg-red-500/10 border-red-500/20"
-        }
-        `} >
-           {runData.status} ({runData.mismatchPercentage.toFixed(2)} % MISMATCH)
-        </span>
-        <span className="text-xs text-muted-foreground/45 font-mono">|</span>
-        <span className="text-xs text-muted-foreground font-mono">{runData?.createdAt}</span>
+        <Link
+          to={`/dashboard/?projectId=${runData.projectId}`}
+          className="flex items-center gap-1.5 text-[#525252] hover:text-[#a1a1aa] transition-colors duration-150 text-[11px]"
+        >
+          <ArrowLeft className="size-3.5" />
+        </Link>
 
-         {/* New Rerun Button */}
-     <span className="text-xs text-muted-foreground/45 font-mono">|</span>
-      <button 
-    onClick={onRerun}
-    disabled={isRerunning}
-    className="flex items-center gap-1.5 px-2.5 py-1 bg-indigo-950/40 text-indigo-400 border border-indigo-500/20 rounded hover:bg-indigo-900/40 transition-colors text-[10px] font-semibold cursor-pointer font-mono disabled:opacity-55"
-    >
-    {isRerunning ? (
-      <>
-        <RefreshCw className="size-3 animate-spin" />
-        Restarting...
-      </>
-    ) : (
-      "Rerun Scan"
-    )}
-  </button>
+        {/* Thin separator */}
+        <div className="h-3.5 w-px bg-[#1f1f23]" />
 
+        {/* Status pill */}
+        {isRunning ? (
+          <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-indigo-400 bg-indigo-500/8 border border-indigo-500/15 rounded px-2 py-0.5 tracking-wide">
+            <span className="relative flex size-1.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75" />
+              <span className="relative inline-flex rounded-full size-1.5 bg-indigo-500" />
+            </span>
+            RUNNING
+          </span>
+        ) : isPassed ? (
+          <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-emerald-400 bg-emerald-500/8 border border-emerald-500/15 rounded px-2 py-0.5 tracking-wide">
+            <span className="size-1.5 rounded-full bg-emerald-400" />
+            PASSED · {(runData.mismatchPercentage ?? 0).toFixed(2)}% diff
+          </span>
+        ) : isFailed ? (
+          <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-red-400 bg-red-500/8 border border-red-500/15 rounded px-2 py-0.5 tracking-wide">
+            <span className="size-1.5 rounded-full bg-red-400" />
+            FAILED · {(runData.mismatchPercentage ?? 0).toFixed(2)}% diff
+          </span>
+        ) : null}
 
-
+        {/* Timestamp */}
+        <div className="hidden sm:flex items-center gap-1.5 text-[11px] text-[#3f3f46]">
+          <Clock className="size-3" />
+          <span>{formatDate(runData.createdAt)}</span>
+        </div>
       </div>
-    </section>
+
+      {/* Right: Rerun */}
+      <button
+        onClick={onRerun}
+        disabled={isRerunning || isRunning}
+        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-semibold rounded border transition-all duration-150 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed
+          bg-transparent text-[#a1a1aa] border-[#2e2e32] hover:border-[#3f3f46] hover:text-white hover:bg-[#141416]"
+      >
+        <RefreshCw className={`size-3 ${isRerunning ? "animate-spin" : ""}`} />
+        {isRerunning ? "Rerunning…" : "Re-run scan"}
+      </button>
+
+    </div>
   )
 }

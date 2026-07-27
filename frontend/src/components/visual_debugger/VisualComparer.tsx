@@ -45,80 +45,69 @@ export default function VisualComparer({ runData }: VisualComparerProps) {
 
 
   return (
-    <main className="flex-1 p-6 overflow-y-auto flex flex-col gap-5 bg-black/10">
-      
-      {/* Viewport Control Sub-Header */}
-      <div className="flex justify-between items-center bg-[#0c0c0e] border border-[#1f1f23] rounded-lg px-4 py-2.5">
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-mono font-bold text-white uppercase tracking-wider">
-            Visual Comparer
-          </span>
-          <span className="text-xs text-muted-foreground/30 font-mono">|</span>
-          <span className="text-xs text-muted-foreground font-mono">Viewport: 1440 x 900</span>
+    <main className="flex-1 px-5 py-4 overflow-y-auto flex flex-col gap-4 bg-[#080809]">
+
+      {/* ── Toolbar ──────────────────────────────────────────────────── */}
+      <div className="flex items-center justify-between">
+        {/* Left: context info */}
+        <div className="flex items-center gap-2.5 text-[11px] text-[#52525b]">
+          <span className="font-medium text-[#71717a]">Viewport</span>
+          <span className="font-mono bg-[#111113] border border-[#1f1f23] px-1.5 py-0.5 rounded text-[10px]">1440 × 900</span>
+          {runData.visualBugs?.length > 0 && (
+            <span className="font-mono bg-red-500/8 border border-red-500/15 text-red-400 px-1.5 py-0.5 rounded text-[10px]">
+              {runData.visualBugs.length} {runData.visualBugs.length === 1 ? 'regression' : 'regressions'}
+            </span>
+          )}
         </div>
-        <div className="flex bg-[#09090b] border border-[#1f1f23] p-0.5 rounded gap-1">
-          <button 
-            onClick={() => setViewMode('side-by-side')} 
-            className={`px-2.5 py-1 text-[10px] font-semibold font-mono rounded border transition-colors cursor-pointer ${
-              viewMode === 'side-by-side'
-                ? "bg-indigo-950/40 text-indigo-400 border-indigo-500/20"
-                : "text-muted-foreground hover:text-white border-transparent"
-            }`}
-          >
-            Side by Side
-          </button>
-          <button 
-            onClick={() => setViewMode('slider')}  
-            className={`px-2.5 py-1 text-[10px] font-semibold font-mono rounded border transition-colors cursor-pointer ${
-              viewMode === 'slider'
-                ? "bg-indigo-950/40 text-indigo-400 border-indigo-500/20"
-                : "text-muted-foreground hover:text-white border-transparent"
-            }`}
-          >
-            Slider Overlay
-          </button>
-          <button 
-            onClick={() => setViewMode('diff')}  
-            className={`px-2.5 py-1 text-[10px] font-semibold font-mono rounded border transition-colors cursor-pointer ${
-              viewMode === 'diff'
-                ? "bg-indigo-950/40 text-indigo-400 border-indigo-500/20"
-                : "text-muted-foreground hover:text-white border-transparent"
-            }`}
-          >
-            Diff Map
-          </button>
+
+        {/* Right: view mode tabs */}
+        <div className="flex items-center bg-[#0d0d0f] border border-[#1f1f23] rounded-md p-0.5">
+          {([
+            { key: 'side-by-side', label: 'Split' },
+            { key: 'slider',       label: 'Overlay' },
+            { key: 'diff',         label: 'Diff' },
+          ] as const).map(({ key, label }) => (
+            <button
+              key={key}
+              onClick={() => setViewMode(key)}
+              className={`px-3 py-1 text-[10px] font-medium rounded transition-all duration-150 cursor-pointer ${
+                viewMode === key
+                  ? 'bg-[#1a1a1d] text-[#e4e4e7] shadow-sm border border-[#2e2e32]'
+                  : 'text-[#52525b] hover:text-[#a1a1aa] border border-transparent'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
         </div>
       </div>
 
       {/* Screen Layouts Grid */}
       <div className="flex-1 flex justify-center items-start min-h-0">
         
-        {/* VIEW 1: Side by Side Grid Layout */}
         {viewMode === 'side-by-side' && (
-          <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-6">
-            
-            {/* Staging Pane (Under Test) */}
-            <div className="flex flex-col bg-[#0c0c0e] border border-[#1f1f23] rounded-lg overflow-hidden">
-              <div className="bg-[#0e0e11] border-b border-[#1f1f23] px-4 py-2 flex items-center justify-between">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground font-mono flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 bg-red-500 rounded-full"></span>
-                  Staging Branch (Under Test)
-                </span>
+          <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+            {/* Staging Pane */}
+            <div className="flex flex-col bg-[#0d0d0f] border border-[#1f1f23] rounded-lg overflow-hidden">
+              <div className="h-8 bg-[#0a0a0b] border-b border-[#1f1f23] px-3 flex items-center gap-2">
+                <span className="size-1.5 rounded-full bg-amber-400" />
+                <span className="text-[10px] font-medium text-[#71717a] tracking-wide">Staging</span>
+                <span className="ml-auto font-mono text-[9px] text-[#3f3f46] truncate max-w-[160px]">{runData.stagingUrl}</span>
               </div>
-              <div className="p-4 bg-[#09090b]/80 overflow-auto flex justify-center items-start relative min-h-[400px]">
-                <div className="relative inline-block max-w-[800px] w-full">
-                  <img 
+              <div className="p-3 bg-[#080809] overflow-auto flex justify-center items-start relative min-h-[400px]">
+                <div className="relative inline-block w-full">
+                  <img
                     ref={imgRef}
-                    src={getFullUrl(runData.stagingScreenshotUrl)} 
+                    src={getFullUrl(runData.stagingScreenshotUrl)}
                     alt="Staging"
                     onLoad={handleLoad}
-                    className="w-full h-auto block border border-[#1f1f23] rounded"
+                    className="w-full h-auto block rounded-sm"
                   />
-                  {/* Dynamic absolute bounding boxes overlaying the image */}
-                  {runData.visualBugs && runData.visualBugs.map((bug, index) => (
-                    <div 
+                  {runData.visualBugs?.map((bug, index) => (
+                    <div
                       key={index}
-                      className="absolute border border-dashed border-red-500 bg-red-500/10 group cursor-pointer hover:bg-red-500/25 transition-all"
+                      className="absolute border border-dashed border-red-400/70 bg-red-500/8 group cursor-pointer hover:bg-red-500/20 transition-all"
                       style={{
                         left: `${bug.location.x * scale}px`,
                         top: `${bug.location.y * scale}px`,
@@ -126,9 +115,8 @@ export default function VisualComparer({ runData }: VisualComparerProps) {
                         height: `${bug.location.height * scale}px`,
                       }}
                     >
-                      {/* Bounding box hover description bubble */}
-                      <div className="absolute -top-6 left-0 bg-red-600 text-white font-mono text-[8px] font-bold px-1.5 py-0.5 rounded shadow pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-10 whitespace-nowrap">
-                        {bug.element}: {bug.description}
+                      <div className="absolute -top-5 left-0 bg-red-500 text-white font-mono text-[8px] font-semibold px-1.5 py-0.5 rounded pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-10 whitespace-nowrap">
+                        #{index + 1} {bug.element}
                       </div>
                     </div>
                   ))}
@@ -136,20 +124,19 @@ export default function VisualComparer({ runData }: VisualComparerProps) {
               </div>
             </div>
 
-            {/* Production Pane (Benchmark master) */}
-            <div className="flex flex-col bg-[#0c0c0e] border border-[#1f1f23] rounded-lg overflow-hidden">
-              <div className="bg-[#0e0e11] border-b border-[#1f1f23] px-4 py-2 flex items-center justify-between">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground font-mono flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
-                  Production Branch (Benchmark)
-                </span>
+            {/* Production Pane */}
+            <div className="flex flex-col bg-[#0d0d0f] border border-[#1f1f23] rounded-lg overflow-hidden">
+              <div className="h-8 bg-[#0a0a0b] border-b border-[#1f1f23] px-3 flex items-center gap-2">
+                <span className="size-1.5 rounded-full bg-emerald-400" />
+                <span className="text-[10px] font-medium text-[#71717a] tracking-wide">Production</span>
+                <span className="ml-auto font-mono text-[9px] text-[#3f3f46] truncate max-w-[160px]">{runData.productionUrl}</span>
               </div>
-              <div className="p-4 bg-[#09090b]/80 overflow-auto flex justify-center items-start min-h-[400px]">
-                <div className="relative inline-block max-w-[800px] w-full">
-                  <img 
-                    src={getFullUrl(runData.productionScreenshotUrl)} 
+              <div className="p-3 bg-[#080809] overflow-auto flex justify-center items-start min-h-[400px]">
+                <div className="relative inline-block w-full">
+                  <img
+                    src={getFullUrl(runData.productionScreenshotUrl)}
                     alt="Production"
-                    className="w-full h-auto block border border-[#1f1f23] rounded"
+                    className="w-full h-auto block rounded-sm"
                   />
                 </div>
               </div>

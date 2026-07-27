@@ -1,6 +1,6 @@
 # 🕵️‍♂️ Spectre AI (Visual Regression Debugger)
 
-**Spectre AI** is a modern, developer-focused Visual Regression Debugger. It allows developers to compare their **Staging** and **Production** website URLs pixel-by-pixel, instantly highlighting visual layout bugs and utilizing **Gemini AI** to suggest the exact CSS code fixes in a dynamic sidebar.
+**** is a modern, developer-focused Visual Regression Debugger. It allows developers to compare their **Staging** and **Production** website URLs pixel-by-pixel, instantly highlighting visual layout bugs and utilizing **Gemini AI** to suggest the exact CSS code fixes in a dynamic sidebar.
 
 No more manual QA testing or missing broken layouts during deployments. Spectre AI automates visual debugging with pixel-perfect accuracy.
 

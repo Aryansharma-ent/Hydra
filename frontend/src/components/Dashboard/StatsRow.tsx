@@ -28,15 +28,15 @@ export default function StatsRow({ runs }: StatsRowProps) {
       {/* 1. Total runs widget */}
       <div className="bg-[#0c0c0e] border border-[#1f1f23] rounded-lg p-5 flex flex-col justify-between hover:border-[#1f1f23]/80 transition-all">
         <div>
-          <span className="text-[9px] uppercase font-bold tracking-widest text-muted-foreground/75 font-mono">
+          <span className="text-[9px] uppercase font-bold tracking-widest text-white-300 font-mono">
             Total runs
           </span>
           <div className="text-2xl font-semibold text-white mt-1.5 font-mono">
             {totalRuns}
           </div>
         </div>
-        <span className="text-[11px] text-muted-foreground/40 font-mono mt-2 block">
-          All-time scan history
+        <span className="text-[11px] text-white-300 font-serif tracking-wider mt-2 block">
+          Scan History
         </span>
       </div>
 
