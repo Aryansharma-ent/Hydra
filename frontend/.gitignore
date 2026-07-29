@@ -1,4 +1,15 @@
-# Logs
+# ─── Dependencies & Build ─────────────────────────────────────────────────────
+node_modules
+dist
+dist-ssr
+*.local
+
+# ─── Animation Frames & Heavy Assets ──────────────────────────────────────────
+public/scrollanimation/
+scrollanimation/
+ezgif-frame-*.jpg
+
+# ─── Logs & Debug ──────────────────────────────────────────────────────────────
 logs
 *.log
 npm-debug.log*
@@ -7,16 +18,12 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
-
-# Editor directories and files
+# ─── Editor & OS Files ─────────────────────────────────────────────────────────
 .vscode/*
 !.vscode/extensions.json
 .idea
 .DS_Store
+Thumbs.db
 *.suo
 *.ntvs*
 *.njsproj

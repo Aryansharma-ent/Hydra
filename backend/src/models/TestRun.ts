@@ -72,7 +72,8 @@ const TestRunSchema = new Schema<ITestRun>({
 
   createdAt : {
       type : Date,
-      default : Date.now
+      default : Date.now,
+      expires: '30d'
   }
 
 

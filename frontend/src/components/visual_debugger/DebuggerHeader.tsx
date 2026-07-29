@@ -12,7 +12,7 @@ export default function DebuggerHeader() {
   const shortRunId = runId ? runId.substring(0, 12) + "…" : "—"
 
   return (
-    <header className="h-11 border-b border-[#1f1f23] flex items-center justify-between px-5 bg-[#0a0a0b] shrink-0 select-none">
+    <header className="h-11 border-b border-[#1f1f23]/60 flex items-center justify-between px-5 backdrop-blur-sm bg-[#0a0a0b]/80 shrink-0 select-none">
 
       {/* Left: Breadcrumbs */}
       <div className="flex items-center gap-1.5 text-[11px] text-[#525252]">
@@ -36,12 +36,12 @@ export default function DebuggerHeader() {
 
         <ChevronRight className="size-3 text-[#2e2e32]" />
 
-        <span className="text-[#a1a1aa] font-medium">Visual Debugger</span>
+        <span className="text-[#c9d1d9] font-semibold">Visual Debugger</span>
 
         {runId && (
           <>
             <ChevronRight className="size-3 text-[#2e2e32]" />
-            <span className="text-[#71717a] font-mono">{shortRunId}</span>
+            <span className="text-[#6b6b76] font-mono">{shortRunId}</span>
           </>
         )}
       </div>
@@ -56,7 +56,7 @@ export default function DebuggerHeader() {
         </Link>
 
         {/* Avatar */}
-        <div className="w-6 h-6 rounded-full bg-gradient-to-br from-violet-600 to-indigo-700 flex items-center justify-center text-[9px] font-bold text-white tracking-wide shrink-0 ring-1 ring-white/10">
+        <div className="w-6 h-6 rounded-full bg-gradient-to-br from-violet-600 to-indigo-700 flex items-center justify-center text-[9px] font-bold text-white tracking-wide shrink-0 ring-1 ring-white/10 shadow-lg shadow-violet-500/10">
           A
         </div>
       </div>

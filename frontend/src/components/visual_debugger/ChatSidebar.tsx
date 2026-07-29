@@ -1,5 +1,6 @@
-import { Send, Loader2, AlertTriangle, ChevronRight, Copy, Check } from "lucide-react"
+import { Send, Loader2, ChevronRight, ChevronDown, Copy, Check, Sparkles } from "lucide-react"
 import { useState, useRef, useEffect } from "react"
+import { motion, AnimatePresence } from "framer-motion"
 import axios from "axios"
 import type { TestRun } from "@/types"
 
@@ -12,9 +13,11 @@ interface ChatSidebarProps {
   runData: TestRun
   chatMessages: Message[]
   setChatMessages: React.Dispatch<React.SetStateAction<Message[]>>
+  selectedBugIndex?: number | null
+  onSelectBug?: (index: number | null) => void
 }
 
-// ─── Code block with copy button ─────────────────────────────────────────────
+/* ═══ Code Block (VS Code-inspired) ═══ */
 function CodeBlock({ code }: { code: string }) {
   const [copied, setCopied] = useState(false)
 
@@ -25,25 +28,41 @@ function CodeBlock({ code }: { code: string }) {
   }
 
   return (
-    <div className="mt-2 rounded-md border border-[#1f1f23] bg-[#0d0d0f] overflow-hidden">
-      <div className="flex items-center justify-between px-3 py-1.5 border-b border-[#1f1f23] bg-[#111113]">
-        <span className="text-[9px] font-mono text-[#3f3f46] uppercase tracking-wider">css</span>
+    <div className="mt-2 rounded-lg border border-[#1f1f23] bg-[#0c0c0e] overflow-hidden">
+      <div className="flex items-center justify-between px-3 py-1.5 border-b border-[#1f1f23]/60 bg-[#111113]">
+        <div className="flex items-center gap-2">
+          <div className="flex gap-1">
+            <span className="size-1.5 rounded-full bg-[#3f3f46]" />
+            <span className="size-1.5 rounded-full bg-[#3f3f46]" />
+            <span className="size-1.5 rounded-full bg-[#3f3f46]" />
+          </div>
+          <span className="text-[9px] font-mono text-[#52525b] uppercase tracking-wider">css</span>
+        </div>
         <button
           onClick={handleCopy}
-          className="flex items-center gap-1 text-[9px] text-[#525252] hover:text-[#a1a1aa] transition-colors cursor-pointer"
+          className="flex items-center gap-1 text-[9px] text-[#52525b] hover:text-[#a1a1aa] transition-colors cursor-pointer rounded px-1.5 py-0.5 hover:bg-[#1a1a1d]"
         >
-          {copied ? <Check className="size-3 text-emerald-400" /> : <Copy className="size-3" />}
-          {copied ? "Copied" : "Copy"}
+          {copied ? (
+            <>
+              <Check className="size-3 text-emerald-400" />
+              <span className="text-emerald-400">Copied</span>
+            </>
+          ) : (
+            <>
+              <Copy className="size-3" />
+              <span>Copy</span>
+            </>
+          )}
         </button>
       </div>
-      <pre className="p-3 text-[10px] font-mono text-emerald-300 whitespace-pre-wrap overflow-x-auto leading-relaxed">
+      <pre className="p-3 text-[10px] font-mono text-emerald-300/90 whitespace-pre-wrap overflow-x-auto leading-relaxed">
         {code.trim()}
       </pre>
     </div>
   )
 }
 
-// ─── Message formatter ────────────────────────────────────────────────────────
+/* ═══ Formatted Message (preserved logic) ═══ */
 function FormattedMessage({ text }: { text: string }) {
   const parts = text.split(/(```(?:css|html|javascript|json|ts|tsx)?\n?[\s\S]*?```)/g)
 
@@ -55,20 +74,19 @@ function FormattedMessage({ text }: { text: string }) {
           return <CodeBlock key={idx} code={codeMatch[1]} />
         }
 
-        // Inline formatting
         const inlineParts = part.split(/(`[^`]+`|\*\*[^*]+\*\*)/g)
         return (
           <span key={idx}>
             {inlineParts.map((sub, subIdx) => {
               if (sub.startsWith("`") && sub.endsWith("`")) {
                 return (
-                  <code key={subIdx} className="bg-[#1a1a1d] text-[#a78bfa] px-1 py-0.5 rounded text-[10px] font-mono border border-[#2e2e32]">
+                  <code key={subIdx} className="bg-[#1a1a2e] text-[#a78bfa] px-1 py-0.5 rounded text-[10px] font-mono border border-violet-500/10">
                     {sub.slice(1, -1)}
                   </code>
                 )
               }
               if (sub.startsWith("**") && sub.endsWith("**")) {
-                return <strong key={subIdx} className="text-white font-semibold">{sub.slice(2, -2)}</strong>
+                return <strong key={subIdx} className="text-[#e4e4e7] font-semibold">{sub.slice(2, -2)}</strong>
               }
               return sub.split("\n").map((line, lineIdx, arr) => (
                 <span key={lineIdx}>
@@ -84,17 +102,23 @@ function FormattedMessage({ text }: { text: string }) {
   )
 }
 
-// ─── Main component ───────────────────────────────────────────────────────────
-export default function ChatSidebar({ runData, chatMessages, setChatMessages }: ChatSidebarProps) {
+/* ═══ Main Inspector Panel ═══ */
+export default function ChatSidebar({ runData, chatMessages, setChatMessages, selectedBugIndex = null, onSelectBug }: ChatSidebarProps) {
+  /* ═══ EXISTING STATE — PRESERVED EXACTLY ═══ */
   const [input, setInput] = useState("")
   const [loading, setLoading] = useState(false)
   const messageEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
+  /* ═══ NEW: Section collapse (local UI only) ═══ */
+  const [regressionsOpen, setRegressionsOpen] = useState(true)
+
+  /* ═══ EXISTING EFFECT — PRESERVED ═══ */
   useEffect(() => {
     messageEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [chatMessages])
 
+  /* ═══ EXISTING HANDLER — PRESERVED EXACTLY ═══ */
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!input.trim() || loading) return
@@ -140,104 +164,167 @@ export default function ChatSidebar({ runData, chatMessages, setChatMessages }: 
   const bugCount = runData.visualBugs?.length ?? 0
 
   return (
-    <aside className="w-[340px] border-l border-[#1f1f23] bg-[#0a0a0b] flex flex-col shrink-0 min-h-0">
+    <aside className="w-[380px] border-l border-[#1f1f23]/60 bg-[#0a0a0b] flex flex-col shrink-0 min-h-0">
 
-      {/* ── Panel Header ─────────────────────────────────────────────── */}
-      <div className="px-4 py-3 border-b border-[#1f1f23] flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded bg-violet-600/20 border border-violet-500/20 flex items-center justify-center">
-            <img src="/src/assets/hydralogo.png" alt="" />
+      {/* ═══ HEADER ═══ */}
+      <div className="px-4 py-2.5 border-b border-[#1f1f23]/60 flex items-center justify-between shrink-0 bg-[#0a0a0b]/80 backdrop-blur-sm">
+        <div className="flex items-center gap-2.5">
+          <div className="w-5 h-5 rounded-md bg-gradient-to-br from-violet-500/20 to-indigo-500/20 border border-violet-500/15 flex items-center justify-center">
+            <Sparkles className="size-3 text-violet-400" />
           </div>
-          <span className="text-[11px] font-semibold text-[#e4e4e7] tracking-wider ">Hydra</span>
+          <div>
+            <span className="text-[11px] font-semibold text-[#e4e4e7] tracking-wide">Hydra Inspector</span>
+          </div>
         </div>
-        <span className="text-[9px] font-mono text-[#3f3f46] bg-[#141416] border border-[#1f1f23] px-1.5 py-0.5 rounded">
+        <span className="text-[9px] font-mono text-[#3f3f46] bg-[#111113] border border-[#1f1f23] px-1.5 py-0.5 rounded">
           gemini-2.5
         </span>
       </div>
 
-      {/* ── Detected Issues ──────────────────────────────────────────── */}
-      <div className="border-b  border-[#1f1f23] shrink-0">
-        <div className="px-4 py-2  flex items-center justify-between">
-          <span className="text-[10px] font-medium text-[#52525b] uppercase tracking-widest">
-            Regressions
-          </span>
-          <span className={`text-[10px] font-mono font-semibold  px-1.5 py-0.5 rounded ${
+      {/* ═══ REGRESSIONS SECTION ═══ */}
+      <div className="border-b border-[#1f1f23]/60 shrink-0">
+        {/* Section Header (clickable to collapse) */}
+        <button
+          onClick={() => setRegressionsOpen(!regressionsOpen)}
+          className="w-full px-4 py-2 flex items-center justify-between cursor-pointer hover:bg-[#111113]/50 transition-colors"
+        >
+          <div className="flex items-center gap-2">
+            <motion.div
+              animate={{ rotate: regressionsOpen ? 0 : -90 }}
+              transition={{ duration: 0.15 }}
+            >
+              <ChevronDown className="size-3 text-[#52525b]" />
+            </motion.div>
+            <span className="text-[10px] font-semibold text-[#71717a] uppercase tracking-widest">
+              Regressions
+            </span>
+          </div>
+          <span className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-md ${
             bugCount === 0
               ? "text-emerald-400 bg-emerald-500/8 border border-emerald-500/15"
               : "text-red-400 bg-red-500/8 border border-red-500/15"
           }`}>
             {bugCount}
           </span>
-        </div>
+        </button>
 
-        <div className="max-h-[200px] h-20 overflow-y-auto px-3 pb-3 flex flex-col gap-1.5">
-          {bugCount === 0 ? (
-            <div className="flex items-center gap-2 px-3 py-2.5 rounded-md bg-[#0d0d0f] border border-[#1a1a1d] text-[11px] text-[#3f3f46]">
-              <span className="size-1.5 rounded-full bg-emerald-500 shrink-0" />
-              No visual regressions detected
-            </div>
-          ) : (
-            runData.visualBugs.map((bug, index) => (
-              <button
-                key={index}
-                onClick={() => {
-                  setInput(`Explain Bug #${index + 1} ("${bug.element}") and give me the CSS fix.`)
-                  inputRef.current?.focus()
-                }}
-                className="w-full text-left group flex items-start gap-2.5 px-3 py-2.5 rounded-md bg-[#0d0d0f] border border-[#1a1a1d] hover:border-[#2e2e32] hover:bg-[#111113] transition-all duration-150 cursor-pointer"
-              >
-                <AlertTriangle className="size-3 text-red-400/70 shrink-0 mt-0.5" />
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center justify-between gap-2 mb-0.5">
-                    <span className="text-[9px] font-mono text-red-400/70">BUG·{index + 1}</span>
-                    <span className="text-[9px] text-[#3f3f46] group-hover:text-[#71717a] flex items-center gap-0.5 transition-colors">
-                      Ask <ChevronRight className="size-2.5" />
-                    </span>
+        {/* Bug List */}
+        <AnimatePresence>
+          {regressionsOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="overflow-hidden"
+            >
+              <div className="max-h-[220px] overflow-y-auto px-3 pb-3 flex flex-col gap-1.5">
+                {bugCount === 0 ? (
+                  <div className="flex items-center gap-2.5 px-3 py-3 rounded-lg bg-emerald-500/[0.03] border border-emerald-500/10 text-[11px] text-[#52525b]">
+                    <span className="size-1.5 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400/30 shrink-0" />
+                    <span>No visual regressions detected</span>
                   </div>
-                  <code className="text-[10px] font-mono text-[#71717a] break-all leading-tight block">
-                    {bug.element}
-                  </code>
-                  {bug.description && (
-                    <p className="text-[10px] text-[#3f3f46] mt-1 leading-snug">{bug.description}</p>
-                  )}
-                </div>
-              </button>
-            ))
+                ) : (
+                  runData.visualBugs.map((bug, index) => {
+                    const isSelected = selectedBugIndex === index
+                    return (
+                      <button
+                        key={index}
+                        onClick={() => {
+                          onSelectBug?.(isSelected ? null : index)
+                          setInput(`Explain Bug #${index + 1} ("${bug.element}") and give me the CSS fix.`)
+                          inputRef.current?.focus()
+                        }}
+                        className={`w-full text-left group flex items-start gap-2.5 px-3 py-2.5 rounded-lg border transition-all duration-200 cursor-pointer ${
+                          isSelected
+                            ? 'bg-indigo-500/[0.06] border-indigo-500/20 shadow-sm shadow-indigo-500/5'
+                            : 'bg-[#0d0d0f] border-[#1a1a1d] hover:border-[#2e2e32] hover:bg-[#111113]'
+                        }`}
+                      >
+                        {/* Bug number */}
+                        <div className={`shrink-0 mt-0.5 w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold font-mono transition-colors ${
+                          isSelected
+                            ? 'bg-red-500 text-white shadow-sm shadow-red-500/30'
+                            : 'bg-red-500/15 text-red-400'
+                        }`}>
+                          {index + 1}
+                        </div>
+
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center justify-between gap-2 mb-0.5">
+                            <code className="text-[10px] font-mono text-[#a1a1aa] truncate block">
+                              {bug.element}
+                            </code>
+                            <span className={`shrink-0 text-[9px] flex items-center gap-0.5 transition-colors ${
+                              isSelected ? 'text-indigo-400' : 'text-[#3f3f46] group-hover:text-[#71717a]'
+                            }`}>
+                              Ask <ChevronRight className="size-2.5" />
+                            </span>
+                          </div>
+                          {bug.description && (
+                            <p className="text-[10px] text-[#52525b] leading-snug line-clamp-2">{bug.description}</p>
+                          )}
+                        </div>
+                      </button>
+                    )
+                  })
+                )}
+              </div>
+            </motion.div>
           )}
-        </div>
+        </AnimatePresence>
       </div>
 
-      {/* ── Chat Messages ─────────────────────────────────────────────── */}
+      {/* ═══ AI ANALYSIS (Chat) ═══ */}
+      <div className="px-4 py-2 border-b border-[#1f1f23]/60 shrink-0">
+        <span className="text-[10px] font-semibold text-[#71717a] uppercase tracking-widest">
+          AI Analysis
+        </span>
+      </div>
+
+      {/* Chat Messages */}
       <div className="flex-1 overflow-y-auto px-3 py-3 flex flex-col gap-3 min-h-0">
         {chatMessages.map((msg, index) =>
           msg.sender === "user" ? (
-            <div key={index} className="flex justify-end">
-              <div className="max-w-[88%] bg-[#18181b] border border-[#2e2e32] rounded-xl rounded-tr-sm px-3 py-2 text-[11px] text-[#d4d4d8] leading-relaxed">
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 4 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.2 }}
+              className="flex justify-end"
+            >
+              <div className="max-w-[88%] bg-[#18181b] border border-[#2e2e32] rounded-xl rounded-tr-sm px-3.5 py-2.5 text-[11px] text-[#d4d4d8] leading-relaxed">
                 {msg.text}
               </div>
-            </div>
+            </motion.div>
           ) : (
-            <div key={index} className="flex gap-2 items-start">
-              {/* AI avatar dot */}
-              <div className="size-4 rounded bg-violet-600/20 border border-violet-500/20 flex items-center justify-center shrink-0 mt-0.5">
-                <img src="/src/assets/hydralogo.png" alt="" />
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 4 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.2 }}
+              className="flex gap-2.5 items-start"
+            >
+              <div className="size-5 rounded-md bg-gradient-to-br from-violet-500/20 to-indigo-500/20 border border-violet-500/15 flex items-center justify-center shrink-0 mt-0.5">
+                <Sparkles className="size-2.5 text-violet-400" />
               </div>
               <div className="flex-1 min-w-0 text-[11px] text-[#a1a1aa] leading-relaxed">
                 <FormattedMessage text={msg.text} />
               </div>
-            </div>
+            </motion.div>
           )
         )}
 
+        {/* Typing indicator */}
         {loading && (
-          <div className="flex gap-2 items-start">
-            <div className="size-4 rounded bg-violet-600/20 border border-violet-500/20 flex items-center justify-center shrink-0 mt-0.5">
+          <div className="flex gap-2.5 items-start">
+            <div className="size-5 rounded-md bg-gradient-to-br from-violet-500/20 to-indigo-500/20 border border-violet-500/15 flex items-center justify-center shrink-0 mt-0.5">
               <Loader2 className="size-2.5 text-violet-400 animate-spin" />
             </div>
-            <div className="flex items-center gap-1.5 pt-1">
-              <span className="size-1 rounded-full bg-[#3f3f46] animate-[pulse_1.2s_ease-in-out_infinite]" />
-              <span className="size-1 rounded-full bg-[#3f3f46] animate-[pulse_1.2s_ease-in-out_0.2s_infinite]" />
-              <span className="size-1 rounded-full bg-[#3f3f46] animate-[pulse_1.2s_ease-in-out_0.4s_infinite]" />
+            <div className="flex items-center gap-1 pt-1.5">
+              <div className="w-32 h-3 rounded bg-[#1a1a1d] overflow-hidden relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#2e2e32] to-transparent" style={{ animation: 'shimmer 1.5s ease-in-out infinite' }} />
+              </div>
             </div>
           </div>
         )}
@@ -245,9 +332,9 @@ export default function ChatSidebar({ runData, chatMessages, setChatMessages }: 
         <div ref={messageEndRef} />
       </div>
 
-      {/* ── Input ─────────────────────────────────────────────────────── */}
-      <div className="px-3 py-3 border-t border-[#1f1f23] shrink-0 bg-[#0a0a0b]">
-        <form onSubmit={handleSend} className="flex items-center gap-2 bg-[#111113] border border-[#1f1f23] rounded-lg px-3 py-2 focus-within:border-[#3f3f46] transition-colors">
+      {/* ═══ INPUT ═══ */}
+      <div className="px-3 py-3 border-t border-[#1f1f23]/60 shrink-0 bg-[#0a0a0b]">
+        <form onSubmit={handleSend} className="flex items-center gap-2 bg-[#111113] border border-[#1f1f23] rounded-lg px-3 py-2 focus-within:border-[#2e2e32] focus-within:shadow-sm focus-within:shadow-violet-500/5 transition-all duration-200">
           <input
             ref={inputRef}
             type="text"
@@ -257,15 +344,18 @@ export default function ChatSidebar({ runData, chatMessages, setChatMessages }: 
             placeholder={loading ? "Analyzing…" : "Ask about this run…"}
             className="flex-1 bg-transparent text-[11px] text-[#d4d4d8] placeholder-[#3f3f46] outline-none min-w-0"
           />
-          <button
-            type="submit"
-            disabled={loading || !input.trim()}
-            className="shrink-0 p-1 text-[#525252] hover:text-[#a1a1aa] disabled:opacity-30 transition-colors cursor-pointer"
-          >
-            <Send className="size-3.5" />
-          </button>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <span className="text-[8px] font-mono text-[#2e2e32] hidden sm:inline">⏎</span>
+            <button
+              type="submit"
+              disabled={loading || !input.trim()}
+              className="p-1.5 text-[#525252] hover:text-violet-400 disabled:opacity-30 disabled:hover:text-[#525252] transition-colors cursor-pointer rounded hover:bg-violet-500/10"
+            >
+              <Send className="size-3.5" />
+            </button>
+          </div>
         </form>
-        <p className="text-[9px] text-[#2e2e32] mt-1.5 text-center">Gemini 2.5 · Visual regression context</p>
+        <p className="text-[9px] text-[#2e2e32] mt-1.5 text-center font-mono">Hydra AI · Visual regression context</p>
       </div>
 
     </aside>
