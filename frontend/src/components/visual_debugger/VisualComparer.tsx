@@ -218,57 +218,55 @@ export default function VisualComparer({ runData, selectedBugIndex = null, onSel
     <main className="flex-1 flex flex-col min-w-0 bg-[#08080a] overflow-hidden">
 
       {/* ═══ TOOLBAR ═══ */}
-      <div className="h-10 border-b border-[#1f1f23]/60 bg-[#0a0a0b]/80 backdrop-blur-sm flex items-center justify-between px-4 shrink-0">
+      <div className="h-10 border-b border-[#1f1f23]/60 bg-[#0a0a0b]/90 backdrop-blur-md flex items-center justify-between px-4 shrink-0">
         {/* Left: Metadata */}
-        <div className="flex items-center gap-2.5 text-[11px]">
-          <span className="font-mono bg-[#111113] border border-[#1f1f23] px-2 py-0.5 rounded text-[10px] text-[#71717a]">
+        <div className="flex items-center gap-2 text-[11px]">
+          <span className="font-mono bg-[#121215] border border-[#27272a] px-2 py-0.5 rounded-md text-[10px] text-[#d4d4d8] font-medium shadow-sm">
             1440 × 900
           </span>
           {bugCount > 0 && (
-            <span className="font-mono bg-red-500/8 border border-red-500/15 text-red-400 px-2 py-0.5 rounded text-[10px] shadow-sm shadow-red-500/5">
+            <span className="font-mono bg-red-500/10 border border-red-500/20 text-red-400 px-2 py-0.5 rounded-md text-[10px] font-semibold shadow-sm shadow-red-500/5">
               {bugCount} {bugCount === 1 ? 'regression' : 'regressions'}
             </span>
           )}
           {bugCount === 0 && runData.status === 'PASSED' && (
-            <span className="font-mono bg-emerald-500/8 border border-emerald-500/15 text-emerald-400 px-2 py-0.5 rounded text-[10px]">
+            <span className="font-mono bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-md text-[10px] font-semibold shadow-sm shadow-emerald-500/5">
               Clean
             </span>
           )}
         </div>
 
         {/* Center: View Mode Tabs */}
-        <div className="flex items-center bg-[#0d0d0f] border border-[#1f1f23] rounded-lg p-0.5">
+        <div className="flex items-center bg-[#0d0d0f] border border-[#27272a] rounded-lg p-0.5 shadow-inner">
           {viewModes.map(({ key, label }, i) => (
             <button
               key={key}
               onClick={() => setViewMode(key)}
-              className={`relative px-3.5 py-1 text-[10px] font-medium rounded-md transition-colors duration-150 cursor-pointer ${
+              className={`relative px-3 py-1 text-[11px] font-medium rounded-md transition-all duration-150 cursor-pointer flex items-center gap-1.5 ${
                 viewMode === key
-                  ? 'text-[#e4e4e7]'
-                  : 'text-[#52525b] hover:text-[#a1a1aa]'
+                  ? 'text-white font-semibold'
+                  : 'text-[#a1a1aa] hover:text-white'
               }`}
             >
               {viewMode === key && (
                 <motion.div
                   layoutId="viewModeIndicator"
-                  className="absolute inset-0 bg-[#1a1a1d] border border-[#2e2e32] rounded-md shadow-sm"
+                  className="absolute inset-0 bg-[#1c1c21] border border-[#3f3f46]/60 rounded-md shadow-sm"
                   transition={{ type: "spring", stiffness: 400, damping: 30 }}
                 />
               )}
               <span className="relative z-10">{label}</span>
-              {/* Keyboard hint */}
-              <span className="relative z-10 ml-1 text-[8px] text-[#3f3f46] font-mono">{i + 1}</span>
             </button>
           ))}
         </div>
 
         {/* Right: Zoom Info */}
-        <div className="flex items-center gap-1.5">
-          <span className="text-[10px] font-mono text-[#52525b]">
+        <div className="flex items-center gap-2">
+          <span className="text-[11px] font-mono text-[#e4e4e7] font-medium bg-[#121215] px-2 py-0.5 rounded-md border border-[#27272a]">
             {Math.round(zoomLevel * 100)}%
           </span>
-          <span className="text-[9px] text-[#2e2e32] font-mono ml-1 hidden lg:inline">
-            Ctrl+Scroll to zoom
+          <span className="text-[10px] text-[#a1a1aa] font-medium bg-[#121215] px-2 py-0.5 rounded-md border border-[#27272a] hidden lg:inline-flex items-center gap-1">
+            <kbd className="text-violet-400 font-mono">Ctrl</kbd> + <kbd className="text-violet-400 font-mono">Scroll</kbd> to zoom
           </span>
         </div>
       </div>

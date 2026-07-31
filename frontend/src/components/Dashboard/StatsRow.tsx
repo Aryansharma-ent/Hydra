@@ -5,18 +5,18 @@ interface StatsRowProps {
 }
 
 export default function StatsRow({ runs }: StatsRowProps) {
-  // 1. Total Scans Run
+  // 1. total scans run
   const totalRuns = runs.length
 
-  // 2. Total visual layout bugs identified across all runs
+  // 2. total visual layout bugs identified across all runs
   const totalBugs = runs.reduce((sum, r) => sum + (r.visualBugs?.length || 0), 0)
 
-  // 3. Average layout mismatch percentage (drift)
+  // 3. average layout mismatch percentage (drift)
   const avgDiff = totalRuns > 0 
     ? (runs.reduce((sum, r) => sum + (r.mismatchPercentage || 0), 0) / totalRuns).toFixed(2)
     : "0.00"
 
-  // 4. Pass Success Rate (PASSED status runs vs total)
+  // 4. pass Success Rate (PASSED status runs vs total)
   const passedRuns = runs.filter(r => r.status === "PASSED").length
   const successRate = totalRuns > 0 
     ? Math.round((passedRuns / totalRuns) * 100)
@@ -25,7 +25,7 @@ export default function StatsRow({ runs }: StatsRowProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-4 select-none animate-fade-in">
       
-      {/* 1. Total runs widget */}
+      {/* 1. total runs widget */}
       <div className="bg-[#0c0c0e] border border-[#1f1f23] rounded-lg p-5 flex flex-col justify-between hover:border-[#1f1f23]/80 transition-all">
         <div>
           <span className="text-[9px] uppercase font-bold tracking-widest text-white-300 font-mono">

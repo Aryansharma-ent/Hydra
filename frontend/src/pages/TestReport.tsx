@@ -164,9 +164,9 @@ export default function TestReport() {
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500/20 to-violet-500/20 border border-indigo-500/20 flex items-center justify-center"
+                className="w-12 h-12 rounded-xl bg-[#121215] border border-[#27272a] flex items-center justify-center p-2 shadow-lg shadow-violet-500/5"
               >
-                <Cpu className="size-5 text-indigo-400 animate-pulse" />
+                <img src="/src/assets/hydralogo.png" className="w-full h-full object-contain animate-pulse" alt="Hydra Logo" />
               </motion.div>
 
               {/* Title */}

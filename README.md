@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="./frontend/src/assets/hydra.png" alt="Hydra Logo" width="240" />
+  <img src="https://ik.imagekit.io/itsaks/hydra.png" alt="Hydra Logo" width="240" />
 
   # Hydra
 

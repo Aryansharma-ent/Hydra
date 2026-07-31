@@ -224,7 +224,7 @@ const productionUrl = params.productionUrl
 if (!projectId || !apiKey) {
     console.error("\x1b[31m❌ Error: Missing required arguments.\x1b[0m");
     console.log("\nUsage:");
-    console.log("  node spectre-cli.js --project <projectId> --key <apiKey> [--stagingUrl <url>] [--productionUrl <url>]\n");
+    console.log("  npx @itzaks/hydra-visual-cli --project <projectId> --key <apiKey> [--stagingUrl <url>] [--productionUrl <url>]\n");
     console.log("Options:");
     console.log("  --project, --projectId   The ID of your project target");
     console.log("  --key, --apiKey          The secure API key generated for the project");

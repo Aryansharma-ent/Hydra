@@ -170,19 +170,14 @@ export default function ChatSidebar({ runData, chatMessages, setChatMessages, se
   return (
     <aside className="w-[380px] border-l border-[#1f1f23]/60 bg-[#0a0a0b] flex flex-col shrink-0 min-h-0">
 
-    {/*  header */}
-      <div className="px-4 py-2.5 border-b border-[#1f1f23]/60 flex items-center justify-between shrink-0 bg-[#0a0a0b]/80 backdrop-blur-sm">
-        <div className="flex items-center gap-2.5">
-          <div className="w-5 h-5 rounded-md bg-gradient-to-br from-violet-500/20 to-indigo-500/20 border border-violet-500/15 flex items-center justify-center">
-            <img src="/src/assets/hydralogo.png" alt="" />
+    {/* Inspector Header */}
+      <div className="h-10 px-4 border-b border-[#1f1f23] flex items-center justify-between shrink-0 bg-[#09090b]/90 backdrop-blur-md z-10">
+        <div className="flex items-center gap-2">
+          <div className="w-5.5 h-5.5 rounded-md bg-[#121215] border border-[#27272a] flex items-center justify-center p-0.5">
+            <img src="/src/assets/hydralogo.png" className="w-full h-full object-contain" alt="Hydra Logo" />
           </div>
-          <div>
-            <span className="text-[11px] font-semibold text-[#e4e4e7] tracking-wide">Hydra Inspector</span>
-          </div>
+          <span className="text-[12px] font-semibold text-white tracking-wide">Hydra Inspector</span>
         </div>
-        <span className="text-[9px] font-mono text-[#3f3f46] bg-[#111113] border border-[#1f1f23] px-1.5 py-0.5 rounded">
-          gemini-2.5
-        </span>
       </div>
 
       {/* // Regression section */}

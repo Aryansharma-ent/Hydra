@@ -50,3 +50,11 @@ Desktop.ini
 *.njsproj
 *.sln
 *.sw?
+
+# ─── Internal Development Docs & Scratch Artifacts ─────────────────────────────
+afteranimation/
+hydra-logo.html
+STATUS.md
+CLAUDE.md
+.cursorrules
+my_questions_reference.txt

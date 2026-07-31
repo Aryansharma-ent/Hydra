@@ -1,5 +1,5 @@
 import { Link, useLocation, useParams } from "react-router-dom";
-import { LayoutGrid, Play, Key, BookOpen, Sparkles, Check, X, ShieldCheck, Loader2 } from "lucide-react";
+import { LayoutGrid, Play, Key, BookOpen, Sparkles, Crown, Check, X, ShieldCheck, Loader2 } from "lucide-react";
 import { useState } from "react";
 import axios from "axios";
 
@@ -84,7 +84,7 @@ export default function Sidebar() {
               localStorage.setItem("hydra_user", JSON.stringify(updatedUser));
 
               setIsModalOpen(false);
-              alert("🎉 Payment Successful! Account upgraded to Hydra Pro.");
+              alert(" Payment Successful! Account upgraded to Hydra Pro.");
               window.location.reload();
             }
           } catch (verifyErr: any) {
@@ -162,7 +162,7 @@ export default function Sidebar() {
             <Link
               to={projectId ? `/projects/${projectId}/settings` : "/settings"}
               className={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded transition-colors ${
-                isActive(`/projects`)
+                isActive(`/projects`) || isActive('/settings')
                   ? "text-white bg-indigo-950/30 border border-indigo-500/20 shadow-sm"
                   : "text-muted-foreground hover:text-white"
               }`}
@@ -170,51 +170,69 @@ export default function Sidebar() {
               <Key className="size-4 shrink-0 text-indigo-400" />
               Developer Settings
             </Link>
+
+            {/* Documentation */}
+            <Link
+              to="/docs"
+              className={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded transition-colors ${
+                isActive("/docs")
+                  ? "text-white bg-indigo-950/30 border border-indigo-500/20 shadow-sm"
+                  : "text-muted-foreground hover:text-white"
+              }`}
+            >
+              <BookOpen className="size-4 shrink-0 text-indigo-400" />
+              Documentation
+            </Link>
           </nav>
         </div>
 
         {/* Footer Sidebar Section */}
         <div className="p-4 border-t border-[#1f1f23]/60 flex flex-col gap-3">
           
-          {/* Active Pro Member Badge or Upgrade Card */}
+          {/* Native Linear-Style Account Status Panel */}
           {isProUser ? (
-            <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-3 flex items-center gap-2.5">
-              <div className="w-7 h-7 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 shrink-0">
-                <Sparkles className="size-4" />
+            <div className="rounded-lg border border-[#1f1f23] bg-[#0d0d0f] p-3 flex flex-col gap-2 select-none">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="size-3.5 text-[#a1a1aa]" />
+                  <span className="text-[12px] font-semibold text-white">Hydra Pro</span>
+                </div>
               </div>
-              <div className="flex flex-col">
-                <span className="text-[11px] font-bold text-white tracking-wide">Hydra Pro Member</span>
-                <span className="text-[9px] text-emerald-400 font-medium">✨ Auto-Healing Active</span>
-              </div>
+              <p className="text-[11px] text-[#71717a] leading-tight">
+                Auto-Healing & Unlimited Scans
+              </p>
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="text-[11px] font-medium text-[#a1a1aa] hover:text-white flex items-center gap-1 transition-colors mt-0.5 text-left cursor-pointer"
+              >
+                <span>Manage Plan</span>
+                <span className="text-[10px]">→</span>
+              </button>
             </div>
           ) : (
-            <div
-              onClick={() => setIsModalOpen(true)}
-              className="group relative overflow-hidden rounded-xl border border-violet-500/30 bg-gradient-to-b from-violet-950/40 via-purple-950/20 to-[#08080a] p-3.5 transition-all duration-200 hover:border-violet-500/60 hover:shadow-lg hover:shadow-violet-500/10 cursor-pointer"
-            >
-              <div className="flex items-center gap-2 mb-1.5">
-                <div className="w-5 h-5 rounded-md bg-violet-600/30 border border-violet-400/40 flex items-center justify-center text-violet-300">
-                  <Sparkles className="size-3" />
+            <div className="rounded-lg border border-[#1f1f23] bg-[#0d0d0f] p-3 flex flex-col gap-2 select-none">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="size-3.5 text-[#71717a]" />
+                  <span className="text-[12px] font-semibold text-white">Free Plan</span>
                 </div>
-                <span className="text-[11px] font-bold text-white tracking-wide">Upgrade to Pro</span>
               </div>
-              <p className="text-[10px] text-[#a1a1aa] leading-relaxed mb-2.5">
-                Unlock AI Auto-Healing Subagents & Candidate PR Patches.
+              <p className="text-[11px] text-[#71717a] leading-tight">
+                Standard Visual Inspection
               </p>
-              <div className="w-full h-7 text-[10px] font-semibold text-white bg-violet-600 hover:bg-violet-500 rounded-lg flex items-center justify-center gap-1.5 transition-colors shadow-sm">
-                <span>View Pro Benefits</span>
-              </div>
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="text-[11px] font-medium text-violet-400 hover:text-violet-300 flex items-center gap-1 transition-colors mt-0.5 text-left cursor-pointer"
+              >
+                <span>Upgrade to Pro</span>
+                <span className="text-[10px]">→</span>
+              </button>
             </div>
           )}
-
-          <Link to="/docs" className="flex items-center gap-3 px-1 py-0.5 text-xs font-semibold text-muted-foreground hover:text-white transition-colors">
-            <BookOpen className="size-4 shrink-0" />
-            Docs
-          </Link>
         </div>
       </aside>
 
-      {/* ─── Razorpay Pro Plan Comparison Modal ─────────────────────────────── */}
+      {/*  Razorpay Pro Plan Comparison Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="w-full max-w-2xl bg-[#09090b] border border-[#1f1f23] rounded-2xl p-6 shadow-2xl flex flex-col gap-6 relative animate-in fade-in zoom-in duration-200">
@@ -228,8 +246,8 @@ export default function Sidebar() {
 
             {/* Header */}
             <div className="flex flex-col gap-1 text-center">
-              <div className="mx-auto w-10 h-10 rounded-xl bg-violet-600/20 border border-violet-500/30 flex items-center justify-center text-violet-400 mb-2">
-                <Sparkles className="size-5" />
+              <div className="mx-auto w-10 h-10 rounded-xl bg-[#121215] border border-[#27272a] flex items-center justify-center p-1.5 mb-2 shadow-sm">
+                <img src="/src/assets/hydralogo.png" className="w-full h-full object-contain" alt="Hydra Logo" />
               </div>
               <h2 className="text-xl font-bold text-white tracking-tight">Supercharge your Visual Testing</h2>
               <p className="text-xs text-[#a1a1aa]">
@@ -255,9 +273,11 @@ export default function Sidebar() {
                   </ul>
                 </div>
 
-                <div className="mt-6 pt-3 border-t border-[#1f1f23] text-center text-xs font-medium text-[#71717a]">
-                  Current Active Plan
-                </div>
+                {!isProUser && (
+                  <div className="mt-6 pt-3 border-t border-[#1f1f23] text-center text-xs font-medium text-[#71717a]">
+                    Current Active Plan
+                  </div>
+                )}
               </div>
 
               {/* Pro Plan Card */}
@@ -273,24 +293,31 @@ export default function Sidebar() {
 
                   <ul className="flex flex-col gap-2.5 text-[11px] text-[#e4e4e7]">
                     <li className="flex items-center gap-2"><Check className="size-3.5 text-emerald-400 shrink-0" /> Everything in Free</li>
-                    <li className="flex items-center gap-2"><Check className="size-3.5 text-violet-400 shrink-0" /><span className="font-semibold text-white">✨ AI Auto-Healing Subagents</span></li>
+                    <li className="flex items-center gap-2"><Check className="size-3.5 text-violet-400 shrink-0" /><span className="font-semibold text-white">AI Auto-Healing Subagents</span></li>
                     <li className="flex items-center gap-2"><Check className="size-3.5 text-violet-400 shrink-0" /><span className="font-semibold text-white">🌿 Candidate Branch Git Commits</span></li>
                     <li className="flex items-center gap-2"><Check className="size-3.5 text-violet-400 shrink-0" /> Programmatic Localhost Tunneling</li>
                     <li className="flex items-center gap-2"><Check className="size-3.5 text-violet-400 shrink-0" /> Unlimited Visual Captures</li>
                   </ul>
                 </div>
 
-                <button
-                  onClick={handleUpgradeToPro}
-                  disabled={loading}
-                  className="mt-6 w-full py-2.5 px-4 text-xs font-bold text-white bg-violet-600 hover:bg-violet-500 rounded-lg flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md shadow-violet-600/30 disabled:opacity-50"
-                >
-                  {loading ? (
-                    <><Loader2 className="size-4 animate-spin" /> Opening Razorpay...</>
-                  ) : (
-                    <>Pay with UPI / Cards <Sparkles className="size-3.5" /></>
-                  )}
-                </button>
+                {isProUser ? (
+                  <div className="mt-6 py-2.5 px-4 text-xs font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-lg flex items-center justify-center gap-2">
+                    <Check className="size-4 text-emerald-400" />
+                    <span>Current Active Plan</span>
+                  </div>
+                ) : (
+                  <button
+                    onClick={handleUpgradeToPro}
+                    disabled={loading}
+                    className="mt-6 w-full py-2.5 px-4 text-xs font-bold text-white bg-violet-600 hover:bg-violet-500 rounded-lg flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md shadow-violet-600/30 disabled:opacity-50"
+                  >
+                    {loading ? (
+                      <><Loader2 className="size-4 animate-spin" /> Opening Razorpay...</>
+                    ) : (
+                      <>Pay with UPI / Cards <Sparkles className="size-3.5" /></>
+                    )}
+                  </button>
+                )}
               </div>
             </div>
 

@@ -129,51 +129,6 @@ export const googleLogin = AsyncHandler(async (req: Request, res: Response) => {
   });
 });
 
-// @desc    GitHub OAuth Register/Login
-// @route   POST /api/auth/github
-// @access  Public
-export const githubLogin = AsyncHandler(async (req: Request, res: Response) => {
-  const { githubId, email, name, avatarUrl } = req.body;
-
-  if (!githubId || !email) {
-    res.status(400);
-    throw new Error("GitHub ID and Email are required");
-  }
-
-  let user = await User.findOne({ githubId });
-
-  if (!user) {
-  
-    user = await User.findOne({ email });
-
-    if (user) {
-      
-      user.githubId = githubId;
-      if (!user.avatarUrl && avatarUrl) user.avatarUrl = avatarUrl;
-      await user.save();
-    } else {
-  
-      user = await User.create({
-        githubId,
-        email,
-        name: name || email.split("@")[0],
-        avatarUrl,
-      });
-    }
-  }
-
-  res.status(200).json({
-    success: true,
-    data: {
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      avatarUrl: user.avatarUrl,
-      tier : user.tier,
-      token: generateToken(user._id.toString()),
-    },
-  });
-});
 
 // @desc    Get user profile details
 // @route   GET /api/auth/me
