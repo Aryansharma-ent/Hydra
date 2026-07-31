@@ -160,7 +160,7 @@ export default function Sidebar() {
 
             {/* Render Developer Settings */}
             <Link
-              to={projectId ? `/projects/${projectId}/settings` : "/dashboard"}
+              to={projectId ? `/projects/${projectId}/settings` : "/settings"}
               className={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded transition-colors ${
                 isActive(`/projects`)
                   ? "text-white bg-indigo-950/30 border border-indigo-500/20 shadow-sm"

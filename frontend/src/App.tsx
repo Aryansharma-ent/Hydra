@@ -32,6 +32,14 @@ function App() {
         }
       />
       <Route
+        path="/settings"
+        element={
+          <ProtectedRoute>
+            <Settings />
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/projects/:projectId/settings"
         element={
           <ProtectedRoute>

@@ -12,33 +12,33 @@ export default function Signup() {
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
 
-const [errorMessage, setErrorMessage] = useState("");
-const handleEmailSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setLoading(true);
-  setErrorMessage("");
-  try {
-    const res = await axios.post("http://localhost:8000/api/auth/register", {
-      name,
-      email,
-      password,
-    });
-    if (res.data.success) {
-      // 1. Store the token in localStorage
-      localStorage.setItem("hydra_token", res.data.data.token);
-      localStorage.setItem("hydra_user", JSON.stringify(res.data.data));
-      // 2. Set default Axios header so future requests include token
-      axios.defaults.headers.common["Authorization"] = `Bearer ${res.data.data.token}`;
-      // 3. Redirect to dashboard
-      navigate("/dashboard");
+  const [errorMessage, setErrorMessage] = useState("");
+  const handleEmailSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setErrorMessage("");
+    try {
+      const res = await axios.post("http://localhost:8000/api/auth/register", {
+        name,
+        email,
+        password,
+      });
+      if (res.data.success) {
+        // 1. Store the token in localStorage
+        localStorage.setItem("hydra_token", res.data.data.token);
+        localStorage.setItem("hydra_user", JSON.stringify(res.data.data));
+        // 2. Set default Axios header so future requests include token
+        axios.defaults.headers.common["Authorization"] = `Bearer ${res.data.data.token}`;
+        // 3. Redirect to dashboard
+        navigate("/dashboard");
+      }
+    } catch (error: any) {
+      console.error("Signup error:", error);
+      setErrorMessage(error.response?.data?.message || "Registration failed");
+    } finally {
+      setLoading(false);
     }
-  } catch (error: any) {
-    console.error("Signup error:", error);
-    setErrorMessage(error.response?.data?.message || "Registration failed");
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   const handleOAuthLogin = (provider: string) => {
     console.log(`OAuth register with ${provider}`)

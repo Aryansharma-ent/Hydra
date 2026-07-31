@@ -62,7 +62,7 @@ function CodeBlock({ code }: { code: string }) {
   )
 }
 
-/* ═══ Formatted Message (preserved logic) ═══ */
+ // format message function
 function FormattedMessage({ text }: { text: string }) {
   const parts = text.split(/(```(?:css|html|javascript|json|ts|tsx)?\n?[\s\S]*?```)/g)
 
@@ -102,23 +102,27 @@ function FormattedMessage({ text }: { text: string }) {
   )
 }
 
-/* ═══ Main Inspector Panel ═══ */
+ // main inspector panel
 export default function ChatSidebar({ runData, chatMessages, setChatMessages, selectedBugIndex = null, onSelectBug }: ChatSidebarProps) {
-  /* ═══ EXISTING STATE — PRESERVED EXACTLY ═══ */
+
+
   const [input, setInput] = useState("")
   const [loading, setLoading] = useState(false)
   const messageEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  /* ═══ NEW: Section collapse (local UI only) ═══ */
+
+
   const [regressionsOpen, setRegressionsOpen] = useState(true)
 
-  /* ═══ EXISTING EFFECT — PRESERVED ═══ */
   useEffect(() => {
     messageEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [chatMessages])
 
-  /* ═══ EXISTING HANDLER — PRESERVED EXACTLY ═══ */
+
+
+
+  
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!input.trim() || loading) return
@@ -166,11 +170,11 @@ export default function ChatSidebar({ runData, chatMessages, setChatMessages, se
   return (
     <aside className="w-[380px] border-l border-[#1f1f23]/60 bg-[#0a0a0b] flex flex-col shrink-0 min-h-0">
 
-      {/* ═══ HEADER ═══ */}
+    {/*  header */}
       <div className="px-4 py-2.5 border-b border-[#1f1f23]/60 flex items-center justify-between shrink-0 bg-[#0a0a0b]/80 backdrop-blur-sm">
         <div className="flex items-center gap-2.5">
           <div className="w-5 h-5 rounded-md bg-gradient-to-br from-violet-500/20 to-indigo-500/20 border border-violet-500/15 flex items-center justify-center">
-            <Sparkles className="size-3 text-violet-400" />
+            <img src="/src/assets/hydralogo.png" alt="" />
           </div>
           <div>
             <span className="text-[11px] font-semibold text-[#e4e4e7] tracking-wide">Hydra Inspector</span>
@@ -181,9 +185,9 @@ export default function ChatSidebar({ runData, chatMessages, setChatMessages, se
         </span>
       </div>
 
-      {/* ═══ REGRESSIONS SECTION ═══ */}
+      {/* // Regression section */}
       <div className="border-b border-[#1f1f23]/60 shrink-0">
-        {/* Section Header (clickable to collapse) */}
+      
         <button
           onClick={() => setRegressionsOpen(!regressionsOpen)}
           className="w-full px-4 py-2 flex items-center justify-between cursor-pointer hover:bg-[#111113]/50 transition-colors"
@@ -208,7 +212,7 @@ export default function ChatSidebar({ runData, chatMessages, setChatMessages, se
           </span>
         </button>
 
-        {/* Bug List */}
+        {/* // Bug List */}
         <AnimatePresence>
           {regressionsOpen && (
             <motion.div
@@ -275,14 +279,14 @@ export default function ChatSidebar({ runData, chatMessages, setChatMessages, se
         </AnimatePresence>
       </div>
 
-      {/* ═══ AI ANALYSIS (Chat) ═══ */}
+      {/* // AI chat */}
       <div className="px-4 py-2 border-b border-[#1f1f23]/60 shrink-0">
         <span className="text-[10px] font-semibold text-[#71717a] uppercase tracking-widest">
-          AI Analysis
+           Analysis
         </span>
       </div>
 
-      {/* Chat Messages */}
+{/* // chat messages */}
       <div className="flex-1 overflow-y-auto px-3 py-3 flex flex-col gap-3 min-h-0">
         {chatMessages.map((msg, index) =>
           msg.sender === "user" ? (
@@ -306,7 +310,7 @@ export default function ChatSidebar({ runData, chatMessages, setChatMessages, se
               className="flex gap-2.5 items-start"
             >
               <div className="size-5 rounded-md bg-gradient-to-br from-violet-500/20 to-indigo-500/20 border border-violet-500/15 flex items-center justify-center shrink-0 mt-0.5">
-                <Sparkles className="size-2.5 text-violet-400" />
+               <img src="/src/assets/hydralogo.png" alt="" />
               </div>
               <div className="flex-1 min-w-0 text-[11px] text-[#a1a1aa] leading-relaxed">
                 <FormattedMessage text={msg.text} />

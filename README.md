@@ -1,189 +1,139 @@
-# 🕵️‍♂️ Spectre AI (Visual Regression Debugger)
+<div align="center">
+  <img src="./frontend/src/assets/hydra.png" alt="Hydra Logo" width="220" />
 
-**** is a modern, developer-focused Visual Regression Debugger. It allows developers to compare their **Staging** and **Production** website URLs pixel-by-pixel, instantly highlighting visual layout bugs and utilizing **Gemini AI** to suggest the exact CSS code fixes in a dynamic sidebar.
+  # HYDRA
 
-No more manual QA testing or missing broken layouts during deployments. Spectre AI automates visual debugging with pixel-perfect accuracy.
+  **Open-Source Automated Visual Regression Testing & AI Auto-Healing Platform**
+
+  *Kill visual regressions between staging and production automatically before they break your launch.*
+
+  ---
+</div>
+
+## 📌 Overview
+
+**Hydra** is a modern, high-precision visual regression testing platform built for engineering teams. It performs pixel-by-pixel comparisons between **Staging** and **Production** environments, isolates layout shifts, maps them directly to DOM elements, and leverages **Gemini AI** to diagnose root causes.
+
+### 🌟 Open Source vs. Pro Plan
+
+* 🆓 **Open-Source (Free Tier)**: Unlimited visual regression capturing, sub-pixel difference detection, interactive visual debugger dashboard, and CI/CD CLI integration.
+* ⚡ **Hydra Pro Plan**: Unlocks the **Autonomous AI Auto-Healing Agent**—an autonomous subagent that reads layout diffs, searches your repository, applies Tailwind/CSS class repairs directly in your codebase, and pushes candidate fixes to a Git branch automatically.
 
 ---
 
-## 🏗️ System Architecture & "Cast of Characters"
+## 📊 Feature Comparison: Hydra vs. Market Alternatives
 
-Spectre AI is built using a coordinated multi-agent architecture. Here is how the request flows through our system:
+| Feature | Percy (BrowserStack) | Chromatic (Storybook) | Playwright / Cypress | **HYDRA (Open Source)** | **HYDRA PRO** |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| **Primary Focus** | Passive PNG Diffing | Component Snapshotting | E2E Code Assertions | **Active Visual Debugging** | **Autonomous Code Healing** |
+| **Open Source** | ❌ Proprietary | ❌ Proprietary | ✅ Open Source | ✅ **100% Open Source** | ⚡ Cloud Managed |
+| **Sub-Pixel Mismatch Engine** | ✅ Yes | ✅ Yes | ⚠️ Manual Config | ✅ **Pixelmatch Engine** | ✅ **Pixelmatch Engine** |
+| **DOM Element Localization** | ❌ None | ❌ None | ❌ None | ✅ **DOM Bounding Inspector**| ✅ **DOM Bounding Inspector**|
+| **AI Root Cause Analysis** | ❌ None | ❌ None | ❌ None | ✅ **Gemini AI Diagnosis** | ✅ **Gemini AI Diagnosis** |
+| **Autonomous Code Fixes** | ❌ None | ❌ None | ❌ None | ❌ Manual Copy/Paste | ⚡ **AI Auto-Healing Agent** |
+| **Candidate Branch PR Commits** | ❌ None | ❌ None | ❌ None | ❌ Manual | ⚡ **Automated Git Commits** |
+| **Localhost Tunneling** | ⚠️ Complex Proxy | ⚠️ Complex Proxy | ❌ None | ✅ **Automatic Tunneling** | ✅ **Automatic Tunneling** |
+
+---
+
+## ⚡ Installation & Quick Start
+
+### 1. Run via `npx` (No Installation Required)
+
+Run Hydra directly from your terminal or CI environment using `npx`:
+
+```bash
+npx hydra-cli --project <YOUR_PROJECT_ID> --key <YOUR_API_KEY> --stagingUrl http://localhost:5173 --productionUrl https://your-app.com
+```
+
+### 2. Local Installation
+
+Install `hydra-cli` in your project's `devDependencies`:
+
+```bash
+npm install --save-dev hydra-cli
+```
+
+Add a test script to your `package.json`:
+
+```json
+"scripts": {
+  "test:visual": "hydra --project <YOUR_PROJECT_ID> --key <YOUR_API_KEY>"
+}
+```
+
+---
+
+## 🤖 CI/CD Integration (GitHub Actions)
+
+Add Hydra to `.github/workflows/hydra.yml` to run automated visual checks on every Pull Request:
+
+```yaml
+name: Hydra Visual Testing & Auto-Healing
+
+on:
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: write # Required for Auto-Healing agent to push candidate branches
+
+jobs:
+  visual-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Run Hydra Visual Scan
+        run: npx hydra-cli --project ${{ secrets.HYDRA_PROJECT_ID }} --key ${{ secrets.HYDRA_API_KEY }} --stagingUrl ${{ steps.preview.outputs.url }} --productionUrl https://your-app.com
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+```
+
+---
+
+## 🏗️ Architecture & How It Works
 
 ```text
-┌────────────────────────────────────────────────────────┐
-│               THE CLIENT (React Frontend)              │
-│       "The Front Desk" where developers buy tickets,   │
-│           type URLs, and view visual reports.          │
-└──────────────────────────┬─────────────────────────────┘
-                           │ 1. Submits Test Request (URLs)
-                           ▼
-┌────────────────────────────────────────────────────────┐
-│               THE DETECTIVE (Node/Express)             │
-│        The coordinator who receives the request and    │
-│        tells the specialist agents what to do.         │
-└──────────────────────────┬─────────────────────────────┘
-                           │ 2. Dispatches Specialist Agents
-                           ▼
- ┌─────────────────────────┼────────────────────────────┐
- │                         │                            │
- ▼                         ▼                            ▼
-┌─────────────────┐       ┌─────────────────┐       ┌─────────────────┐
-│ THE PHOTOGRAPHER│       │ THE SPOTTER     │       │ THE CONSULTANT  │
-│  (Puppeteer)    │       │  (Pixelmatch)   │       │   (Gemini AI)   │
-│ Takes picture   │       │ Compares images │       │ Analyzes errors │
-│ of both sites.  │       │ & circles bugs. │       │ & writes code.  │
-└────────┬────────┘       └────────┬────────┘       └────────┬────────┘
-         │                         │                         │
-         └─────────────────────────┼─────────────────────────┘
-                                   │ 3. Saves Case Files
-                                   ▼
-                        ┌─────────────────────┐
-                        │  THE FILE CABINET   │
-                        │      (MongoDB)      │
-                        │ Stores project keys │
-                        │  & history records. │
-                        └─────────────────────┘
+ ┌────────────────────────────────────────────────────────┐
+ │                   HYDRA FRONTEND                       │
+ │  Interactive Dashboard, Visual Debugger, & Diff Slider │
+ └──────────────────────────┬─────────────────────────────┘
+                            │
+                            ▼
+ ┌────────────────────────────────────────────────────────┐
+ │                   HYDRA BACKEND API                    │
+ └──────┬───────────────────┬───────────────────┬─────────┘
+        │                   │                   │
+        ▼                   ▼                   ▼
+┌──────────────┐    ┌──────────────┐    ┌──────────────┐
+│ PHOTOGRAPHER │    │   SPOTTER    │    │  CONSULTANT  │
+│  (Puppeteer) │    │ (Pixelmatch) │    │  (Gemini AI) │
+│ Concurrent   │    │ Sub-pixel    │    │ Root Cause   │
+│ Screenshots  │    │ Heatmaps     │    │ AI Diagnosis │
+└──────────────┘    └──────────────┘    └──────┬───────┘
+                                               │
+                                               ▼ (Pro Plan)
+                                       ┌──────────────┐
+                                       │ AUTO-HEALER  │
+                                       │ Code Swapper │
+                                       │ & Git Commit │
+                                       └──────────────┘
 ```
 
-### 👥 The Specialist Team Roles
-* **The Client (React / TypeScript)**: The visual frontend dashboard. It collects the testing URLs and displays visual diff reports with an interactive slider.
-* **The Detective (Node.js / Express)**: The central orchestrator server. It exposes the API endpoints, receives the request, and manages the execution flow.
-* **The Photographer (Puppeteer)**: The browser automation specialist. It spawns a headless Chrome browser, visits the Staging & Production URLs, and snaps screenshots.
-* **The Spotter (Pixelmatch)**: The pixel-comparison engine. It overlays the two screenshots, highlights mismatches in neon pink, and calculates the difference percentage.
-* **The Consultant (Gemini AI)**: The intelligent assistant. It analyzes the visual difference coordinates alongside HTML/CSS layout files and provides the exact CSS code block needed to fix the bug.
-* **The File Cabinet (MongoDB)**: The secure storage drawer. It stores historic visual test runs, difference reports, and user project details.
+1. **Photographer (Puppeteer)**: Launches two headless browsers simultaneously in RAM to capture high-res PNGs of Staging and Production.
+2. **Spotter (Pixelmatch)**: Overlays screenshots to compute exact pixel differences and maps them to DOM element coordinates.
+3. **Consultant (Gemini AI)**: Analyzes mismatched HTML nodes and generates exact CSS/Tailwind class fix recommendations.
+4. **Auto-Healer Agent (Pro Plan)**: Locates the target component file in your repository, applies the fix, and commits it to candidate branch `hydra-fix/layout-regressions`.
 
 ---
 
-## ⚖️ Spectre AI vs. Traditional Visual Testing (Why Spectre AI?)
+## 📄 License
 
-Traditional visual testing platforms (like Percy or Chromatic) are **passive detectors**—they alert you *if* a layout is broken but leave you to figure out *why* and *how* to fix it. Spectre AI is an **active visual debugger** that maps pixel shifts directly to DOM element selectors and automatically writes the CSS overrides to fix them.
-
-### Comparison Matrix
-
-| Feature | Percy / Chromatic | Playwright / Cypress | **Spectre AI (Our Project)** |
-| :--- | :--- | :--- | :--- |
-| **Primary Goal** | **Detection**: Alert if screenshots differ. | **Assertion**: Fail pipeline if page changes. | **Debugging**: Detect, locate DOM nodes, and write the fix. |
-| **Output** | Flat, static PNG difference mask. | Static local diff image file. | **Interactive DOM inspector** with selector highlights. |
-| **Root Cause Analysis**| ❌ None. You must open DevTools manually. | ❌ None. | **AI-powered**: Explains the cause of layout shifts. |
-| **Styling Fixes** | ❌ None. | ❌ None. | **Automatic CSS Generation**: Exact copy-pasteable overrides. |
-| **Interactive Help** | ❌ None. | ❌ None. | **Ask Spectre**: Context-aware multi-turn AI chat debugger. |
-| **Sandbox Preview** | ❌ None. | ❌ None. | **Live Style Injection**: Real-time styling sandbox test. |
-
----
-
-## 🛠️ The Technology Stack
-
-* **Frontend**: React.js, TailwindCSS, TypeScript (Modern, responsive dashboard interface)
-* **Backend**: Node.js, Express.js, TypeScript (Robust, type-safe REST API server)
-* **Database**: MongoDB, Mongoose (Document store for saving test runs and history)
-* **Automation**: Puppeteer (Headless browser automation)
-* **Image Processing**: Pixelmatch (High-performance pixel difference algorithm)
-* **Artificial Intelligence**: Gemini API (LLM analysis for automated style recommendations)
-
----
-
-## 🚀 Project Roadmap & Milestones
-
-### 📍 Milestone 1: Server Initialization (Complete)
-* [x] Create project structure and initialize Node.js / TypeScript environment.
-* [x] Build the **Detective** Express backend server.
-* [x] Implement the `/api/test-capture` mock endpoint.
-* [x] Verify local execution and JSON response structure.
-
-### 📍 Milestone 2: The Photographer & Spotter (Visual Comparison Engine) (Complete)
-* [x] Integrate **Puppeteer** to dynamically take live screenshots of website URLs.
-* [x] Integrate **Pixelmatch** to perform pixel-by-pixel comparisons.
-* [x] Generate and save the visual "diff" output image showing the mismatch.
-
-### 📍 Milestone 3: The Consultant (Gemini AI Integration) (Complete)
-* [x] Connect the backend to the **Gemini API**.
-* [x] Formulate prompts that feed structural visual data to Gemini.
-* [x] Return accurate, clean CSS solutions for discovered visual mismatches.
-
-### 📍 Milestone 4: The File Cabinet (Database Persistence) (Complete)
-* [x] Initialize **MongoDB** database schemas for saving historical test records.
-* [x] Save visual screenshots and results, enabling developers to look back at past test reports.
-* [x] Expose endpoints for project history and the multi-turn "Ask Spectre" Chat Assistant.
-
-### 📍 Milestone 5: The Client (Stunning Dashboard UI) (Pending)
-* [ ] Build a sleek React frontend.
-* [ ] Create an interactive "before/after/diff" image slider.
-* [ ] Add the AI Sidebar that displays Gemini's CSS recommendations with one-click copy.
-
-### 📍 Milestone 6: CI/CD Pipeline & CLI Automation (Pending)
-* [ ] Implement API key project authentication on the backend.
-* [ ] Write a lightweight Node.js CLI tool to trigger visual tests from the terminal.
-* [ ] Setup Webhook integrations and GitHub Action YAML workflows.
-
----
-
-## 💻 Getting Started (Backend Development)
-
-### Prerequisites
-Ensure you have **Node.js** (v18 or higher) and **npm** installed on your system.
-
-### Installation
-1. Clone the repository and navigate to the project directory:
-   ```bash
-   cd "PixelMatch Saas/backend"
-   ```
-
-2. Install the package dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Start the server in development mode (with hot-reloading active):
-   ```bash
-   npm run dev
-   ```
-
-The backend server will start on port `5000`. You can verify it is active by opening `http://localhost:5000/` in your browser.
-
----
-
-## 🧪 Testing the Mock API
-You can test the detective server's mock endpoint by sending a `POST` request to `http://localhost:5000/api/test-capture` with the following JSON body:
-
-```json
-{
-  "stagingUrl": "https://staging.mywebsite.com",
-  "productionUrl": "https://mywebsite.com"
-}
-```
-
-**Example response**:
-```json
-{
-  "success": true,
-  "message": "Visual regression test completed successfully (MOCK DATA)",
-  "testRunId": "run_93j8dnskq",
-  "urls": {
-    "staging": "https://staging.mywebsite.com",
-    "production": "https://mywebsite.com"
-  },
-  "results": {
-    "status": "FAILED",
-    "mismatchPercentage": 1.45,
-    "totalPixelsCompared": 1024000,
-    "mismatchPixelsCount": 14848,
-    "screenshotUrls": {
-      "staging": "https://images.unsplash.com/photo-1531403009284-440f080d1e12?w=800",
-      "production": "https://images.unsplash.com/photo-1531403009284-440f080d1e12?w=800",
-      "diff": "https://images.unsplash.com/photo-1557683316-973673baf926?w=800"
-    },
-    "visualBugs": [
-      {
-        "element": "button.hero-cta",
-        "description": "Button background color shifted from Indigo to Ocean Blue, and moved 5px to the right.",
-        "aiSuggestion": {
-          "explanation": "The Staging site style class has an incorrect utility class `bg-cyan-500` instead of `bg-indigo-600`.",
-          "cssFix": ".hero-cta {\n  background-color: #4f46e5 !important;\n  margin-left: 0px !important;\n}"
-        }
-      }
-    ]
-  }
-}
-```
+Hydra Core is open-source software licensed under the **MIT License**.

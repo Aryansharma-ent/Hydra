@@ -40,43 +40,59 @@ const handleEmailSubmit = async (e: React.FormEvent) => {
   }
 };
 
-  const handleGoogleLogin = () => {
-      if(window.google){
-        window.google.accounts.id.initialize({
-          client_id : "905973347076-sampledemo.apps.googleusercontent.com",
+  
 
-          callback : async(response : any) =>{
-            try {
-              setLoading(true)
+  useEffect(() => {
+    if (window.google) {
+      window.google.accounts.id.initialize({
+        client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+        callback: async (response: any) => {
+          try {
+            setLoading(true);
+            const payload: any = jwtDecode(response.credential);
+            const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/auth/google`, {
+              googleId: payload.sub,
+              email: payload.email,
+              name: payload.name,
+              avatarUrl: payload.picture,
+            });
 
-              const payload : any = jwtDecode(response.credential);
-
-              const res = await axios.post("http://localhost:8000/api/auth/google",{
-                 googleId: payload.sub,
-                email: payload.email,
-                 name: payload.name,
-                 avatarUrl: payload.picture,
-              } )
-
-               if (res.data.success) {
-            localStorage.setItem("hydra_token", res.data.data.token);
-            localStorage.setItem("hydra_user", JSON.stringify(res.data.data));
-            axios.defaults.headers.common["Authorization"] = `Bearer ${res.data.data.token}`;
-            navigate("/dashboard");
-          }
-            } catch (err : any) {
-                console.error("Google Auth failed", err);
-          setErrorMessage("Google login failed");
-        } finally {
-          setLoading(false);
+            if (res.data.success) {
+              localStorage.setItem("hydra_token", res.data.data.token);
+              localStorage.setItem("hydra_user", JSON.stringify(res.data.data));
+              axios.defaults.headers.common["Authorization"] = `Bearer ${res.data.data.token}`;
+              navigate("/dashboard");
             }
+          } catch (err: any) {
+            console.error("Google Auth failed", err);
+            setErrorMessage("Google login failed");
+          } finally {
+            setLoading(false);
           }
+        },
+      });
+
+      const googleBtnContainer = document.getElementById("googleSignInBtn");
+      if (googleBtnContainer) {
+        window.google.accounts.id.renderButton(googleBtnContainer, {
+          theme: "outline",
+          size: "large",
+          width: 330,
+          text: "continue_with",
         });
-           window.google.accounts.id.prompt();
-      }else{
-          alert("Google SDK loading... please refresh");
       }
-  }
+    }
+  }, []);
+
+  const handleGoogleLogin = () => {
+    if (window.google) {
+      // Clear g_state cookie so prompt triggers even if previously closed
+      document.cookie = "g_state=;path=/;expires=Thu, 01 Jan 1970 00:00:01 GMT";
+      window.google.accounts.id.prompt();
+    } else {
+      alert("Google SDK loading... please refresh");
+    }
+  };
 
   return (
     <div className="min-h-screen w-screen bg-[#09090b] text-[#e4e4e7] flex flex-col items-center justify-center p-4 font-sans select-none antialiased relative overflow-hidden">
@@ -100,17 +116,9 @@ const handleEmailSubmit = async (e: React.FormEvent) => {
           </p>
         </div>
 
-        {/* OAuth Buttons */}
-        <div className="flex flex-col gap-2">
-          <button
-            onClick={handleGoogleLogin}
-            className="w-full h-10 px-4 flex items-center justify-center gap-3 border border-[#1f1f23] bg-[#0d0d0f] hover:bg-[#141416] hover:border-[#3f3f46] text-[12px] font-medium text-[#e4e4e7] rounded-lg transition-all duration-150 cursor-pointer"
-          >
-            <svg className="size-4 shrink-0" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12.24 10.285V14.4h6.887c-.648 2.41-2.519 4.114-6.887 4.114-4.694 0-8.503-3.809-8.503-8.503 0-4.694 3.809-8.503 8.503-8.503 2.15 0 4.1.79 5.61 2.21l3.22-3.22C18.15 1.06 15.35 0 12.24 0 5.58 0 0 5.58 0 12.24s5.58 12.24 12.24 12.24c6.96 0 12.24-4.89 12.24-12.24 0-.83-.07-1.63-.2-2.395H12.24z"/>
-            </svg>
-            Continue with Google
-          </button>
+        {/* OAuth Google Buttons */}
+        <div className="flex flex-col items-center justify-center gap-2">
+          <div id="googleSignInBtn" className="w-full flex justify-center min-h-[40px]"></div>
         </div>
 
         {/* Separator / Expand Email options */}

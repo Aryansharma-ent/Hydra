@@ -85,7 +85,7 @@ export const verifyRazorpayPayment = AsyncHandler(async (req: Request, res: Resp
 
   res.status(200).json({
     success: true,
-    message: "🎉 Payment verified! Account upgraded to Hydra Pro.",
+    message: " Payment verified! Account upgraded to Hydra Pro.",
     user: updatedUser
   });
 });
