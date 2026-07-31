@@ -9,6 +9,12 @@ try {
 } catch (e) {
     localtunnel = null;
 }
+let puppeteer;
+try {
+    puppeteer = require('puppeteer');
+} catch (e) {
+    puppeteer = null;
+}
 const { execSync } = require('child_process');
 
 //why using http? because if we used express or axios the server will not be fast because of axios installation so we are using manual methods
@@ -311,7 +317,38 @@ async function run() {
         if (activeStagingUrl) payload.stagingUrl = activeStagingUrl;
         if (productionUrl) payload.productionUrl = productionUrl;
 
-        // Trigger the background Puppeteer scan
+        // Check if local Puppeteer is available for client-side capture
+        if (puppeteer && activeStagingUrl && productionUrl) {
+            console.log(`\n\x1b[35m[Hydra CLI] Launching local Puppeteer browser...\x1b[0m`);
+            try {
+                const browser = await puppeteer.launch({ headless: 'new' });
+                const page = await browser.newPage();
+                await page.setViewport({ width: 1440, height: 900, deviceScaleFactor: 2 });
+
+                // Disable animations & cursor blinking for maximum diff accuracy
+                const freezeCss = '* { animation: none !important; transition: none !important; caret-color: transparent !important; }';
+
+                console.log(` [1/2] Capturing staging screenshot (${activeStagingUrl})...`);
+                await page.goto(activeStagingUrl, { waitUntil: 'networkidle0', timeout: 30000 });
+                await page.addStyleTag({ content: freezeCss });
+                const stagingBase64 = await page.screenshot({ encoding: 'base64' });
+
+                console.log(` [2/2] Capturing production screenshot (${productionUrl})...`);
+                await page.goto(productionUrl, { waitUntil: 'networkidle0', timeout: 30000 });
+                await page.addStyleTag({ content: freezeCss });
+                const productionBase64 = await page.screenshot({ encoding: 'base64' });
+
+                await browser.close();
+                console.log(`\x1b[32m[Hydra CLI] Local screenshot capture complete. Offloading server RAM.\x1b[0m`);
+
+                payload.stagingBase64 = stagingBase64;
+                payload.productionBase64 = productionBase64;
+            } catch (pErr) {
+                console.log(`\x1b[33m[Hydra CLI] Local Puppeteer notice: Falling back to cloud server capture...\x1b[0m`);
+            }
+        }
+
+        // Trigger the scan
         const triggerRes = await postJson(`${baseUrl}/api/tests/test-capture`, {
             'x-api-key': apiKey
         }, payload);

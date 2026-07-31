@@ -15,7 +15,7 @@ interface Message {
   text: string;
 }
 
-/* ─── Loading Step Config ─── */
+
 const LOADING_STEPS = [
   { icon: Camera,  label: "Capturing staging screenshot",     color: "text-sky-400" },
   { icon: Layers,  label: "Capturing production screenshot",  color: "text-violet-400" },
@@ -24,18 +24,18 @@ const LOADING_STEPS = [
 ]
 
 export default function TestReport() {
-  /* ═══ EXISTING STATE — PRESERVED EXACTLY ═══ */
+
   const [runData, setRundata] = useState<TestRun | null>(null)
   const [loading, setLoading] = useState<boolean>(true)
   const [chatMessages, setChatMessages] = useState<Message[]>([])
   const { runId } = useParams<{ runId: string }>()
   const [isRerunning, setIsRerunning] = useState<boolean>(false)
 
-  /* ═══ NEW: Local UI state (presentation only) ═══ */
+
   const [selectedBugIndex, setSelectedBugIndex] = useState<number | null>(null)
   const [loadingStep, setLoadingStep] = useState(0)
 
-  /* ═══ EXISTING FUNCTION — PRESERVED EXACTLY ═══ */
+  
   const LoadTestData = async () => {
     try {
       const res = await axios.get(`http://localhost:8000/api/tests/run/${runId}`)
@@ -44,7 +44,7 @@ export default function TestReport() {
         const data = res.data.data
         setRundata(data)
 
-        // Seed initial Hydra Copilot message summarizing regressions
+        // Seed initial Hydra  message summarizing regressions
         if (data.visualBugs && data.visualBugs.length > 0) {
           const bugList = data.visualBugs.map((b: any, index: number) =>
             `${index + 1}. \`${b.element}\`: ${b.description}`
@@ -72,7 +72,6 @@ export default function TestReport() {
     }
   }
 
-  /* ═══ EXISTING FUNCTION — PRESERVED EXACTLY ═══ */
   const handleRerun = async () => {
     if (!runId || isRerunning) return
     setIsRerunning(true)
@@ -99,7 +98,7 @@ export default function TestReport() {
     }
   }
 
-  /* ═══ EXISTING EFFECTS — PRESERVED EXACTLY ═══ */
+
   useEffect(() => {
     if (runId) {
       LoadTestData()
@@ -127,7 +126,7 @@ export default function TestReport() {
     };
   }, [runId, runData])
 
-  /* ═══ NEW: Loading step cosmetic animation ═══ */
+
   useEffect(() => {
     if (loading || runData?.status === 'RUNNING') {
       setLoadingStep(0)

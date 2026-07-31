@@ -21,13 +21,22 @@ const runBackgroundCapture = async (
   dbRecordId: string,
   stagingUrl: string,
   productionUrl: string,
-  testRunId: string
+  testRunId: string,
+  stagingBase64?: string,
+  productionBase64?: string
 ) => {
   try {
-    
-  // 1. Photographer snaps screenshots in RAM
-    const stagingBuffer = await captureScreenshot(stagingUrl);
-    const productionBuffer = await captureScreenshot(productionUrl);
+    let stagingBuffer: { buffer: Buffer; layout: any[] };
+    let productionBuffer: { buffer: Buffer; layout: any[] };
+
+    if (stagingBase64 && productionBase64) {
+      console.log(`⚡ Processing client-side captured screenshots for DB: ${dbRecordId}`);
+      stagingBuffer = { buffer: Buffer.from(stagingBase64, 'base64'), layout: [] };
+      productionBuffer = { buffer: Buffer.from(productionBase64, 'base64'), layout: [] };
+    } else {
+      stagingBuffer = await captureScreenshot(stagingUrl);
+      productionBuffer = await captureScreenshot(productionUrl);
+    }
 
     // 4. Compare screenshots and get pixel regressions (Spotter service)
     const compareResult = CompareScreenshots(
@@ -93,7 +102,7 @@ const runBackgroundCapture = async (
 
 
  export const runTestCapture = AsyncHandler(async(req : Request,res : Response): Promise<void> => {
-     let {stagingUrl,productionUrl,projectId} = req.body
+     let {stagingUrl,productionUrl,projectId,stagingBase64,productionBase64} = req.body
 
 
     const authProject = (req as any).project
@@ -171,7 +180,9 @@ res.status(200).json({
      (testRun._id as mongoose.Types.ObjectId).toString(),
      stagingUrl,
      productionUrl,
-     testRunId
+     testRunId,
+     stagingBase64,
+     productionBase64
    );
   
 
