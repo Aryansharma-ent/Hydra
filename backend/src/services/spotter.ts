@@ -44,9 +44,9 @@ const mismatchPixels = pixelmatch(
     stagingPng.data, 
     productionPng.data, 
     diffPng.data,
-     width, height,
-      {threshold: 0.1}
-    );
+    width, height,
+    { threshold: 0.05, includeAA: false }
+);
 
 const diffBuffer = PNG.sync.write(diffPng);
 

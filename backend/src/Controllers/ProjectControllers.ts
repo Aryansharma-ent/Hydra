@@ -220,3 +220,24 @@ export const generateApikey = AsyncHandler(async(req : Request,res : Response)=>
         data : token
       })
 })
+
+export const deleteProject = AsyncHandler(async (req: Request, res: Response): Promise<void> => {
+  const { id } = req.params;
+  const project = await Project.findById(id);
+
+  if (!project) {
+    res.status(404);
+    throw new Error("Project not found");
+  }
+
+  // Delete all test runs associated with this project
+  await TestRun.deleteMany({ projectId: id });
+
+  // Delete the project
+  await Project.findByIdAndDelete(id);
+
+  res.status(200).json({
+    success: true,
+    message: "Project and associated test runs deleted successfully"
+  });
+});

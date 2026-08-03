@@ -21,10 +21,10 @@ export const uploadScreenshot = async (
       folder: "/screenshots",
     });
 
-    console.log(`☁️ Cloud Upload Success (ImageKit): ${response.url}`);
+    console.log(` Cloud Upload Success (ImageKit): ${response.url}`);
     return response.url;
   } catch (error) {
-    console.error(`❌ ImageKit upload failed for ${filename}, using local fallback:`, error);
+    console.error(`ImageKit upload failed for ${filename}, using local fallback:`, error);
     return `/screenshots/${filename}`;
   }
 };

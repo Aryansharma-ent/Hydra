@@ -248,3 +248,20 @@ res.status(200).json({
     testRunId
   );
 });
+
+export const deleteTestRun = AsyncHandler(async (req: Request, res: Response): Promise<void> => {
+  const { runId } = req.params;
+  const testRun = await TestRun.findById(runId);
+
+  if (!testRun) {
+    res.status(404);
+    throw new Error("Test run not found");
+  }
+
+  await TestRun.findByIdAndDelete(runId);
+
+  res.status(200).json({
+    success: true,
+    message: "Test run deleted successfully"
+  });
+});

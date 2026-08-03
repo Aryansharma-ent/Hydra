@@ -21,10 +21,21 @@ export interface CaptureResult {
 
 const captureScreenshot = async (url: string): Promise<CaptureResult> => {
 
-    const browser = await puppeteer.launch({
+  
+let browser;
+
+if (process.env.BROWSERLESS_TOKEN) {
+    console.log(" Offloading web scan to Browserless.io Cloud Browser...");
+    browser = await puppeteer.connect({
+        browserWSEndpoint: `wss://chrome.browserless.io?token=${process.env.BROWSERLESS_TOKEN}`
+    });
+} else {
+    console.log("Running local Puppeteer instance...");
+    browser = await puppeteer.launch({
         headless: true,
         args: ['--no-sandbox', '--disable-setuid-sandbox']
-    })
+    });
+}
 
     try {
 
@@ -32,7 +43,7 @@ const captureScreenshot = async (url: string): Promise<CaptureResult> => {
 
         await page.setViewport({ width: 1280, height: 800 });
 
-        await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
+        await page.goto(url, { waitUntil: 'networkidle0', timeout: 30000 });
 
         await page.addStyleTag({
             content: `
@@ -58,6 +69,20 @@ const captureScreenshot = async (url: string): Promise<CaptureResult> => {
                     -ms-overflow-style: none !important;
                 }
             `
+        });
+
+        // Reset and freeze all Web Animations API instances & pause media players at frame 0
+        await page.evaluate(() => {
+            if ((document as any).getAnimations) {
+                (document as any).getAnimations().forEach((anim: any) => {
+                    try { anim.currentTime = 0; } catch (e) {}
+                    anim.pause();
+                });
+            }
+            document.querySelectorAll('video, audio').forEach((media) => {
+                try { (media as HTMLMediaElement).currentTime = 0; } catch (e) {}
+                (media as HTMLMediaElement).pause();
+            });
         });
 
         await autoScroll(page, 15);

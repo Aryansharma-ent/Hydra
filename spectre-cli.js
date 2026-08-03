@@ -328,14 +328,31 @@ async function run() {
                 // Disable animations & cursor blinking for maximum diff accuracy
                 const freezeCss = '* { animation: none !important; transition: none !important; caret-color: transparent !important; }';
 
+                const freezeMediaAndAnimations = async () => {
+                    await page.evaluate(() => {
+                        if (document.getAnimations) {
+                            document.getAnimations().forEach((anim) => {
+                                try { anim.currentTime = 0; } catch (e) {}
+                                anim.pause();
+                            });
+                        }
+                        document.querySelectorAll('video, audio').forEach((media) => {
+                            try { media.currentTime = 0; } catch (e) {}
+                            media.pause();
+                        });
+                    });
+                };
+
                 console.log(` [1/2] Capturing staging screenshot (${activeStagingUrl})...`);
                 await page.goto(activeStagingUrl, { waitUntil: 'networkidle0', timeout: 30000 });
                 await page.addStyleTag({ content: freezeCss });
+                await freezeMediaAndAnimations();
                 const stagingBase64 = await page.screenshot({ encoding: 'base64' });
 
                 console.log(` [2/2] Capturing production screenshot (${productionUrl})...`);
                 await page.goto(productionUrl, { waitUntil: 'networkidle0', timeout: 30000 });
                 await page.addStyleTag({ content: freezeCss });
+                await freezeMediaAndAnimations();
                 const productionBase64 = await page.screenshot({ encoding: 'base64' });
 
                 await browser.close();

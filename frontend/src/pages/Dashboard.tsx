@@ -1,7 +1,6 @@
 import axios from 'axios'
-// Change line 2 to:
-import { Play, Loader2, ArrowRight } from 'lucide-react'
-import { useState, useEffect } from "react"
+import { Play, Loader2, ArrowRight, MoreVertical, Trash2 } from 'lucide-react'
+import { useState, useEffect, useRef } from "react"
 import { type TestRun, type Project } from "../types"
 import { useSearchParams } from 'react-router-dom'
 import Sidebar from "@/components/Dashboard/SideBar"
@@ -9,6 +8,7 @@ import TopBar from "@/components/Dashboard/TopBar"
 import SubBar from "@/components/Dashboard/SubBar"
 import StatsRow from "@/components/Dashboard/StatsRow"
 import RecentRuns from "@/components/Dashboard/RecentRuns"
+import ConfirmDeleteModal from "@/components/Dashboard/ConfirmDeleteModal"
 
 
 export default function Dashboard() {
@@ -24,6 +24,10 @@ export default function Dashboard() {
   const [searchParams,setSearchParams] = useSearchParams()
   const [run,setRun] = useState<TestRun[]>([])
   const [saveAsDefault,setSaveAsDefault] = useState<boolean>(false);
+
+  const [activeProjectMenuId, setActiveProjectMenuId] = useState<string | null>(null)
+  const [projectToDelete, setProjectToDelete] = useState<Project | null>(null)
+  const projectMenuRef = useRef<HTMLDivElement>(null)
 
 
 
@@ -174,9 +178,33 @@ const handleRunProject = async(e : React.FormEvent) => {
 
 
 
-useEffect(() => {
-  fetchProjects();
-}, []);
+  const handleDeleteProject = async () => {
+    if (!projectToDelete) return
+    const token = localStorage.getItem("hydra_token")
+    await axios.delete(`http://localhost:8000/api/projects/${projectToDelete._id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    if (selectedProject?._id === projectToDelete._id) {
+      setSelectedProject(null)
+      setSearchParams({})
+    }
+    setProjectToDelete(null)
+    fetchProjects()
+  }
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (projectMenuRef.current && !projectMenuRef.current.contains(e.target as Node)) {
+        setActiveProjectMenuId(null)
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
+
+  useEffect(() => {
+    fetchProjects();
+  }, []);
 
 useEffect(() => {
   if (selectedProject) {
@@ -242,6 +270,7 @@ useEffect(()=>{
              RunData={run}
              stagingUrl={selectedProject?.stagingUrl}
              productionUrl = {selectedProject?.productionUrl}
+             onRunDeleted={() => fetchTestRun(selectedProject._id)}
             />
             </>
             ) : (
@@ -300,12 +329,43 @@ useEffect(()=>{
                           {prodDomain}
                         </span>
 
-                        {/* Status + arrow */}
+                        {/* Status + arrow + 3-dots Menu */}
                         <div className="flex items-center gap-3">
                           <span className="text-[9px] font-medium text-emerald-500 bg-emerald-500/8 border border-emerald-500/15 px-2 py-0.5 rounded-full tracking-wide">
                             Active
                           </span>
                           <ArrowRight className="size-3 text-[#3f3f46] group-hover:text-[#71717a] group-hover:translate-x-0.5 transition-all duration-150 shrink-0" />
+
+                          {/* 3-Dots Action Menu */}
+                          <div className="relative" ref={activeProjectMenuId === project._id ? projectMenuRef : null}>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setActiveProjectMenuId(activeProjectMenuId === project._id ? null : project._id)
+                              }}
+                              className="p-1 rounded text-[#71717a] hover:text-white hover:bg-white/10 transition-colors"
+                            >
+                              <MoreVertical className="size-3.5" />
+                            </button>
+
+                            {activeProjectMenuId === project._id && (
+                              <div className="absolute right-0 top-6 z-30 w-40 bg-[#121215] border border-[#27272a] rounded-lg shadow-xl py-1 animate-in fade-in duration-150">
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    setActiveProjectMenuId(null)
+                                    setProjectToDelete(project)
+                                  }}
+                                  className="w-full text-left px-3 py-1.5 text-xs text-red-400 hover:text-red-300 hover:bg-red-950/40 flex items-center gap-2 transition-colors font-medium"
+                                >
+                                  <Trash2 className="size-3.5" />
+                                  Delete Project
+                                </button>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
                     )
@@ -318,6 +378,18 @@ useEffect(()=>{
           </main>
 
         </div>
+
+        {/* Project Delete Modal */}
+        {projectToDelete && (
+          <ConfirmDeleteModal
+            isOpen={Boolean(projectToDelete)}
+            onClose={() => setProjectToDelete(null)}
+            onConfirm={handleDeleteProject}
+            title="Delete Project"
+            itemName={projectToDelete.name}
+            itemType="Project"
+          />
+        )}
 
 
     
