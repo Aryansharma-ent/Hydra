@@ -38,12 +38,26 @@
 
 ## Quick Start
 
+### Docker One-Command Launch
+
+Launch the complete containerized Hydra stack (Backend + Frontend) with 1 line:
+
+```bash
+docker compose up -d
+```
+
+#### Official Docker Hub Images
+- **Backend**: `@itzaks/hydra-backend` (`docker pull itzaks/hydra-backend:latest`)
+- **Frontend**: `@itzaks/hydra-frontend` (`docker pull itzaks/hydra-frontend:latest`)
+
+---
+
 ### Executing via `npx`
 
 Hydra CLI can be executed directly within any terminal or runner environment without prior global installation:
 
 ```bash
-npx hydra-cli --project <PROJECT_ID> --key <API_KEY> --stagingUrl http://localhost:5173 --productionUrl https://example.com
+npx @itzaks/hydra-visual-cli --project <PROJECT_ID> --key <API_KEY> --stagingUrl http://localhost:5173 --productionUrl https://example.com
 ```
 
 ### Local Package Installation
