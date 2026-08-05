@@ -47,8 +47,8 @@ docker compose up -d
 ```
 
 #### Official Docker Hub Images
-- **Backend**: `@itzaks/hydra-backend` (`docker pull itzaks/hydra-backend:latest`)
-- **Frontend**: `@itzaks/hydra-frontend` (`docker pull itzaks/hydra-frontend:latest`)
+- **Backend**: `yesitzaks/hydra-backend` (`docker pull yesitzaks/hydra-backend:latest`)
+- **Frontend**: `yesitzaks/hydra-frontend` (`docker pull yesitzaks/hydra-frontend:latest`)
 
 ---
 
