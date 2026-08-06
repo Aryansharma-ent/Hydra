@@ -2,136 +2,144 @@ import { motion, useInView } from "framer-motion";
 import { useRef, useState } from "react";
 import { Copy, Check } from "lucide-react";
 
-const FRAMEWORKS = [
-  { name: "React", color: "#61DAFB" },
-  { name: "Next.js", color: "#FFFFFF" },
-  { name: "Vite", color: "#BD34FE" },
-  { name: "Astro", color: "#FF5D01" },
-  { name: "Remix", color: "#3992FF" },
+const FRAMEWORKS = ["React", "Next.js", "Vite", "Astro", "Remix"];
+
+// Animation lines with timing
+const LINES: { delay: number; text: string; prompt?: boolean }[] = [
+  { delay: 0.0, text: "npm install @hydra/cli", prompt: true },
+  { delay: 1.1, text: "✔  Project connected to Hydra dashboard",  prompt: false },
+  { delay: 2.0, text: "",                         prompt: false },
+  { delay: 2.3, text: "npx hydra scan",           prompt: true },
+  { delay: 3.4, text: "Uploading snapshots to dashboard...",    prompt: false },
+  { delay: 4.2, text: "✔  Report ready · hydra.app/runs/a3f192",  prompt: false },
 ];
 
-const LINES = [
-  { delay: 0,    text: "$ npm install @hydra/cli",       dim: false },
-  { delay: 1.2,  text: "✔ Installed 1 package in 0.8s",  dim: true  },
-  { delay: 2.0,  text: "",                                dim: false },
-  { delay: 2.4,  text: "$ npx hydra scan",               dim: false },
-  { delay: 3.6,  text: "🔍 Scanning 24 components...",   dim: true  },
-  { delay: 4.4,  text: "✔ 0 regressions found. All clear!", dim: true },
-];
-
-function AnimatedLine({ text, dim, delay }: { text: string; dim: boolean; delay: number }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, x: -8 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ delay, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-      className={`font-mono text-sm leading-7 ${dim ? "text-white/40" : "text-white/90"}`}
-    >
-      {text || <span className="invisible">_</span>}
-    </motion.div>
-  );
-}
+const ease = [0.22, 1, 0.36, 1] as const;
 
 export function InstallSection() {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-100px" });
   const [copied, setCopied] = useState(false);
 
-  const handleCopy = async () => {
+  const copy = async () => {
     await navigator.clipboard.writeText("npm install @hydra/cli");
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
+
   return (
     <section ref={ref} className="relative py-32 px-6">
-      {/* Faint blue radial glow */}
-      <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-        <div className="h-[500px] w-[600px] rounded-full bg-blue-600/[0.06] blur-[120px]" />
+      {/* Single faint blue glow — same intensity as hero word glow */}
+      <div className="pointer-events-none absolute inset-0 flex justify-center items-start pt-24">
+        <div className="h-72 w-72 rounded-full bg-blue-500/[0.07] blur-[100px]" />
       </div>
 
-      <div className="relative mx-auto max-w-3xl text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="mb-4 inline-flex items-center gap-2 rounded-full border border-blue-500/20 bg-blue-500/[0.07] px-4 py-1.5 text-xs font-medium text-blue-400 tracking-wide"
-        >
-          <span className="h-1.5 w-1.5 rounded-full bg-blue-400 animate-pulse" />
-          One command. Done.
-        </motion.div>
-
-        <motion.h2
-          initial={{ opacity: 0, y: 24 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ delay: 0.1, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="mb-4 text-4xl font-bold tracking-tight text-white sm:text-5xl"
-        >
-          Install Hydra in Under{" "}
-          <span className="text-blue-400 drop-shadow-[0_0_20px_rgba(59,130,246,0.5)]">
-            30 Seconds
-          </span>
-        </motion.h2>
-
+      <div className="relative mx-auto max-w-2xl text-center">
+        {/* Eyebrow */}
         <motion.p
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ delay: 0.2, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="mb-12 text-base text-white/50"
+          transition={{ duration: 0.55, ease }}
+          className="mb-5 text-xs font-medium tracking-[0.12em]  uppercase text-white/30"
         >
-          One command to install. One command to scan. Zero configuration required.
+          Connect your project
         </motion.p>
 
-        {/* Terminal card */}
+        {/* Heading — same scale as hero h2 */}
+        <motion.h2
+          initial={{ opacity: 0, y: 20 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ delay: 0.08, duration: 0.55, ease }}
+          className="mb-4 text-4xl sm:text-5xl font-semibold tracking-[-0.02em] leading-[1.3] text-white font-boldonse"
+        >
+          Connect your project in seconds.
+        </motion.h2>
+
+        {/* Sub — same color as hero h3 */}
+        <motion.p
+          initial={{ opacity: 0, y: 16 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ delay: 0.15, duration: 0.55, ease }}
+          className="mb-12 text-base text-zinc-400 font-normal leading-7"
+        >
+          The npm package is a lightweight connector. Scans run from the CLI
+          or directly from your Hydra dashboard — no installs required.
+        </motion.p>
+
+        {/* Terminal — glass card, same style as nav border */}
         <motion.div
-          initial={{ opacity: 0, y: 32, scale: 0.98 }}
+          initial={{ opacity: 0, y: 28, scale: 0.98 }}
           animate={inView ? { opacity: 1, y: 0, scale: 1 } : {}}
-          transition={{ delay: 0.3, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className="relative overflow-hidden rounded-2xl border border-white/[0.07] bg-white/[0.03] backdrop-blur-xl shadow-[0_20px_60px_rgba(0,0,0,0.6)] text-left"
+          transition={{ delay: 0.22, duration: 0.6, ease }}
+          className="overflow-hidden rounded-2xl border border-white/[0.07] bg-white/[0.025] text-left shadow-[0_20px_60px_rgba(0,0,0,0.5)]"
         >
           {/* Title bar */}
-          <div className="flex h-11 items-center justify-between border-b border-white/[0.05] bg-white/[0.02] px-5">
-            <div className="flex items-center gap-2">
-              <div className="h-3 w-3 rounded-full bg-red-500/70" />
-              <div className="h-3 w-3 rounded-full bg-yellow-500/70" />
-              <div className="h-3 w-3 rounded-full bg-green-500/70" />
+          <div className="flex h-10 items-center justify-between border-b border-white/[0.05] px-4">
+            <div className="flex gap-1.5">
+              <div className="h-2.5 w-2.5 rounded-full bg-white/10" />
+              <div className="h-2.5 w-2.5 rounded-full bg-white/10" />
+              <div className="h-2.5 w-2.5 rounded-full bg-white/10" />
             </div>
-            <span className="text-xs font-mono text-white/30">hydra terminal</span>
+            <span className="text-[11px] font-mono text-white/20">terminal</span>
             <button
-              onClick={handleCopy}
-              className="flex items-center gap-1.5 rounded-lg border border-white/[0.06] bg-white/[0.04] px-2.5 py-1 text-xs text-white/50 transition hover:bg-white/[0.08] hover:text-white/80"
+              onClick={copy}
+              className="flex items-center gap-1.5 text-[11px] font-mono text-white/30 transition hover:text-white/60"
             >
-              {copied ? (
-                <><Check size={11} className="text-emerald-400" /><span className="text-emerald-400">Copied</span></>
-              ) : (
-                <><Copy size={11} /><span>Copy</span></>
-              )}
+              {copied
+                ? <><Check size={11} className="text-white/60" /> copied</>
+                : <><Copy size={11} /> copy</>
+              }
             </button>
           </div>
 
           {/* Lines */}
-          <div className="p-6 space-y-0.5 min-h-[180px]">
-            {inView && LINES.map((l, i) => (
-              <AnimatedLine key={i} text={l.text} dim={l.dim} delay={l.delay} />
-            ))}
+          <div className="space-y-1 p-5 min-h-[160px]">
+            {inView && LINES.map((l, i) =>
+              l.text === "" ? (
+                <div key={i} className="h-3" />
+              ) : (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: l.delay, duration: 0.3 }}
+                  className="flex items-center gap-3 font-mono text-[13px] leading-6"
+                >
+                  {l.prompt && (
+                    <span className="shrink-0 text-white/20 select-none">$</span>
+                  )}
+                  <span
+                    className={
+                      l.prompt
+                        ? "text-white/80"
+                        : l.text.startsWith("✔")
+                        ? "text-white/35"
+                        : "text-white/35"
+                    }
+                  >
+                    {l.text}
+                  </span>
+                </motion.div>
+              )
+            )}
           </div>
         </motion.div>
 
-        {/* Framework badges */}
+        {/* Framework badges — minimal, same border style as hero secondary button */}
         <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ delay: 0.6, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="mt-8 flex flex-wrap items-center justify-center gap-3"
+          initial={{ opacity: 0 }}
+          animate={inView ? { opacity: 1 } : {}}
+          transition={{ delay: 0.5, duration: 0.55, ease }}
+          className="mt-7 flex flex-wrap items-center justify-center gap-2"
         >
-          <span className="text-xs text-white/30 font-mono">Works with</span>
-          {FRAMEWORKS.map((f) => (
+          <span className="mr-1 text-[11px] text-white/20 font-mono tracking-wide">connector available for</span>
+          {FRAMEWORKS.map((name) => (
             <span
-              key={f.name}
-              className="rounded-full border border-white/[0.08] bg-white/[0.03] px-3.5 py-1 text-xs font-medium text-white/60 transition hover:border-white/20 hover:text-white/90"
-              style={{ borderColor: `${f.color}20` }}
+              key={name}
+              className="rounded-full border border-white/[0.08] px-3 py-1 text-[11px] text-white/40 font-mono transition hover:border-white/[0.14] hover:text-white/60"
             >
-              {f.name}
+              {name}
             </span>
           ))}
         </motion.div>

@@ -6,7 +6,7 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("hydra_token") || localStorage.getItem("token");
 
   if (!token) {
     return <Navigate to="/login" replace />;

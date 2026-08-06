@@ -26,6 +26,7 @@ export default function Signup() {
       if (res.data.success) {
         // 1. Store the token in localStorage
         localStorage.setItem("hydra_token", res.data.data.token);
+        localStorage.setItem("token", res.data.data.token);
         localStorage.setItem("hydra_user", JSON.stringify(res.data.data));
         // 2. Set default Axios header so future requests include token
         axios.defaults.headers.common["Authorization"] = `Bearer ${res.data.data.token}`;

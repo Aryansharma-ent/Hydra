@@ -53,6 +53,7 @@ export default function UserMenu() {
 
   const handleSignOut = () => {
     localStorage.removeItem("hydra_token")
+    localStorage.removeItem("token")
     localStorage.removeItem("hydra_user")
     navigate("/login", { replace: true })
   }

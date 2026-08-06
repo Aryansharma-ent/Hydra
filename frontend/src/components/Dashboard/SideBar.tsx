@@ -119,9 +119,9 @@ export default function Sidebar() {
           <div>
             <Link to="/dashboard" className="text-3xl tracking-wider text-white-400 font font-bold flex justify-center">
               <span className="rounded"></span>
-              <div className="flex justify-center items-center gap-2 font-serif text-white">
+              <div className="flex justify-center items-center gap-2 font-sans font-boldonse leading-[0.3rem] text-white">
                 <img className="h-[40px]" src="/src/assets/hydralogo.png" alt="" />
-                Hydra
+               <span className="text-xl"> Hydra </span>
               </div>
             </Link>
             <p className="text-[14px] text-[#a1a1aa] font-josefin mt-0.5 py-2 flex items-center justify-center">
