@@ -1,5 +1,5 @@
 import { Link, useLocation, useParams } from "react-router-dom";
-import { LayoutGrid, Play, Key, BookOpen, Sparkles, Crown, Check, X, ShieldCheck, Loader2 } from "lucide-react";
+import { LayoutGrid, Play, Key, BookOpen, Sparkles, Check, X, ShieldCheck, Loader2 } from "lucide-react";
 import { useState } from "react";
 import axios from "axios";
 

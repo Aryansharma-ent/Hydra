@@ -1,4 +1,4 @@
-import { Send, Loader2, ChevronRight, ChevronDown, Copy, Check, Sparkles } from "lucide-react"
+import { Send, Loader2, ChevronRight, ChevronDown, Copy, Check } from "lucide-react"
 import { useState, useRef, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import axios from "axios"

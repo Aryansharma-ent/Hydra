@@ -1,4 +1,4 @@
-import { ChevronRight, LayoutGrid, GitBranch } from "lucide-react"
+import { LayoutGrid, GitBranch } from "lucide-react"
 import { Link, useLocation, useParams } from "react-router-dom"
 import UserMenu from "@/components/UserMenu"
 

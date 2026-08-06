@@ -238,7 +238,7 @@ export default function VisualComparer({ runData, selectedBugIndex = null, onSel
 
         {/* Center: View Mode Tabs */}
         <div className="flex items-center bg-[#0d0d0f] border border-[#27272a] rounded-lg p-0.5 shadow-inner">
-          {viewModes.map(({ key, label }, i) => (
+          {viewModes.map(({ key, label }) => (
             <button
               key={key}
               onClick={() => setViewMode(key)}

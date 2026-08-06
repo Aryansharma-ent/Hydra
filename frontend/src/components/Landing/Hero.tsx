@@ -69,7 +69,7 @@ export default function Hero() {
           animate="visible"
           className="w-full flex justify-center mb-8"
         >
-          <Terminal command="npx @itzaks/hydra-visual-cli" />
+          <Terminal />
         </motion.div>
 
         {/* Dual Primary & Secondary Action CTAs */}
