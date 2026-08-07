@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import axios from "axios"
 import { ArrowRight, ShieldCheck, Eye, EyeOff, Loader2 } from "lucide-react"
@@ -11,6 +11,13 @@ export default function Signup() {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
+
+  useEffect(() => {
+    const token = localStorage.getItem("hydra_token") || localStorage.getItem("token");
+    if (token) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [navigate]);
 
   const [errorMessage, setErrorMessage] = useState("");
   const handleEmailSubmit = async (e: React.FormEvent) => {

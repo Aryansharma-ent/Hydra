@@ -11,23 +11,21 @@ interface SubBarProps {
 export default function SubBar({selectedProject,onBackToProjects,onNewProjectClick,onNewRunClick}: SubBarProps) {
   return (
     <section className="h-12 border-b border-[#1f1f23]/60 bg-[#0c0c0e]/30 flex items-center justify-between px-6 shrink-0 select-none">
-      <div className="flex items-center gap-2">
-     {selectedProject && (
-  <button onClick={onBackToProjects} className="cursor-pointer mr-1.5 hover:text-white transition-colors">
-    <ArrowLeft className="size-4" />
-  </button>
-     )}
-        <span className="text-[10px] font-bold text-white uppercase tracking-widest font-mono">
-          WORKSPACE
-        </span>
-        <span className="text-xs text-muted-foreground">/</span>
-        <span className="text-xs font-bold text-white font-serif tracking-wider">Project Registry</span>
+      <div className="flex items-center gap-2 text-xs font-medium">
         {selectedProject && (
-    <>
-    <span className="text-xs text-muted-foreground mx-1.5">/</span>
-    <span className="text-xs font-bold text-indigo-400 font-serif tracking-wider">{selectedProject.name}</span>
-    </>
-    )}
+          <button onClick={onBackToProjects} className="cursor-pointer mr-1 text-[#71717a] hover:text-white transition-colors">
+            <ArrowLeft className="size-4" />
+          </button>
+        )}
+        <span className="text-[#a1a1aa]">Workspace</span>
+        <span className="text-[#3f3f46]">/</span>
+        <span className="text-white font-semibold">Project Registry</span>
+        {selectedProject && (
+          <>
+            <span className="text-[#3f3f46]">/</span>
+            <span className="text-violet-400 font-semibold">{selectedProject.name}</span>
+          </>
+        )}
       </div>
 
       <div className="flex items-center gap-2.5">

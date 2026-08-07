@@ -277,8 +277,8 @@ useEffect(()=>{
               <div className="flex flex-col gap-4">
                 {/* Header row */}
                 <div className="flex items-center justify-between">
-                  <h2 className="text-[11px] font-medium text-[#52525b] uppercase tracking-widest">Project Registry</h2>
-                  <span className="text-[10px] text-[#3f3f46] font-mono">{projects.length} projects</span>
+                  <h2 className="text-[11px] font-medium text-[#52525b] uppercase tracking-widest font-mono-code">Project Registry</h2>
+                  <span className="text-[10px] text-[#3f3f46] font-mono-code">{projects.length} projects</span>
                 </div>
 
               {projects.length === 0 ? (
@@ -286,13 +286,12 @@ useEffect(()=>{
                   <p className="text-[12px] text-[#52525b]">No projects yet. Create one to get started.</p>
                 </div>
               ) : (
-                <div className="flex flex-col border border-[#1a1a1d] rounded-lg overflow-hidden">
+                <div className="flex flex-col border border-[#1a1a1d] rounded-lg overflow-hidden font-mono-code">
                   {/* Table header */}
                   <div className="grid grid-cols-[2fr_1fr_1fr_auto] items-center px-4 py-2.5 border-b border-[#1a1a1d] bg-[#0a0a0b]">
-                    <span className="text-[10px] font-medium text-[#3f3f46] uppercase tracking-widest">Name</span>
-                    <span className="text-[10px] font-medium text-[#3f3f46] uppercase tracking-widest">Staging</span>
-                    <span className="text-[10px] font-medium text-[#3f3f46] uppercase tracking-widest">Production</span>
-                    <span className="text-[10px] font-medium text-[#3f3f46] uppercase tracking-widest">Status</span>
+                    <span className="text-[10px] font-medium text-[#3f3f46] uppercase tracking-widest font-mono-code">Name</span>
+                    <span className="text-[10px] font-medium text-[#3f3f46] uppercase tracking-widest font-mono-code">Staging</span>
+                    <span className="text-[10px] font-medium text-[#3f3f46] uppercase tracking-widest font-mono-code">Production</span>
                   </div>
 
                   {/* Rows */}
@@ -314,26 +313,23 @@ useEffect(()=>{
                         {/* Name */}
                         <div className="flex items-center gap-2.5 min-w-0">
                           <div className="w-1.5 h-1.5 rounded-full bg-[#3f3f46] group-hover:bg-emerald-500 transition-colors shrink-0" />
-                          <span className="text-[12px] font-medium text-[#d4d4d8] group-hover:text-white transition-colors truncate">
+                          <span className="text-[12px] font-medium text-[#d4d4d8] group-hover:text-white transition-colors truncate font-mono-code">
                             {project.name}
                           </span>
                         </div>
 
                         {/* Staging */}
-                        <span className="text-[11px] font-mono text-[#71717a] truncate pr-4" title={project.stagingUrl}>
+                        <span className="text-[11px] font-mono-code text-[#71717a] truncate pr-4" title={project.stagingUrl}>
                           {stagingDomain}
                         </span>
 
                         {/* Production */}
-                        <span className="text-[11px] font-mono text-[#71717a] truncate pr-4" title={project.productionUrl}>
+                        <span className="text-[11px] font-mono-code text-[#71717a] truncate pr-4" title={project.productionUrl}>
                           {prodDomain}
                         </span>
 
-                        {/* Status + arrow + 3-dots Menu */}
+                        {/* Arrow + 3-dots Menu */}
                         <div className="flex items-center gap-3">
-                          <span className="text-[9px] font-medium text-emerald-500 bg-emerald-500/8 border border-emerald-500/15 px-2 py-0.5 rounded-full tracking-wide">
-                            Active
-                          </span>
                           <ArrowRight className="size-3 text-[#3f3f46] group-hover:text-[#71717a] group-hover:translate-x-0.5 transition-all duration-150 shrink-0" />
 
                           {/* 3-Dots Action Menu */}

@@ -75,7 +75,7 @@ function Icon({
   size?: number;
   large?: boolean;
 }) {
-  const dim = large ? "h-12 w-12 rounded-xl" : "h-10 w-10 rounded-xl";
+  const dim = large ? "h-12 w-12 rounded-none" : "h-10 w-10 rounded-none";
   return (
     <div
       className={`inline-flex shrink-0 items-center justify-center border border-amber-300/25 bg-amber-400/[0.06] shadow-[0_0_20px_rgba(253,224,71,0.18)] transition-all duration-300 group-hover:border-amber-200/50 group-hover:bg-amber-300/[0.12] group-hover:shadow-[0_0_28px_rgba(254,240,138,0.4)] ${dim}`}

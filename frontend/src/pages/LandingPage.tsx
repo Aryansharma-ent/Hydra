@@ -1,7 +1,8 @@
+import { useEffect } from "react";
 import { ChevronDown } from 'lucide-react'
 import { FaGithub } from "react-icons/fa";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import bgImage from '../assets/background.png'
 import Particles from '@/components/Particles';
 
@@ -18,6 +19,15 @@ import Footer from '@/components/Landing/Footer';
 const words = ["Catch", "Every", "Visual", "Regression."];
 
 const LandingPage = () => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem("hydra_token") || localStorage.getItem("token");
+    if (token) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [navigate]);
+
   return (
     <>
       {/* ─── HERO (bg image only here) ─── */}
@@ -59,11 +69,8 @@ const LandingPage = () => {
               <a href="#features" className="transition hover:text-white">Features</a>
               <a href="#how-it-works" className="transition hover:text-white">How It Works</a>
               <a href="#faq" className="transition hover:text-white">FAQ</a>
-              <a href="#" className="transition hover:text-white">Docs</a>
-              <button className="flex items-center gap-1 transition hover:text-white">
-                ENG
-                <ChevronDown size={14} />
-              </button>
+              <Link to="/docs" className="transition hover:text-white">Docs</Link>
+              
             </div>
 
             <div className="flex items-center gap-3">
@@ -127,15 +134,15 @@ const LandingPage = () => {
             transition={{ delay: 0.85, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             className="mt-2 flex flex-wrap items-center justify-center gap-5"
           >
-            <Link to="/signup">
-              <motion.button
-                whileHover={{ scale: 1.03, y: -2 }}
-                whileTap={{ scale: 0.98 }}
-                className="rounded-full bg-white px-8 py-3.5 font-medium text-black transition-all duration-300 hover:shadow-[0_0_40px_rgba(255,255,255,0.25)]"
-              >
-                Start Free →
-              </motion.button>
-            </Link>
+           <motion.a
+              href="/login"
+              rel="noopener noreferrer"
+              whileHover={{ scale: 1.03, y: -2 }}
+              whileTap={{ scale: 0.98 }}
+              className="group flex items-center gap-2 rounded-full border border-white/10 bg-white backdrop-blur-xl px-8 py-3.5 font-medium text-black transition-all duration-300 hover:border-blue-500/30 hover:bg-white hover:text-black"
+            >
+              Start Free
+            </motion.a>
 
             <motion.a
               href="https://github.com/Aryansharma-ent/Hydra"

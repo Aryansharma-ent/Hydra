@@ -1,6 +1,7 @@
 import { motion, useInView } from "framer-motion";
 import { useRef, useState } from "react";
-import { Copy, Check } from "lucide-react";
+import { Copy, Check, BookOpen } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const FRAMEWORKS = ["React", "Next.js", "Vite", "Astro", "Remix"];
 
@@ -143,6 +144,17 @@ export function InstallSection() {
             </span>
           ))}
         </motion.div>
+
+        {/* Read Docs Button */}
+        <Link to="/docs">
+              <motion.button
+                whileHover={{ scale: 1.03, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+                className="rounded-full mt-6 cursor-pointer bg-white px-8 py-3.5 font-medium text-black transition-all duration-300 hover:shadow-[0_0_40px_rgba(255,255,255,0.25)]"
+              >
+                Read Docs
+              </motion.button>
+            </Link>
       </div>
     </section>
   );

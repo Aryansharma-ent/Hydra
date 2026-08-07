@@ -44,6 +44,13 @@ const handleEmailSubmit = async (e: React.FormEvent) => {
   
 
   useEffect(() => {
+    const token = localStorage.getItem("hydra_token") || localStorage.getItem("token");
+    if (token) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [navigate]);
+
+  useEffect(() => {
     if (window.google) {
       window.google.accounts.id.initialize({
         client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
