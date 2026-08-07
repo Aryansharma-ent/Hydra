@@ -171,12 +171,12 @@ export default function ChatSidebar({ runData, chatMessages, setChatMessages, se
     <aside className="w-[380px] border-l border-[#1f1f23]/60 bg-[#0a0a0b] flex flex-col shrink-0 min-h-0">
 
     {/* Inspector Header */}
-      <div className="h-10 px-4 border-b border-[#1f1f23] flex items-center justify-between shrink-0 bg-[#09090b]/90 backdrop-blur-md z-10">
+      <div className="h-10 px-4  flex items-center justify-between shrink-0 bg-[#09090b]/90 backdrop-blur-md z-10">
         <div className="flex items-center gap-2">
-          <div className="w-5.5 h-5.5 rounded-md bg-[#121215] border border-[#27272a] flex items-center justify-center p-0.5">
+          <div className="w-5.5 h-5.5 rounded-md bg-[#121215]  border-[#27272a] flex items-center justify-center p-0.5">
             <img src="/src/assets/hydralogo.png" className="w-full h-full object-contain" alt="Hydra Logo" />
           </div>
-          <span className="text-[12px] font-semibold text-white tracking-wide">Hydra Inspector</span>
+          <span className="text-[12px] font-semibold text-white tracking-wide">Hydra</span>
         </div>
       </div>
 

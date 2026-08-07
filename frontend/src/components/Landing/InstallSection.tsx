@@ -43,7 +43,7 @@ export function InstallSection() {
           transition={{ duration: 0.55, ease }}
           className="mb-5 text-xs font-medium tracking-[0.12em]  uppercase text-white/30"
         >
-          Connect your project
+          EASY TO USE
         </motion.p>
 
         {/* Heading — same scale as hero h2 */}
@@ -81,10 +81,10 @@ export function InstallSection() {
               <div className="h-2.5 w-2.5 rounded-full bg-white/10" />
               <div className="h-2.5 w-2.5 rounded-full bg-white/10" />
             </div>
-            <span className="text-[11px] font-mono text-white/20">terminal</span>
+            <span className="text-[11px] font-serif text-white/20">terminal</span>
             <button
               onClick={copy}
-              className="flex items-center gap-1.5 text-[11px] font-mono text-white/30 transition hover:text-white/60"
+              className="flex items-center gap-1.5 text-[11px] font-serif text-white/30 transition hover:text-white/60"
             >
               {copied
                 ? <><Check size={11} className="text-white/60" /> copied</>
@@ -104,7 +104,7 @@ export function InstallSection() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: l.delay, duration: 0.3 }}
-                  className="flex items-center gap-3 font-mono text-[13px] leading-6"
+                  className="flex items-center gap-3 font-serif text-[13px] leading-6"
                 >
                   {l.prompt && (
                     <span className="shrink-0 text-white/20 select-none">$</span>
@@ -133,11 +133,11 @@ export function InstallSection() {
           transition={{ delay: 0.5, duration: 0.55, ease }}
           className="mt-7 flex flex-wrap items-center justify-center gap-2"
         >
-          <span className="mr-1 text-[11px] text-white/20 font-mono tracking-wide">connector available for</span>
+          <span className="mr-1 text-[11px] text-white/20 font-serif tracking-wide">connector available for</span>
           {FRAMEWORKS.map((name) => (
             <span
               key={name}
-              className="rounded-full border border-white/[0.08] px-3 py-1 text-[11px] text-white/40 font-mono transition hover:border-white/[0.14] hover:text-white/60"
+              className="rounded-full border border-white/[0.08] px-3 py-1 text-[11px] text-white/40 font-serif transition hover:border-white/[0.14] hover:text-white/60"
             >
               {name}
             </span>

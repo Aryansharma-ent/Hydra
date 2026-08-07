@@ -21,11 +21,11 @@ export default function SubBar({selectedProject,onBackToProjects,onNewProjectCli
           WORKSPACE
         </span>
         <span className="text-xs text-muted-foreground">/</span>
-        <span className="text-xs font-bold text-white font-sans tracking-wider">Project Registry</span>
+        <span className="text-xs font-bold text-white font-serif tracking-wider">Project Registry</span>
         {selectedProject && (
     <>
     <span className="text-xs text-muted-foreground mx-1.5">/</span>
-    <span className="text-xs font-bold text-indigo-400 font-sans tracking-wider">{selectedProject.name}</span>
+    <span className="text-xs font-bold text-indigo-400 font-serif tracking-wider">{selectedProject.name}</span>
     </>
     )}
       </div>

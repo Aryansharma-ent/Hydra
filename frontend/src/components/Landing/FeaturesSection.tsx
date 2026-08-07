@@ -31,7 +31,7 @@ function Card({
         y: -3,
         transition: { duration: 0.22, ease },
       }}
-      className={`group relative rounded-2xl border border-white/[0.06] bg-white/[0.02] transition-all duration-300 hover:border-white/[0.11] hover:bg-white/[0.03] hover:shadow-[0_8px_32px_rgba(0,0,0,0.45),0_0_0_1px_rgba(255,255,255,0.07)] ${className}`}
+      className={`group relative rounded-2xl border border-white/[0.06] bg-white/[0.02] transition-all duration-300 hover:border-amber-300/25 hover:bg-white/[0.035] hover:shadow-[0_12px_40px_rgba(0,0,0,0.5),0_0_30px_rgba(251,191,36,0.05)] ${className}`}
     >
       {children}
     </motion.div>
@@ -41,7 +41,7 @@ function Card({
 // ─── Shared typographic atoms ─────────────────────────────────────────────────
 function Eyebrow({ children }: { children: React.ReactNode }) {
   return (
-    <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-white/25">
+    <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/30">
       {children}
     </p>
   );
@@ -61,11 +61,11 @@ function Title({ children, large }: { children: React.ReactNode; large?: boolean
 
 function Body({ children }: { children: React.ReactNode }) {
   return (
-    <p className="text-[13px] leading-relaxed text-zinc-500">{children}</p>
+    <p className="text-[13px] leading-relaxed text-zinc-400 font-normal">{children}</p>
   );
 }
 
-// Icon container — hovered: very faint blue glow, icon brightens
+// Icon container — white-yellow glow by default, intensifies on hover
 function Icon({
   icon: Ic,
   size = 16,
@@ -78,11 +78,11 @@ function Icon({
   const dim = large ? "h-12 w-12 rounded-xl" : "h-10 w-10 rounded-xl";
   return (
     <div
-      className={`inline-flex shrink-0 items-center justify-center border border-white/[0.07] bg-white/[0.03] transition-all duration-300 group-hover:border-white/[0.12] group-hover:shadow-[0_0_18px_rgba(59,130,246,0.10)] ${dim}`}
+      className={`inline-flex shrink-0 items-center justify-center border border-amber-300/25 bg-amber-400/[0.06] shadow-[0_0_20px_rgba(253,224,71,0.18)] transition-all duration-300 group-hover:border-amber-200/50 group-hover:bg-amber-300/[0.12] group-hover:shadow-[0_0_28px_rgba(254,240,138,0.4)] ${dim}`}
     >
       <Ic
         size={size}
-        className="text-white/40 transition-colors duration-300 group-hover:text-white/75"
+        className="text-amber-200 drop-shadow-[0_0_8px_rgba(254,240,138,0.7)] transition-all duration-300 group-hover:text-amber-100 group-hover:drop-shadow-[0_0_12px_rgba(255,255,255,0.95)]"
       />
     </div>
   );
@@ -92,8 +92,6 @@ function Icon({
 
 /**
  * ① Pixel Comparison — 2 cols wide.
- *    Icon top-left. Below: title then body. A thin rule + two typographic
- *    "before · after" labels at the bottom serve as the only accent.
  */
 function CardPixelComparison() {
   return (
@@ -110,13 +108,13 @@ function CardPixelComparison() {
             viewport you define. Nothing moves without you knowing.
           </Body>
         </div>
-        {/* Typographic accent — no fake UI */}
+        {/* Typographic accent — clean sans */}
         <div className="flex items-center gap-3 pt-1 border-t border-white/[0.05]">
-          <span className="font-mono text-[10px] text-white/25">before</span>
+          <span className="text-[11px] font-medium text-white/30">before</span>
           <div className="flex-1 h-px bg-white/[0.05]" />
-          <span className="font-mono text-[10px] text-blue-400/50">diff</span>
+          <span className="text-[11px] font-semibold text-blue-400 drop-shadow-[0_0_8px_rgba(59,130,246,0.4)]">diff</span>
           <div className="flex-1 h-px bg-white/[0.05]" />
-          <span className="font-mono text-[10px] text-white/25">after</span>
+          <span className="text-[11px] font-medium text-white/30">after</span>
         </div>
       </div>
     </Card>
@@ -125,15 +123,13 @@ function CardPixelComparison() {
 
 /**
  * ② Heatmaps — 1 col.
- *    Icon top-left. Thin horizontal rule between icon row and text.
- *    Rule creates breathing rhythm unique to this card.
  */
 function CardHeatmaps() {
   return (
     <Card className="p-7" delay={0.06}>
       <div className="flex items-start justify-between mb-5">
         <Icon icon={Flame} size={16} />
-        <span className="rounded-full border border-white/[0.07] px-2.5 py-0.5 font-mono text-[9px] text-white/30">
+        <span className="rounded-full border border-white/[0.08] px-2.5 py-0.5 text-[10px] font-medium text-white/40">
           per scan
         </span>
       </div>
@@ -148,7 +144,6 @@ function CardHeatmaps() {
 
 /**
  * ③ CI Integration — 1 col.
- *    Standard top-left icon, compact text. Short and confident.
  */
 function CardCI() {
   return (
@@ -165,8 +160,6 @@ function CardCI() {
 
 /**
  * ④ Pull Requests — 1 col.
- *    Slightly larger icon container. Title-only, no body.
- *    Extra whitespace lets the title breathe.
  */
 function CardPR() {
   return (
@@ -182,8 +175,6 @@ function CardPR() {
 
 /**
  * ⑤ Fast Scans — 1 col.
- *    Icon top. Then title. Then a pure typographic metric — no chart, no bar.
- *    The number itself is the visual element.
  */
 function CardFastScans() {
   return (
@@ -194,11 +185,11 @@ function CardFastScans() {
         <Title>Parallelized screenshots without slowing your workflow.</Title>
       </div>
       <div className="mt-6 pt-5 border-t border-white/[0.05]">
-        <span className="tabular-nums text-[32px] font-semibold leading-none tracking-[-0.04em] text-white/70">
+        <span className="tabular-nums text-[32px] font-semibold leading-none tracking-[-0.04em] text-white/80">
           2.3
-          <span className="ml-1 text-base font-normal text-white/25">s avg</span>
+          <span className="ml-1 text-base font-normal text-white/30">s avg</span>
         </span>
-        <p className="mt-1 font-mono text-[10px] text-white/20">24 routes · parallelized</p>
+        <p className="mt-1.5 text-[11px] font-medium text-white/30">24 routes · parallelized</p>
       </div>
     </Card>
   );
@@ -206,8 +197,6 @@ function CardFastScans() {
 
 /**
  * ⑥ Baselines — full 3-col width.
- *    Horizontal split: description left, version history right as plain text.
- *    No fake UI — version tags are just typography.
  */
 function CardBaselines() {
   const versions = [
@@ -232,7 +221,7 @@ function CardBaselines() {
           </div>
         </div>
 
-        {/* Right: version list — pure typography, no fake windows */}
+        {/* Right: version list — pure typography */}
         <div className="flex flex-col gap-2 sm:min-w-[260px]">
           {versions.map((v, i) => (
             <div
@@ -244,16 +233,16 @@ function CardBaselines() {
               }`}
             >
               <div className="flex items-center gap-3">
-                <span className="font-mono text-[11px] text-white/60">{v.tag}</span>
-                <span className="font-mono text-[10px] text-white/20">{v.note}</span>
+                <span className="text-[12px] font-semibold text-white/70">{v.tag}</span>
+                <span className="text-[11px] text-white/30">{v.note}</span>
               </div>
               <span
-                className={`font-mono text-[10px] ${
+                className={`text-[11px] font-medium ${
                   i === 0
                     ? "text-white/50"
                     : v.status.includes("changes")
-                    ? "text-blue-400/60"
-                    : "text-white/25"
+                    ? "text-blue-400"
+                    : "text-white/30"
                 }`}
               >
                 {v.status}

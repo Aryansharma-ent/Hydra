@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react"
+import { createPortal } from "react-dom"
 import { Link, useNavigate } from "react-router-dom"
 import { 
   User as UserIcon, 
@@ -185,8 +186,8 @@ export default function UserMenu() {
       )}
 
       {/* ─── Sign Out Confirmation Modal ─────────────────────────────── */}
-      {isConfirmOpen && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+      {isConfirmOpen && createPortal(
+        <div className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="w-full max-w-sm bg-[#09090b] border border-[#1f1f23] rounded-2xl p-5 shadow-2xl flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-150">
             <div className="flex flex-col gap-1">
               <h3 className="text-base font-semibold text-white">Sign out?</h3>
@@ -209,12 +210,13 @@ export default function UserMenu() {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* ─── Keyboard Shortcuts Modal ──────────────────────────────────── */}
-      {isShortcutsOpen && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+      {isShortcutsOpen && createPortal(
+        <div className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="w-full max-w-md bg-[#09090b] border border-[#1f1f23] rounded-2xl p-5 shadow-2xl flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-150 relative">
             <button
               onClick={() => setIsShortcutsOpen(false)}
@@ -245,8 +247,10 @@ export default function UserMenu() {
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   )
 }
+

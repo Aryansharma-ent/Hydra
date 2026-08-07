@@ -1,7 +1,10 @@
 import { ChevronDown } from 'lucide-react'
 import { FaGithub } from "react-icons/fa";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import bgImage from '../assets/background.png'
+import Particles from '@/components/Particles';
+
 import hydraLogo from '../assets/hydralogo.png'
 
 import { InstallSection }    from '@/components/Landing/InstallSection'
@@ -10,6 +13,7 @@ import { HowItWorksSection } from '@/components/Landing/HowItWorksSection'
 import { ComparisonSection } from '@/components/Landing/ComparisonSection'
 import { FAQSection }        from '@/components/Landing/FAQSection'
 import { CTASection }        from '@/components/Landing/CTASection'
+import Footer from '@/components/Landing/Footer';
 
 const words = ["Catch", "Every", "Visual", "Regression."];
 
@@ -21,8 +25,27 @@ const LandingPage = () => {
         style={{ backgroundImage: `url(${bgImage})` }}
         className="relative bg-cover bg-center min-h-screen antialiased select-none text-white"
       >
+
+    <div className="absolute inset-0 z-0 ">
+        <Particles
+          particleCount={200}
+          particleSpread={10}
+          speed={0.1}
+          particleColors={["#ffffff"]}
+          moveParticlesOnHover
+          particleHoverFactor={-1}
+          alphaParticles={false}
+          particleBaseSize={100}
+          sizeRandomness={1}
+          cameraDistance={20}
+          disableRotation={false}
+        />
+         
+      </div>
+
+
         {/* Gradient fade at bottom of hero into pure black */}
-        <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-b from-transparent to-black z-10" />
+        <div className=" relative pointer-events-none absolute bottom-0 left-0 right-0  bg-gradient-to-b from-transparent to-black z-10" />
 
         {/* ── Navbar ── */}
         <nav className="fixed top-5 left-1/2 z-50 w-[92%] max-w-7xl -translate-x-1/2">
@@ -44,12 +67,18 @@ const LandingPage = () => {
             </div>
 
             <div className="flex items-center gap-3">
-              <button className="rounded-full bg-white/5 px-5 py-2 text-sm text-white transition hover:bg-white/10">
+              <Link
+                to="/login"
+                className="rounded-full bg-white/5 px-5 py-2 text-sm text-white transition hover:bg-white/10"
+              >
                 Login
-              </button>
-              <button className="rounded-full bg-white px-5 py-2 text-sm font-medium text-black transition hover:bg-neutral-200">
+              </Link>
+              <Link
+                to="/signup"
+                className="rounded-full bg-white px-5 py-2 text-sm font-medium text-black transition hover:bg-neutral-200"
+              >
                 Sign up
-              </button>
+              </Link>
             </div>
           </div>
         </nav>
@@ -98,13 +127,15 @@ const LandingPage = () => {
             transition={{ delay: 0.85, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             className="mt-2 flex flex-wrap items-center justify-center gap-5"
           >
-            <motion.button
-              whileHover={{ scale: 1.03, y: -2 }}
-              whileTap={{ scale: 0.98 }}
-              className="rounded-full bg-white px-8 py-3.5 font-medium text-black transition-all duration-300 hover:shadow-[0_0_40px_rgba(255,255,255,0.25)]"
-            >
-              Start Free →
-            </motion.button>
+            <Link to="/signup">
+              <motion.button
+                whileHover={{ scale: 1.03, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+                className="rounded-full bg-white px-8 py-3.5 font-medium text-black transition-all duration-300 hover:shadow-[0_0_40px_rgba(255,255,255,0.25)]"
+              >
+                Start Free →
+              </motion.button>
+            </Link>
 
             <motion.a
               href="https://github.com/Aryansharma-ent/Hydra"
@@ -166,15 +197,7 @@ const LandingPage = () => {
         <CTASection />
 
         <footer className="border-t border-white/[0.05] py-10 text-center text-xs text-white/20 font-mono">
-          © {new Date().getFullYear()} Hydra · MIT License ·{" "}
-          <a
-            href="https://github.com/Aryansharma-ent/Hydra"
-            className="hover:text-white/50 transition"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            GitHub
-          </a>
+         <Footer/>
         </footer>
       </div>
     </>

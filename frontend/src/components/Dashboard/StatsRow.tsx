@@ -35,7 +35,7 @@ export default function StatsRow({ runs }: StatsRowProps) {
             {totalRuns}
           </div>
         </div>
-        <span className="text-[11px] text-white-300 font-sans tracking-wider mt-2 block">
+        <span className="text-[11px] text-white-300 font-serif tracking-wider mt-2 block">
           Scan History
         </span>
       </div>
