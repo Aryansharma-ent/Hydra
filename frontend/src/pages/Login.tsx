@@ -109,7 +109,7 @@ const handleEmailSubmit = async (e: React.FormEvent) => {
       {/* Background visual effects */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-violet-600/5 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute top-12 left-12 flex items-center gap-2">
-        <ShieldCheck className="size-5 text-[#a1a1aa]" />
+       <img src="src/assets/hydralogo.png" alt="" className="h-6 w-6 rounded-2xl"/>
         <span className="text-[12px] font-semibold text-white tracking-widest uppercase">Hydra</span>
       </div>
 

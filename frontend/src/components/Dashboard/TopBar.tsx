@@ -10,15 +10,15 @@ export default function TopBar() {
   return (
     <header className="h-11 border-b border-[#1f1f23] flex items-center justify-between px-5 bg-[#0a0a0b] shrink-0 select-none">
       {/* Breadcrumbs */}
-      <div className="flex items-center gap-1.5 text-[11px] text-[#525252]">
+      <div className="flex items-center gap-2 text-[12px] text-[#a1a1aa] font-medium">
         <Link
           to="/dashboard"
-          className="flex items-center gap-1.5 hover:text-[#a1a1aa] transition-colors duration-150"
+          className="flex items-center gap-1.5 hover:text-white transition-colors duration-150"
         >
-          <LayoutGrid className="size-3 text-violet-400" />
+          <LayoutGrid className="size-3.5 text-violet-400" />
           <span className="font-semibold text-white">Workspace</span>
         </Link>
-        <ChevronRight className="size-3 text-[#2e2e32]" />
+        <span className="text-[#3f3f46]">/</span>
         <span className="text-[#a1a1aa] font-medium">
           {projectId ? "Project Console" : "Project Registry"}
         </span>

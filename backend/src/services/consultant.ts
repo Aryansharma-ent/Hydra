@@ -3,18 +3,15 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 const api = process.env.GEMINI_API_KEY;
 
 
-export const genAiFixSuggestion = async (elementSelector: string, outerHtml: string, description: string) => {
+export const genAiFixSuggestion = async (elementSelector: string, outerHtml: string, description: string, customApiKey?: string) => {
     try {
-        
-        
-        const api = process.env.GEMINI_API_KEY;
-        if (!api ) {
+        const api = customApiKey || process.env.GEMINI_API_KEY;
+        if (!api) {
             return {
-                explanation: "Gemini API Key is not configured in the backend .env file.",
-                cssFix: "/* Configure GEMINI_API_KEY in .env to get live recommendations */"
+                explanation: "Gemini API Key is not configured in Developer Settings or backend .env file.",
+                cssFix: "/* Configure GEMINI_API_KEY in Developer Settings to get live recommendations */"
             };
         }
-        
         
         const genAI = new GoogleGenerativeAI(api);  
         const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })

@@ -17,8 +17,97 @@ interface ChatSidebarProps {
   onSelectBug?: (index: number | null) => void
 }
 
-/* ═══ Code Block (VS Code-inspired) ═══ */
-function CodeBlock({ code }: { code: string }) {
+/* ═══ Tokenizer & Syntax Highlighter ═══ */
+function highlightCode(code: string, lang: string) {
+  const lines = code.split("\n")
+
+  return lines.map((line, lineIdx) => {
+    const trimmed = line.trim()
+
+    // 1. Full-line comments
+    if (trimmed.startsWith("/*") || trimmed.startsWith("//") || trimmed.startsWith("*") || trimmed.startsWith("#")) {
+      return (
+        <div key={lineIdx} className="text-[#52525b] italic">
+          {line}
+        </div>
+      )
+    }
+
+    // 2. Separate code from inline/trailing comments
+    let codePart = line
+    let commentPart = ""
+
+    if (line.includes("/*")) {
+      const idx = line.indexOf("/*")
+      codePart = line.substring(0, idx)
+      commentPart = line.substring(idx)
+    } else if (line.includes("//")) {
+      const idx = line.indexOf("//")
+      codePart = line.substring(0, idx)
+      commentPart = line.substring(idx)
+    }
+
+    // 3. CSS property: value syntax
+    if (codePart.includes(":") && !codePart.includes("http") && !codePart.includes("?")) {
+      const colonIdx = codePart.indexOf(":")
+      const prop = codePart.substring(0, colonIdx)
+      const rest = codePart.substring(colonIdx) // : value;
+
+      let valText = rest
+      let importantText = ""
+
+      if (rest.includes("!important")) {
+        const impIdx = rest.indexOf("!important")
+        valText = rest.substring(0, impIdx)
+        importantText = "!important" + rest.substring(impIdx + 10)
+      }
+
+      return (
+        <div key={lineIdx}>
+          <span className="text-[#9cdcfe] font-medium">{prop}</span>
+          <span className="text-[#d4d4d8]">:</span>
+          <span className="text-[#ce9178]">{valText.slice(1)}</span>
+          {importantText && <span className="text-rose-400 font-semibold">{importantText}</span>}
+          {commentPart && <span className="text-[#52525b] italic">{commentPart}</span>}
+        </div>
+      )
+    }
+
+    // 4. CSS selector rule start (e.g. div.hero-card {)
+    if (codePart.includes("{")) {
+      const braceIdx = codePart.indexOf("{")
+      const selector = codePart.substring(0, braceIdx)
+      return (
+        <div key={lineIdx}>
+          <span className="text-[#d7ba7d] font-semibold">{selector}</span>
+          <span className="text-[#d4d4d8]">{codePart.substring(braceIdx)}</span>
+          {commentPart && <span className="text-[#52525b] italic">{commentPart}</span>}
+        </div>
+      )
+    }
+
+    // 5. Closing brace / structure
+    if (trimmed === "}" || trimmed === "};" || trimmed === "],") {
+      return (
+        <div key={lineIdx}>
+          <span className="text-[#d4d4d8]">{codePart}</span>
+          {commentPart && <span className="text-[#52525b] italic">{commentPart}</span>}
+        </div>
+      )
+    }
+
+    // 6. Default fallback line
+    return (
+      <div key={lineIdx}>
+        <span className="text-[#e4e4e7]">{codePart}</span>
+        {commentPart && <span className="text-[#52525b] italic">{commentPart}</span>}
+      </div>
+    )
+  })
+}
+
+/* ═══ Code Block Component ═══ */
+function CodeBlock({ code, language = "css" }: { code: string; language?: string }) {
   const [copied, setCopied] = useState(false)
 
   const handleCopy = () => {
@@ -27,78 +116,117 @@ function CodeBlock({ code }: { code: string }) {
     setTimeout(() => setCopied(false), 2000)
   }
 
+  const langMap: Record<string, string> = {
+    css: "CSS",
+    js: "JavaScript",
+    javascript: "JavaScript",
+    ts: "TypeScript",
+    typescript: "TypeScript",
+    html: "HTML",
+    json: "JSON",
+    cpp: "C++",
+    c: "C",
+    py: "Python",
+    python: "Python",
+    sh: "Bash",
+    bash: "Bash",
+  }
+
+  const displayLang = langMap[language.toLowerCase()] || (language ? language.toUpperCase() : "Code")
+
   return (
-    <div className="mt-2 rounded-lg border border-[#1f1f23] bg-[#0c0c0e] overflow-hidden">
-      <div className="flex items-center justify-between px-3 py-1.5 border-b border-[#1f1f23]/60 bg-[#111113]">
+    <div className="my-3 rounded-xl border border-[#1f1f23] bg-[#08080a] shadow-xl overflow-hidden text-[11px] group select-text">
+      {/* Header bar */}
+      <div className="flex items-center justify-between px-3.5 py-1.5 border-b border-[#1f1f23] bg-[#111114] select-none">
         <div className="flex items-center gap-2">
-          <div className="flex gap-1">
-            <span className="size-1.5 rounded-full bg-[#3f3f46]" />
-            <span className="size-1.5 rounded-full bg-[#3f3f46]" />
-            <span className="size-1.5 rounded-full bg-[#3f3f46]" />
-          </div>
-          <span className="text-[9px] font-mono text-[#52525b] uppercase tracking-wider">css</span>
+          <span className="size-2 rounded-full bg-violet-500/80" />
+          <span className="text-[10px] font-semibold text-[#a1a1aa] tracking-wider uppercase font-mono-code">
+            {displayLang}
+          </span>
         </div>
         <button
           onClick={handleCopy}
-          className="flex items-center gap-1 text-[9px] text-[#52525b] hover:text-[#a1a1aa] transition-colors cursor-pointer rounded px-1.5 py-0.5 hover:bg-[#1a1a1d]"
+          className="flex items-center gap-1.5 text-[10px] font-medium text-[#a1a1aa] hover:text-white transition-all cursor-pointer rounded-md px-2 py-0.5 hover:bg-[#1f1f23] active:scale-95"
         >
           {copied ? (
             <>
               <Check className="size-3 text-emerald-400" />
-              <span className="text-emerald-400">Copied</span>
+              <span className="text-emerald-400 font-semibold">Copied!</span>
             </>
           ) : (
             <>
-              <Copy className="size-3" />
+              <Copy className="size-3 text-[#71717a]" />
               <span>Copy</span>
             </>
           )}
         </button>
       </div>
-      <pre className="p-3 text-[10px] font-mono text-emerald-300/90 whitespace-pre-wrap overflow-x-auto leading-relaxed">
-        {code.trim()}
-      </pre>
+
+      {/* Code body with horizontal scroll & syntax highlighting */}
+      <div className="p-4 overflow-x-auto font-mono-code leading-[1.7] text-[#e4e4e7] bg-[#08080a] scrollbar-thin">
+        <pre className="font-mono-code text-[11px] whitespace-pre">
+          {highlightCode(code.trim(), language)}
+        </pre>
+      </div>
     </div>
   )
 }
 
- // format message function
+/* ═══ Markdown Message Formatter ═══ */
 function FormattedMessage({ text }: { text: string }) {
-  const parts = text.split(/(```(?:css|html|javascript|json|ts|tsx)?\n?[\s\S]*?```)/g)
+  // Regex to split code blocks (fenced with ```) from plain text
+  const parts = text.split(/(```[\s\S]*?```)/g)
 
   return (
-    <>
+    <div className="flex flex-col gap-2 text-[12px] leading-relaxed text-[#d4d4d8]">
       {parts.map((part, idx) => {
-        const codeMatch = part.match(/```(?:css|html|javascript|json|ts|tsx)?\n?([\s\S]*?)```/)
+        // Extract language and code body from markdown code block
+        const codeMatch = part.match(/^```([a-zA-Z0-9_-]*)\n?([\s\S]*?)```$/)
         if (codeMatch) {
-          return <CodeBlock key={idx} code={codeMatch[1]} />
+          const lang = codeMatch[1].trim() || "css"
+          const codeContent = codeMatch[2]
+          return <CodeBlock key={idx} code={codeContent} language={lang} />
         }
 
-        const inlineParts = part.split(/(`[^`]+`|\*\*[^*]+\*\*)/g)
+        if (!part.trim()) return null
+
+        // Parse inline formatting: `code`, **bold**, lists, and line breaks
+        const lines = part.split("\n")
+
         return (
-          <span key={idx}>
-            {inlineParts.map((sub, subIdx) => {
-              if (sub.startsWith("`") && sub.endsWith("`")) {
-                return (
-                  <code key={subIdx} className="bg-[#1a1a2e] text-[#a78bfa] px-1 py-0.5 rounded text-[10px] font-mono border border-violet-500/10">
-                    {sub.slice(1, -1)}
-                  </code>
-                )
-              }
-              if (sub.startsWith("**") && sub.endsWith("**")) {
-                return <strong key={subIdx} className="text-[#e4e4e7] font-semibold">{sub.slice(2, -2)}</strong>
-              }
-              return sub.split("\n").map((line, lineIdx, arr) => (
-                <span key={lineIdx}>
-                  {line}
-                  {lineIdx < arr.length - 1 && <br />}
-                </span>
-              ))
+          <div key={idx} className="flex flex-col gap-1">
+            {lines.map((line, lIdx) => {
+              if (!line.trim()) return <div key={lIdx} className="h-1.5" />
+
+              const isListItem = line.trim().startsWith("- ") || line.trim().startsWith("* ") || /^\d+\.\s/.test(line.trim())
+              
+              const inlineParts = line.split(/(`[^`]+`|\*\*[^*]+\*\*)/g)
+
+              return (
+                <div key={lIdx} className={`${isListItem ? "pl-2 flex items-start gap-1.5" : ""}`}>
+                  {isListItem && <span className="text-violet-400 font-bold text-[10px] select-none mt-0.5">•</span>}
+                  <span className="flex-1">
+                    {inlineParts.map((sub, subIdx) => {
+                      if (sub.startsWith("`") && sub.endsWith("`")) {
+                        return (
+                          <code key={subIdx} className="bg-[#18181b] text-violet-300 px-1.5 py-0.5 rounded text-[11px] font-mono-code border border-[#27272a] mx-0.5 shadow-sm">
+                            {sub.slice(1, -1)}
+                          </code>
+                        )
+                      }
+                      if (sub.startsWith("**") && sub.endsWith("**")) {
+                        return <strong key={subIdx} className="text-white font-semibold">{sub.slice(2, -2)}</strong>
+                      }
+                      return sub
+                    })}
+                  </span>
+                </div>
+              )
             })}
-          </span>
+          </div>
         )
       })}
-    </>
+    </div>
   )
 }
 
@@ -220,7 +348,6 @@ export default function ChatSidebar({ runData, chatMessages, setChatMessages, se
               <div className="max-h-[220px] overflow-y-auto px-3 pb-3 flex flex-col gap-1.5">
                 {bugCount === 0 ? (
                   <div className="flex items-center gap-2.5 px-3 py-3 rounded-lg bg-emerald-500/[0.03] border border-emerald-500/10 text-[11px] text-[#52525b]">
-                    <span className="size-1.5 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400/30 shrink-0" />
                     <span>No visual regressions detected</span>
                   </div>
                 ) : (

@@ -6,6 +6,7 @@ export interface IProject extends Document {
     productionUrl: string;
     createdAt: Date;
     apikey?: string;
+    geminiApiKey?: string;
     owner: Schema.Types.ObjectId;
     tier: 'FREE' | 'PRO';       
 }
@@ -31,6 +32,10 @@ const ProjectModel = new Schema<IProject>({
         default: Date.now
     },
     apikey: {
+        type: String,
+        trim: true,
+    },
+    geminiApiKey: {
         type: String,
         trim: true,
     },

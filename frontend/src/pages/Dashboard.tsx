@@ -47,11 +47,15 @@ const fetchProjects = async () => {
       setProjects(projectList);
 
       const urlProjectId = searchParams.get('projectId')
-      if(urlProjectId){
+      if (urlProjectId) {
         const matchedProject = projectList.find((p : Project) => p._id === urlProjectId)
-        if(matchedProject){
+        if (matchedProject) {
           setSelectedProject(matchedProject)
+        } else if (projectList.length > 0) {
+          setSelectedProject(projectList[0])
         }
+      } else if (!selectedProject && projectList.length > 0) {
+        setSelectedProject(projectList[0])
       }
     }
   } catch (error) {

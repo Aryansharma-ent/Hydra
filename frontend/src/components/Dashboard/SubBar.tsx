@@ -1,4 +1,5 @@
-import { Play ,ArrowLeft, FolderPlus} from "lucide-react"
+import { useState } from "react"
+import { Play, ArrowLeft, FolderPlus, Copy, Check } from "lucide-react"
 import type { Project } from "@/types"
 
 interface SubBarProps {
@@ -9,6 +10,15 @@ interface SubBarProps {
 }
 
 export default function SubBar({selectedProject,onBackToProjects,onNewProjectClick,onNewRunClick}: SubBarProps) {
+  const [copiedId, setCopiedId] = useState(false)
+
+  const copyProjectId = () => {
+    if (!selectedProject?._id) return
+    navigator.clipboard.writeText(selectedProject._id)
+    setCopiedId(true)
+    setTimeout(() => setCopiedId(false), 2000)
+  }
+
   return (
     <section className="h-12 border-b border-[#1f1f23]/60 bg-[#0c0c0e]/30 flex items-center justify-between px-6 shrink-0 select-none">
       <div className="flex items-center gap-2 text-xs font-medium">
@@ -24,6 +34,23 @@ export default function SubBar({selectedProject,onBackToProjects,onNewProjectCli
           <>
             <span className="text-[#3f3f46]">/</span>
             <span className="text-violet-400 font-semibold">{selectedProject.name}</span>
+            <button
+              onClick={copyProjectId}
+              className="ml-1.5 flex items-center gap-1.5 px-2 py-0.5 text-[10px] font-sans font-medium text-[#a1a1aa] hover:text-white bg-[#121215] border border-[#27272a] hover:border-[#3f3f46] rounded-none transition-all cursor-pointer shadow-sm active:scale-95"
+              title={`Click to copy Project ID: ${selectedProject._id}`}
+            >
+              {copiedId ? (
+                <>
+                  <Check className="size-3 text-emerald-400" />
+                  <span className="text-emerald-400 font-semibold">ID Copied</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="size-3 text-[#71717a]" />
+                  <span>Copy Project ID</span>
+                </>
+              )}
+            </button>
           </>
         )}
       </div>

@@ -1,4 +1,5 @@
-import { ArrowLeft, RefreshCw, Clock } from "lucide-react"
+import { useState } from "react"
+import { ArrowLeft, RefreshCw, Clock, Copy, Check } from "lucide-react"
 import { Link } from "react-router-dom"
 import { type TestRun } from "@/types"
 
@@ -22,9 +23,17 @@ function formatDate(iso: string) {
 }
 
 export default function DebuggerSubBar({ runData, onRerun, isRerunning }: DebuggerSubBarProps) {
+  const [copiedId, setCopiedId] = useState(false)
   const isPassed  = runData.status === "PASSED"
   const isRunning = runData.status === "RUNNING"
   const isFailed  = runData.status === "FAILED"
+
+  const handleCopyProjectId = () => {
+    if (!runData.projectId) return
+    navigator.clipboard.writeText(runData.projectId)
+    setCopiedId(true)
+    setTimeout(() => setCopiedId(false), 2000)
+  }
 
   return (
     <div className="h-10 border-b border-[#1f1f23] backdrop-blur-md bg-[#09090b]/90 flex items-center justify-between px-5 shrink-0 select-none z-10">
@@ -53,12 +62,12 @@ export default function DebuggerSubBar({ runData, onRerun, isRerunning }: Debugg
           </span>
         ) : isPassed ? (
           <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-md px-2.5 py-0.5 tracking-wide shadow-sm">
-            <span className="size-2 rounded-full bg-emerald-400" />
+          
             PASSED · {(runData.mismatchPercentage ?? 0).toFixed(2)}% diff
           </span>
         ) : isFailed ? (
           <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-red-400 bg-red-500/10 border border-red-500/20 rounded-md px-2.5 py-0.5 tracking-wide shadow-sm">
-            <span className="size-2 rounded-full bg-red-400" />
+          
             FAILED · {(runData.mismatchPercentage ?? 0).toFixed(2)}% diff
           </span>
         ) : null}
@@ -68,16 +77,36 @@ export default function DebuggerSubBar({ runData, onRerun, isRerunning }: Debugg
           <Clock className="size-3 text-violet-400" />
           <span>{formatDate(runData.createdAt)}</span>
         </div>
+
+        {/* Copy Project ID Button */}
+        {runData.projectId && (
+          <button
+            onClick={handleCopyProjectId}
+            className="hidden md:inline-flex items-center gap-1.5 px-2 py-0.5 text-[10px] font-sans font-medium text-[#a1a1aa] hover:text-white bg-[#121215] border border-[#27272a] hover:border-[#3f3f46] rounded-none transition-all cursor-pointer shadow-sm active:scale-95"
+            title={`Click to copy Project ID: ${runData.projectId}`}
+          >
+            {copiedId ? (
+              <>
+                <Check className="size-3 text-emerald-400" />
+                <span className="text-emerald-400 font-semibold">ID Copied</span>
+              </>
+            ) : (
+              <>
+                <Copy className="size-3 text-[#71717a]" />
+                <span>Copy Project ID</span>
+              </>
+            )}
+          </button>
+        )}
       </div>
 
       {/* Right: Rerun Action Button */}
       <button
         onClick={onRerun}
         disabled={isRerunning || isRunning}
-        className="inline-flex items-center gap-1.5 px-3 py-1 text-[11px] font-medium rounded-lg border border-[#27272a] transition-all duration-150 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed
-          bg-[#121215] text-[#e4e4e7] hover:border-[#3f3f46] hover:text-white hover:bg-[#18181b] shadow-sm"
+        className="flex items-center gap-1.5 px-3 py-1 bg-indigo-650 hover:bg-indigo-700 border border-indigo-500/30 text-white text-xs font-semibold transition-colors rounded shadow-sm cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
       >
-        <RefreshCw className={`size-3 text-violet-400 ${isRerunning ? "animate-spin" : ""}`} />
+        <RefreshCw className={`size-3.5 ${isRerunning ? "animate-spin" : ""}`} />
         {isRerunning ? "Rerunning…" : "Re-run scan"}
       </button>
 

@@ -5,17 +5,24 @@ import { Request,Response } from "express";
 import AsyncHandler from 'express-async-handler'
 import { GoogleGenerativeAI} from "@google/generative-ai";
 import crypto from "crypto";
+import cache from "../config/cache";
 
 export const getProjects = AsyncHandler(async(req : Request,res : Response) : Promise<void> => {
     const userId = (req as any).user._id;
-const projects = await Project.find({ owner: userId }).sort({ createdAt: -1 });
+    const projects = await Project.find({
+        $or: [
+            { owner: userId },
+            { owner: { $exists: false } },
+            { owner: null }
+        ]
+    }).sort({ createdAt: -1 });
 
-     res.status(200).json({
+    res.status(200).json({
         success : true,
         count : projects.length,
         data : projects
-     })
-})
+    });
+});
 
 
 export const createProject = AsyncHandler(async(req : Request,res : Response) : Promise<void> => {
@@ -137,10 +144,11 @@ export const askHydraChat = AsyncHandler(async (req: Request, res: Response): Pr
         throw new Error("Test run not found");
     }
 
-    const api = process.env.GEMINI_API_KEY;
+    const project = await Project.findById(Testrun.projectId);
+    const api = project?.geminiApiKey || process.env.GEMINI_API_KEY;
     if (!api) {
-        res.status(404);
-        throw new Error("API key not configured");
+        res.status(400);
+        throw new Error("Gemini API key not configured. Please configure your key in Developer Settings or backend .env file.");
     }
 
     const genAI = new GoogleGenerativeAI(api);  
@@ -239,5 +247,28 @@ export const deleteProject = AsyncHandler(async (req: Request, res: Response): P
   res.status(200).json({
     success: true,
     message: "Project and associated test runs deleted successfully"
+  });
+});
+
+export const updateGeminiKey = AsyncHandler(async (req: Request, res: Response): Promise<void> => {
+  const { id } = req.params;
+  const { geminiApiKey } = req.body;
+
+  const project = await Project.findById(id);
+  if (!project) {
+    res.status(404);
+    throw new Error("Project not found");
+  }
+
+  project.geminiApiKey = geminiApiKey !== undefined ? geminiApiKey.trim() : project.geminiApiKey;
+  await project.save();
+  if (project.apikey) {
+    cache.del("apikey_" + project.apikey);
+  }
+
+  res.status(200).json({
+    success: true,
+    data: project,
+    message: "Gemini API key updated successfully"
   });
 });

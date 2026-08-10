@@ -10,6 +10,7 @@ import path from "path";
 import Project from "../models/Project";
 import { genAiFixSuggestion } from "../services/consultant";
 import User from "../models/User";
+import cache from "../config/cache";
 
 
 /* @desc : POST request to send StagingURL and ProductionURL to the server
@@ -23,7 +24,8 @@ const runBackgroundCapture = async (
   productionUrl: string,
   testRunId: string,
   stagingBase64?: string,
-  productionBase64?: string
+  productionBase64?: string,
+  passedGeminiApiKey?: string
 ) => {
   try {
     let stagingBuffer: { buffer: Buffer; layout: any[] };
@@ -52,6 +54,11 @@ const runBackgroundCapture = async (
       uploadScreenshot(`${testRunId}_diff.png`, compareResult.diffBuffer),
     ]);
 
+    // Fetch project geminiApiKey if available
+    const currentRunDoc = await TestRun.findById(dbRecordId);
+    const currentProjDoc = currentRunDoc ? await Project.findById(currentRunDoc.projectId) : null;
+    const customApiKey = passedGeminiApiKey || currentProjDoc?.geminiApiKey;
+
     // 5. Query Gemini AI for CSS suggestions (Consultant service) - capped at first 5 to protect quota
     const visualBugsWithAi = [];
     for (let i = 0; i < compareResult.visualBugs.length; i++) {
@@ -59,7 +66,7 @@ const runBackgroundCapture = async (
       let aiSuggestion;
       
       if (i < 5) {
-        aiSuggestion = await genAiFixSuggestion(bug.element, bug.outerHtml, bug.description);
+        aiSuggestion = await genAiFixSuggestion(bug.element, bug.outerHtml, bug.description, customApiKey);
       }
       
       visualBugsWithAi.push({
@@ -102,8 +109,8 @@ const runBackgroundCapture = async (
 
 
  export const runTestCapture = AsyncHandler(async(req : Request,res : Response): Promise<void> => {
-     let {stagingUrl,productionUrl,projectId,stagingBase64,productionBase64} = req.body
-
+     let {stagingUrl,productionUrl,projectId,stagingBase64,productionBase64,geminiApiKey,geminiKey} = req.body
+     const incomingGeminiKey = (geminiApiKey || geminiKey)?.toString().trim();
 
     const authProject = (req as any).project
     if(authProject){
@@ -113,14 +120,31 @@ const runBackgroundCapture = async (
     }
 
 
-     // If called from frontend, load the project details by ID to get the default URLs
+     // Load the project details by ID or authProject
      let project;
      if (projectId) {
          project = await Project.findById(projectId);
      }
+     if (!project && authProject && authProject._id) {
+         project = await Project.findById(authProject._id);
+     }
+
      if (project) {
          if (!stagingUrl) stagingUrl = project.stagingUrl;
          if (!productionUrl) productionUrl = project.productionUrl;
+         if (incomingGeminiKey && incomingGeminiKey !== '') {
+             if (!project.geminiApiKey || project.geminiApiKey !== incomingGeminiKey) {
+                 project.geminiApiKey = incomingGeminiKey;
+                 await project.save();
+                 if (project.apikey) {
+                     cache.del("apikey_" + project.apikey);
+                 }
+                 if (authProject) {
+                     authProject.geminiApiKey = incomingGeminiKey;
+                 }
+                 console.log(`🔑 Automatically saved custom Gemini API Key to Project "${project.name}"`);
+             }
+         }
      }
 
 
@@ -182,7 +206,8 @@ res.status(200).json({
      productionUrl,
      testRunId,
      stagingBase64,
-     productionBase64
+     productionBase64,
+     geminiApiKey
    );
   
 

@@ -88,24 +88,6 @@ export default function UserMenu() {
 
           {/* Account Navigation Group */}
           <div className="flex flex-col gap-0.5">
-            <Link
-              to="/settings"
-              onClick={() => setIsOpen(false)}
-              className="px-2.5 py-1.5 text-[12px] text-[#a1a1aa] hover:text-white hover:bg-[#18181b] rounded-lg flex items-center gap-2.5 transition-colors"
-            >
-              <UserIcon className="size-3.5 text-[#71717a]" />
-              <span>Profile</span>
-            </Link>
-
-            <Link
-              to="/settings"
-              onClick={() => setIsOpen(false)}
-              className="px-2.5 py-1.5 text-[12px] text-[#a1a1aa] hover:text-white hover:bg-[#18181b] rounded-lg flex items-center gap-2.5 transition-colors"
-            >
-              <Settings className="size-3.5 text-[#71717a]" />
-              <span>Account Settings</span>
-            </Link>
-
             <div className="px-2.5 py-1.5 text-[12px] text-[#a1a1aa] rounded-lg flex items-center justify-between transition-colors">
               <div className="flex items-center gap-2.5">
                 <Palette className="size-3.5 text-[#71717a]" />
@@ -133,10 +115,7 @@ export default function UserMenu() {
 
           {/* Subscription Section */}
           <div className="p-2 bg-[#121215] border border-[#27272a] rounded-xl my-1 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Sparkles className="size-3.5 text-violet-400" />
-              <span className="text-[11px] font-semibold text-white">{isProUser ? "Hydra Pro" : "Free Plan"}</span>
-            </div>
+            <span className="text-[11px] font-semibold text-white px-1">{isProUser ? "Hydra Pro" : "Free Plan"}</span>
             <Link
               to="/settings"
               onClick={() => setIsOpen(false)}

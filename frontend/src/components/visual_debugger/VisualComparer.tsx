@@ -1,7 +1,7 @@
 import { type TestRun } from "@/types"
 import { useState, useRef, useEffect, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { ZoomIn, ZoomOut, RotateCcw, CheckCircle2 } from "lucide-react"
+import { ZoomIn, ZoomOut, RotateCcw, CheckCircle2, Copy, Check } from "lucide-react"
 
 interface VisualComparerProps {
   runData: TestRun
@@ -21,6 +21,14 @@ const MAX_ZOOM = 4
 const ZOOM_STEP = 0.15
 
 export default function VisualComparer({ runData, selectedBugIndex = null, onSelectBug }: VisualComparerProps) {
+  const [copiedProjectId, setCopiedProjectId] = useState(false)
+
+  const handleCopyProjectId = () => {
+    if (!runData.projectId) return
+    navigator.clipboard.writeText(runData.projectId)
+    setCopiedProjectId(true)
+    setTimeout(() => setCopiedProjectId(false), 2000)
+  }
 
   /* ═══ EXISTING STATE — PRESERVED ═══ */
   const [viewMode, setViewMode] = useState<'side-by-side' | 'slider' | 'diff'>('side-by-side')

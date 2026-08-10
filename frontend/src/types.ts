@@ -14,6 +14,7 @@ export interface Project {
   productionUrl: string;
   createdAt: string;
   apikey?: string;
+  geminiApiKey?: string;
   owner?: string | User;
   tier?: 'FREE' | 'PRO';
 }

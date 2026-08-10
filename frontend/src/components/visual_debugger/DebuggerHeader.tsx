@@ -15,34 +15,33 @@ export default function DebuggerHeader() {
   return (
     <header className="h-11 border-b border-[#1f1f23] flex items-center justify-between px-5 backdrop-blur-md bg-[#09090b]/90 shrink-0 select-none z-20">
 
-      {/* Left: Vercel Breadcrumbs */}
+      {/* Left: Breadcrumbs */}
       <div className="flex items-center gap-2 text-[12px] text-[#a1a1aa] font-medium">
         <Link
           to="/dashboard"
           className="flex items-center gap-1.5 hover:text-white transition-colors duration-150"
         >
           <LayoutGrid className="size-3.5 text-violet-400" />
-          <span className="font-semibold text-white">Projects</span>
+          <span className="font-semibold text-white">Workspace</span>
         </Link>
 
         <span className="text-[#3f3f46]">/</span>
 
         <Link
           to={projectId ? `/dashboard/?projectId=${projectId}` : "/dashboard"}
-          className="hover:text-white transition-colors duration-150 flex items-center gap-1.5"
+          className="hover:text-white transition-colors duration-150"
         >
-          <GitBranch className="size-3.5 text-[#a1a1aa]" />
-          <span>Active Workspace</span>
+          <span>Project Console</span>
         </Link>
 
         <span className="text-[#3f3f46]">/</span>
 
-        <span className="text-white font-medium">Visual Debugger</span>
+        <span className="text-white font-semibold">Visual Debugger</span>
 
         {runId && (
           <>
             <span className="text-[#3f3f46]">/</span>
-            <span className="text-[#a1a1aa] font-mono text-[11px] bg-[#121215] border border-[#27272a] px-2 py-0.5 rounded-md">
+            <span className="text-[#a1a1aa] font-mono-code text-[10px] bg-[#121215] border border-[#27272a] px-2 py-0.5 rounded-md">
               {shortRunId}
             </span>
           </>

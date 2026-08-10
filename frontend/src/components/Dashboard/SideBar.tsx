@@ -246,8 +246,8 @@ export default function Sidebar() {
 
             {/* Header */}
             <div className="flex flex-col gap-1 text-center">
-              <div className="mx-auto w-10 h-10 rounded-xl bg-[#121215] border border-[#27272a] flex items-center justify-center p-1.5 mb-2 shadow-sm">
-                <img src="/src/assets/hydralogo.png" className="w-full h-full object-contain" alt="Hydra Logo" />
+              <div className="mx-auto w-12 h-12 rounded-xl overflow-hidden border border-[#27272a] flex items-center justify-center mb-2 shadow-md">
+                <img src="/src/assets/hydralogo.png" className="w-full h-full object-cover" alt="Hydra Logo" />
               </div>
               <h2 className="text-xl font-bold text-white tracking-tight">Supercharge your Visual Testing</h2>
               <p className="text-xs text-[#a1a1aa]">

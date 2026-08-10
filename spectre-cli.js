@@ -230,10 +230,11 @@ const productionUrl = params.productionUrl
 if (!projectId || !apiKey) {
     console.error("\x1b[31m❌ Error: Missing required arguments.\x1b[0m");
     console.log("\nUsage:");
-    console.log("  npx @itzaks/hydra-visual-cli --project <projectId> --key <apiKey> [--stagingUrl <url>] [--productionUrl <url>]\n");
+    console.log("  npx @itzaks/hydra-visual-cli --project <projectId> --key <apiKey> [--geminiKey <geminiApiKey>] [--stagingUrl <url>] [--productionUrl <url>]\n");
     console.log("Options:");
     console.log("  --project, --projectId   The ID of your project target");
     console.log("  --key, --apiKey          The secure API key generated for the project");
+    console.log("  --geminiKey              (Optional) Custom Gemini API Key (auto-saved to project on first run)");
     console.log("  --stagingUrl             (Optional) Override staging URL for dynamic PR branch tests");
     console.log("  --productionUrl          (Optional) Override production benchmark URL");
     process.exit(1);
@@ -316,6 +317,12 @@ async function run() {
         const payload = { projectId };
         if (activeStagingUrl) payload.stagingUrl = activeStagingUrl;
         if (productionUrl) payload.productionUrl = productionUrl;
+        const geminiKey = params.geminiKey || params['gemini-key'] || params.geminiApiKey || params['gemini-api-key'] || process.env.GEMINI_API_KEY;
+        if (geminiKey) {
+            payload.geminiApiKey = geminiKey;
+            payload.geminiKey = geminiKey;
+            console.log(`   Gemini API Key: [Custom Key Provided & Auto-Saving]`);
+        }
 
         // Check if local Puppeteer is available for client-side capture
         if (puppeteer && activeStagingUrl && productionUrl) {
