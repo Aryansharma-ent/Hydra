@@ -6,6 +6,7 @@ import AsyncHandler from 'express-async-handler'
 import { GoogleGenerativeAI} from "@google/generative-ai";
 import crypto from "crypto";
 import cache from "../config/cache";
+import { encrypt, decrypt } from "../utils/encryption";
 
 export const getProjects = AsyncHandler(async(req : Request,res : Response) : Promise<void> => {
     const userId = (req as any).user._id;
@@ -17,10 +18,18 @@ export const getProjects = AsyncHandler(async(req : Request,res : Response) : Pr
         ]
     }).sort({ createdAt: -1 });
 
+    const decryptedProjects = projects.map(p => {
+        const obj = p.toObject();
+        if (obj.geminiApiKey) {
+            obj.geminiApiKey = decrypt(obj.geminiApiKey);
+        }
+        return obj;
+    });
+
     res.status(200).json({
         success : true,
-        count : projects.length,
-        data : projects
+        count : decryptedProjects.length,
+        data : decryptedProjects
     });
 });
 
@@ -145,7 +154,8 @@ export const askHydraChat = AsyncHandler(async (req: Request, res: Response): Pr
     }
 
     const project = await Project.findById(Testrun.projectId);
-    const api = project?.geminiApiKey || process.env.GEMINI_API_KEY;
+    const rawKey = project?.geminiApiKey;
+    const api = rawKey ? decrypt(rawKey) : process.env.GEMINI_API_KEY;
     if (!api) {
         res.status(400);
         throw new Error("Gemini API key not configured. Please configure your key in Developer Settings or backend .env file.");
@@ -260,7 +270,10 @@ export const updateGeminiKey = AsyncHandler(async (req: Request, res: Response):
     throw new Error("Project not found");
   }
 
-  project.geminiApiKey = geminiApiKey !== undefined ? geminiApiKey.trim() : project.geminiApiKey;
+  if (geminiApiKey !== undefined) {
+    const trimmed = geminiApiKey.trim();
+    project.geminiApiKey = trimmed !== "" ? encrypt(trimmed) : "";
+  }
   await project.save();
   if (project.apikey) {
     cache.del("apikey_" + project.apikey);

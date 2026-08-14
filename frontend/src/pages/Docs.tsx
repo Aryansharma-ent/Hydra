@@ -5,10 +5,11 @@ import {
   Cpu, Key, GitBranch, LayoutTemplate, Layers, CheckCircle2,
   XCircle, Keyboard, ExternalLink, Command, ArrowRight, BookOpen,
   Monitor, ShieldAlert, GitPullRequest, Code2, Globe, Camera,
-  Database, LayoutGrid, Crop, Rocket
+  Database, LayoutGrid, Crop, Rocket, Crown, Bot
 } from 'lucide-react';
 import { FaGithub } from 'react-icons/fa';
 import architectureImg from '../assets/architecture.png';
+import hydraLogo from '../assets/hydralogo.png';
 
 // Stand-in Link component as requested
 const Link = ({ href, children, className, ...props }: any) => (
@@ -183,7 +184,7 @@ const CodeBlock = ({ code, language = 'bash', showLineNumbers = false }: { code:
   );
 };
 
-const Callout = ({ title, children, variant = 'note' }: { title?: string, children: ReactNode, variant?: 'note' | 'tip' | 'important' | 'warning' }) => {
+const Callout = ({ title, children, variant = 'note', icon: CustomIcon }: { title?: string, children: ReactNode, variant?: 'note' | 'tip' | 'important' | 'warning', icon?: any }) => {
   const variants = {
     note: {
       bg: 'bg-blue-500/5',
@@ -212,10 +213,11 @@ const Callout = ({ title, children, variant = 'note' }: { title?: string, childr
   };
 
   const active = variants[variant];
+  const renderedIcon = CustomIcon ? <CustomIcon className={`mt-0.5 h-5 w-5 ${active.titleColor} flex-shrink-0`} /> : active.icon;
 
   return (
     <div className={`my-6 flex gap-4 rounded-xl border-l-2 border-y border-r border-y-[#1e1e22] border-r-[#1e1e22] ${active.bg} ${active.border} p-4`}>
-      {active.icon}
+      {renderedIcon}
       <div className="flex flex-col gap-1">
         {title && <h5 className={`font-semibold ${active.titleColor}`}>{title}</h5>}
         <div className="text-[14px] leading-relaxed text-[#a0a0ab]">
@@ -266,20 +268,20 @@ const Card = ({
 }) => {
   const accentStyles = {
     amber: {
-      box: 'bg-[#1c180a] border-[#3d3211] text-[#f59e0b]',
-      hover: 'hover:border-[#f59e0b]/40',
+      box: 'bg-yellow-400/10 border-yellow-400/70 text-yellow-300 shadow-[0_0_18px_rgba(250,204,21,0.55)]',
+      hover: 'hover:border-yellow-500/40',
     },
     emerald: {
-      box: 'bg-[#062016] border-[#0d4a34] text-[#10b981]',
-      hover: 'hover:border-[#10b981]/40',
+      box: 'bg-yellow-400/10 border-yellow-400/70 text-yellow-300 shadow-[0_0_18px_rgba(250,204,21,0.55)]',
+      hover: 'hover:border-yellow-500/40',
     },
     violet: {
-      box: 'bg-[#19102b] border-[#3b1d6e] text-[#c084fc]',
-      hover: 'hover:border-[#c084fc]/40',
+      box: 'bg-yellow-400/10 border-yellow-400/70 text-yellow-300 shadow-[0_0_18px_rgba(250,204,21,0.55)]',
+      hover: 'hover:border-yellow-500/40',
     },
     blue: {
-      box: 'bg-[#0b192c] border-[#163a66] text-[#38bdf8]',
-      hover: 'hover:border-[#38bdf8]/40',
+      box: 'bg-yellow-400/10 border-yellow-400/70 text-yellow-300 shadow-[0_0_18px_rgba(250,204,21,0.55)]',
+      hover: 'hover:border-yellow-500/40',
     }
   }[accentColor];
 
@@ -287,7 +289,7 @@ const Card = ({
     <div className={`group relative flex h-full flex-col justify-between rounded-2xl border border-[#1e1e24] bg-[#0a0a0d] p-6 transition-all duration-200 hover:bg-[#0e0e12] ${accentStyles.hover}`}>
       <div>
         <div className="flex items-center justify-between mb-4">
-          <div className={`flex h-10 w-10 items-center justify-center rounded-xl border ${accentStyles.box} shadow-sm`}>
+          <div className={`flex h-10 w-10 items-center justify-center rounded-none border ${accentStyles.box}`}>
             <Icon size={18} />
           </div>
           {badge && (
@@ -408,9 +410,9 @@ export default function Docs() {
           >
             <Menu size={20} />
           </button>
-          <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-500 text-white">
-              <Layers size={18} />
+          <Link href="/" className="flex items-center gap-2.5">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-black border border-[#1e1e24] overflow-hidden p-0.5 shadow-sm">
+              <img src={hydraLogo} alt="Hydra Logo" className="h-full w-full object-contain" />
             </div>
             <span className="text-xl font-bold tracking-tight">Hydra</span>
             <Badge>v1.0</Badge>
@@ -436,14 +438,6 @@ export default function Docs() {
           >
             <Search size={16} />
           </button>
-          
-          <nav className="hidden items-center gap-6 text-sm font-medium text-[#a0a0ab] md:flex">
-            <Link href="/guides" className="transition-colors hover:text-[#fafafa]">Guides</Link>
-            <Link href="/api" className="transition-colors hover:text-[#fafafa]">API</Link>
-            <Link href="/blog" className="transition-colors hover:text-[#fafafa]">Blog</Link>
-          </nav>
-          
-          <div className="hidden h-5 w-px bg-[#1e1e22] md:block" />
           
           <Link href="https://github.com" className="text-[#a0a0ab] transition-colors hover:text-[#fafafa]">
             <FaGithub className="size-5" />
@@ -596,18 +590,18 @@ export default function Docs() {
               </div>
 
               <div className="grid gap-5 sm:grid-cols-2 mt-12">
-                <div className="rounded-2xl border border-[#1e1e24] bg-[#0a0a0d] p-6 transition-all duration-200 hover:border-emerald-500/30 hover:bg-[#0e0e12]">
-                  <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl border border-[#0d4a34] bg-[#062016] text-[#10b981] shadow-sm">
-                    <Monitor size={20} />
+                <div className="rounded-2xl border border-[#1e1e24] bg-[#0a0a0d] p-6 transition-all duration-200 hover:border-yellow-500/40 hover:bg-[#0e0e12]">
+                  <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-none border border-yellow-400/70 bg-yellow-400/10 text-yellow-300 shadow-[0_0_18px_rgba(250,204,21,0.55)]">
+                    <Zap size={20} />
                   </div>
                   <h3 className="mb-2 text-lg font-bold tracking-tight text-white">Free Core</h3>
                   <p className="text-xs text-[#a0a0ab] leading-relaxed">
                     Everything you need for personal projects and small teams. Includes visual diffing and basic CI/CD.
                   </p>
                 </div>
-                <div className="rounded-2xl border border-[#2d1f47] bg-[#0f0b18] p-6 transition-all duration-200 hover:border-violet-500/40 hover:bg-[#130e22]">
-                  <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl border border-[#4c2882] bg-[#251543] text-[#c084fc] shadow-sm">
-                    <Sparkles size={20} />
+                <div className="rounded-2xl border border-[#2d1f47] bg-[#0f0b18] p-6 transition-all duration-200 hover:border-yellow-500/40 hover:bg-[#130e22]">
+                  <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-none border border-yellow-400/70 bg-yellow-400/10 text-yellow-300 shadow-[0_0_18px_rgba(250,204,21,0.55)]">
+                    <Crown size={20} />
                   </div>
                   <h3 className="mb-2 text-lg font-bold tracking-tight text-white">Hydra Pro</h3>
                   <p className="text-xs text-[#a0a0ab] leading-relaxed">
@@ -694,9 +688,7 @@ export default function Docs() {
 
               <div className="mb-4 border-b border-[#1e1e22]">
                 <nav className="-mb-px flex gap-6">
-                  <button className="border-b-2 border-violet-500 pb-2 text-sm font-medium text-violet-400">npx</button>
-                  <button className="border-b-2 border-transparent pb-2 text-sm font-medium text-[#63636e] hover:border-[#63636e] hover:text-[#a0a0ab]">npm</button>
-                  <button className="border-b-2 border-transparent pb-2 text-sm font-medium text-[#63636e] hover:border-[#63636e] hover:text-[#a0a0ab]">GitHub Actions</button>
+                  <button className="border-b-2 border-violet-500 pb-2 text-sm font-medium text-violet-400">npm</button>
                 </nav>
               </div>
 
@@ -793,7 +785,7 @@ export default function Docs() {
                 </p>
               </div>
 
-              <Callout title="Auto-Save Feature" variant="tip">
+              <Callout title="Auto-Save Feature" variant="tip" icon={Bot}>
                 When you pass <Kbd>--geminiKey</Kbd> via the CLI for the first time, our backend automatically securely encrypts and saves it to your MongoDB cluster for future runs.
               </Callout>
 

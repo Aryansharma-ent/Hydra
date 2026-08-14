@@ -19,6 +19,10 @@ app.use('/api/tests',TestRunRoutes)
 app.use('/api/projects',ProjectRoutes)
 app.use('/api/auth', AuthRoutes);
 
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'OK', message: 'Hydra API is healthy & active' });
+});
+
 app.use(ErrorHandler)
 app.listen(process.env.PORT,()=>{
     console.log(`Server is running at PORT ...... ${process.env.PORT}` )

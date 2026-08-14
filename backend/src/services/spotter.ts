@@ -27,6 +27,15 @@ interface CompareResult {
     diffBuffer: Buffer;
 }
 
+function padPng(srcPng: any, targetWidth: number, targetHeight: number): any {
+  if (srcPng.width === targetWidth && srcPng.height === targetHeight) {
+    return srcPng;
+  }
+  const padded = new PNG({ width: targetWidth, height: targetHeight, fill: true });
+  PNG.bitblt(srcPng, padded, 0, 0, srcPng.width, srcPng.height, 0, 0);
+  return padded;
+}
+
 /* 
   Compares to two image buffers to generate mismatchPixels,mismatchPercentage and totalpixels
   @param stagingBuffer : Staging image binary data
@@ -35,9 +44,15 @@ interface CompareResult {
 */
 const CompareScreenshots = (stagingBuffer: Buffer, productionBuffer: Buffer, stagingLayout: ElementLayout[]) : CompareResult => {
 
-const stagingPng = PNG.sync.read(stagingBuffer);
-const productionPng = PNG.sync.read(productionBuffer);
-const {width, height} = stagingPng;
+let stagingPng = PNG.sync.read(stagingBuffer);
+let productionPng = PNG.sync.read(productionBuffer);
+
+const width = Math.max(stagingPng.width, productionPng.width);
+const height = Math.max(stagingPng.height, productionPng.height);
+
+stagingPng = padPng(stagingPng, width, height);
+productionPng = padPng(productionPng, width, height);
+
 const diffPng = new PNG({width, height});
 
 const mismatchPixels = pixelmatch(
@@ -45,7 +60,7 @@ const mismatchPixels = pixelmatch(
     productionPng.data, 
     diffPng.data,
     width, height,
-    { threshold: 0.05, includeAA: false }
+    { threshold: 0.1, includeAA: false }
 );
 
 const diffBuffer = PNG.sync.write(diffPng);
@@ -97,14 +112,20 @@ const diffBuffer = PNG.sync.write(diffPng);
    }
 
 
-   // filtering out elements that have more than 15 mismatched pixels and add them to visualBugs
+   // Filter elements using per-element percentage threshold to avoid false positives
+   // from sub-pixel rendering, anti-aliasing, and font hinting differences
 
      const visualBugs : VisualBug[] = [];
 
      for(const el of stagingLayout){
       const badPixelsCount = elementMismatchCounts[el.selector] || 0 ;
+      const elementArea = el.box.width * el.box.height;
+      const elementMismatchRatio = elementArea > 0 ? badPixelsCount / elementArea : 0;
       
-      if(badPixelsCount > 15){
+      // Flag as regression only if:
+      // 1. More than 100 mismatched pixels (absolute noise floor), AND
+      // 2. More than 2% of the element's own area is mismatched
+      if(badPixelsCount > 100 && elementMismatchRatio > 0.02){
         visualBugs.push({
           element: el.selector,
           description : `Visual shift/color diff detected: ${badPixelsCount} pixels mismatch.`,

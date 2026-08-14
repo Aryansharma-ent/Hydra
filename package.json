@@ -1,7 +1,10 @@
 {
   "name": "@itzaks/hydra-visual-cli",
-  "version": "1.1.3",
+  "version": "1.1.5",
   "description": "CLI tool for Hydra AI — Automated Visual Regression Testing & Auto-Healing Platform",
+  "publishConfig": {
+    "access": "public"
+  },
   "main": "spectre-cli.js",
   "bin": "./spectre-cli.js",
   "files": [
@@ -17,7 +20,7 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@itzaks/hydra-visual-cli": "^1.1.0",
+    "@itzaks/hydra-visual-cli": "^1.1.5",
     "localtunnel": "^2.0.2",
     "puppeteer": "^22.0.0"
   }

@@ -328,14 +328,42 @@ async function run() {
         if (puppeteer && activeStagingUrl && productionUrl) {
             console.log(`\n\x1b[35m[Hydra CLI] Launching local Puppeteer browser...\x1b[0m`);
             try {
-                const browser = await puppeteer.launch({ headless: 'new' });
+                const browser = await puppeteer.launch({
+                    headless: true,
+                    args: ['--no-sandbox', '--disable-setuid-sandbox']
+                });
                 const page = await browser.newPage();
-                await page.setViewport({ width: 1440, height: 900, deviceScaleFactor: 2 });
+                await page.setViewport({ width: 1280, height: 800 });
 
-                // Disable animations & cursor blinking for maximum diff accuracy
-                const freezeCss = '* { animation: none !important; transition: none !important; caret-color: transparent !important; }';
+                // Anti-mismatch CSS: freeze transitions/animations, hide scrollbars, remove carets
+                const freezeCss = `
+                    *, *::before, *::after {
+                        -webkit-transition: none !important;
+                        -moz-transition: none !important;
+                        -o-transition: none !important;
+                        transition: none !important;
+                        -webkit-animation: none !important;
+                        -moz-animation: none !important;
+                        -o-animation: none !important;
+                        animation: none !important;
+                        animation-delay: 0s !important;
+                        transition-delay: 0s !important;
+                        caret-color: transparent !important;
+                    }
+                    ::-webkit-scrollbar {
+                        display: none !important;
+                    }
+                    html, body {
+                        scrollbar-width: none !important;
+                        -ms-overflow-style: none !important;
+                    }
+                `;
 
-                const freezeMediaAndAnimations = async () => {
+                const stabilizePage = async () => {
+                    // 1. Inject freeze CSS & hide scrollbars
+                    await page.addStyleTag({ content: freezeCss });
+
+                    // 2. Freeze Web Animations API & pause video/audio at frame 0
                     await page.evaluate(() => {
                         if (document.getAnimations) {
                             document.getAnimations().forEach((anim) => {
@@ -348,25 +376,91 @@ async function run() {
                             media.pause();
                         });
                     });
+
+                    // 3. Auto-scroll to trigger lazy-loaded images & components, then scroll back to top
+                    await page.evaluate(async () => {
+                        await new Promise((resolve) => {
+                            let totalHeight = 0;
+                            const distance = 150;
+                            let scrollCount = 0;
+                            const timer = setInterval(() => {
+                                const scrollHeight = document.body.scrollHeight;
+                                window.scrollBy(0, distance);
+                                totalHeight += distance;
+                                scrollCount++;
+                                if (totalHeight >= scrollHeight || scrollCount >= 15) {
+                                    clearInterval(timer);
+                                    window.scrollTo(0, 0);
+                                    resolve();
+                                }
+                            }, 80);
+                        });
+                    });
+
+                    // 4. Wait for web fonts to load completely
+                    try {
+                        await page.evaluateHandle('document.fonts.ready');
+                    } catch (err) {}
+
+                    // 5. Blur active element to remove blinking cursor / focus outlines
+                    await page.evaluate(() => {
+                        if (document.activeElement && typeof document.activeElement.blur === 'function') {
+                            document.activeElement.blur();
+                        }
+                    });
+
+                    // 6. Brief delay to allow rendering layout shifts to settle
+                    await new Promise((r) => setTimeout(r, 400));
+                };
+
+                // DOM layout extraction (mirrors photographer.ts)
+                const extractLayout = async () => {
+                    return await page.evaluate(() => {
+                        const elements = Array.from(document.querySelectorAll(
+                            'button, a, input, img, h1, h2, h3, p, header, nav, section, footer, ' +
+                            'div[class*="card"], div[class*="btn"], div[class*="container"], div[class*="sidebar"]'
+                        ));
+                        return elements.map((el) => {
+                            const rect = el.getBoundingClientRect();
+                            let selector = el.tagName.toLowerCase();
+                            if (el.id) {
+                                selector += `#${el.id}`;
+                            } else if (el.className && typeof el.className === 'string') {
+                                const firstClass = el.className.trim().split(/\s+/)[0];
+                                if (firstClass) selector += `.${firstClass}`;
+                            }
+                            return {
+                                selector,
+                                tagName: el.tagName,
+                                box: {
+                                    x: rect.x + window.scrollX,
+                                    y: rect.y + window.scrollY,
+                                    width: rect.width,
+                                    height: rect.height
+                                },
+                                outerHtml: el.outerHTML.substring(0, 400)
+                            };
+                        }).filter((item) => item.box.width > 0 && item.box.height > 0);
+                    });
                 };
 
                 console.log(` [1/2] Capturing staging screenshot (${activeStagingUrl})...`);
                 await page.goto(activeStagingUrl, { waitUntil: 'networkidle0', timeout: 30000 });
-                await page.addStyleTag({ content: freezeCss });
-                await freezeMediaAndAnimations();
-                const stagingBase64 = await page.screenshot({ encoding: 'base64' });
+                await stabilizePage();
+                const stagingLayout = await extractLayout();
+                const stagingBase64 = await page.screenshot({ encoding: 'base64', type: 'png', fullPage: true });
 
                 console.log(` [2/2] Capturing production screenshot (${productionUrl})...`);
                 await page.goto(productionUrl, { waitUntil: 'networkidle0', timeout: 30000 });
-                await page.addStyleTag({ content: freezeCss });
-                await freezeMediaAndAnimations();
-                const productionBase64 = await page.screenshot({ encoding: 'base64' });
+                await stabilizePage();
+                const productionBase64 = await page.screenshot({ encoding: 'base64', type: 'png', fullPage: true });
 
                 await browser.close();
                 console.log(`\x1b[32m[Hydra CLI] Local screenshot capture complete. Offloading server RAM.\x1b[0m`);
 
                 payload.stagingBase64 = stagingBase64;
                 payload.productionBase64 = productionBase64;
+                payload.stagingLayout = stagingLayout;
             } catch (pErr) {
                 console.log(`\x1b[33m[Hydra CLI] Local Puppeteer notice: Falling back to cloud server capture...\x1b[0m`);
             }

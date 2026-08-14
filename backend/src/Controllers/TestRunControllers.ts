@@ -11,6 +11,7 @@ import Project from "../models/Project";
 import { genAiFixSuggestion } from "../services/consultant";
 import User from "../models/User";
 import cache from "../config/cache";
+import { encrypt, decrypt } from "../utils/encryption";
 
 
 /* @desc : POST request to send StagingURL and ProductionURL to the server
@@ -25,7 +26,8 @@ const runBackgroundCapture = async (
   testRunId: string,
   stagingBase64?: string,
   productionBase64?: string,
-  passedGeminiApiKey?: string
+  passedGeminiApiKey?: string,
+  stagingLayout?: any[]
 ) => {
   try {
     let stagingBuffer: { buffer: Buffer; layout: any[] };
@@ -33,7 +35,7 @@ const runBackgroundCapture = async (
 
     if (stagingBase64 && productionBase64) {
       console.log(`⚡ Processing client-side captured screenshots for DB: ${dbRecordId}`);
-      stagingBuffer = { buffer: Buffer.from(stagingBase64, 'base64'), layout: [] };
+      stagingBuffer = { buffer: Buffer.from(stagingBase64, 'base64'), layout: stagingLayout || [] };
       productionBuffer = { buffer: Buffer.from(productionBase64, 'base64'), layout: [] };
     } else {
       stagingBuffer = await captureScreenshot(stagingUrl);
@@ -57,7 +59,8 @@ const runBackgroundCapture = async (
     // Fetch project geminiApiKey if available
     const currentRunDoc = await TestRun.findById(dbRecordId);
     const currentProjDoc = currentRunDoc ? await Project.findById(currentRunDoc.projectId) : null;
-    const customApiKey = passedGeminiApiKey || currentProjDoc?.geminiApiKey;
+    const rawApiKey = passedGeminiApiKey || currentProjDoc?.geminiApiKey;
+    const customApiKey = rawApiKey ? decrypt(rawApiKey) : undefined;
 
     // 5. Query Gemini AI for CSS suggestions (Consultant service) - capped at first 5 to protect quota
     const visualBugsWithAi = [];
@@ -77,9 +80,12 @@ const runBackgroundCapture = async (
       });
     }
 
+    // Mark FAILED only if structural visual bugs are detected OR if total pixel mismatch >= 1.0% threshold
+    const isFailed = visualBugsWithAi.length > 0 || compareResult.mismatchPercentage >= 1.0;
+
     // 6. Update the MongoDB document with the finished results!
     await TestRun.findByIdAndUpdate(dbRecordId, {
-     status: compareResult.mismatchPercentage > 0 ? 'FAILED' : 'PASSED',
+      status: isFailed ? 'FAILED' : 'PASSED',
       mismatchPixelsCount: compareResult.mismatchPixels,
       mismatchPercentage: compareResult.mismatchPercentage,
       totalPixelsCompared: compareResult.totalPixels,
@@ -109,7 +115,7 @@ const runBackgroundCapture = async (
 
 
  export const runTestCapture = AsyncHandler(async(req : Request,res : Response): Promise<void> => {
-     let {stagingUrl,productionUrl,projectId,stagingBase64,productionBase64,geminiApiKey,geminiKey} = req.body
+     let {stagingUrl,productionUrl,projectId,stagingBase64,productionBase64,geminiApiKey,geminiKey,stagingLayout} = req.body
      const incomingGeminiKey = (geminiApiKey || geminiKey)?.toString().trim();
 
     const authProject = (req as any).project
@@ -133,16 +139,17 @@ const runBackgroundCapture = async (
          if (!stagingUrl) stagingUrl = project.stagingUrl;
          if (!productionUrl) productionUrl = project.productionUrl;
          if (incomingGeminiKey && incomingGeminiKey !== '') {
-             if (!project.geminiApiKey || project.geminiApiKey !== incomingGeminiKey) {
-                 project.geminiApiKey = incomingGeminiKey;
-                 await project.save();
+             if (!project.geminiApiKey || decrypt(project.geminiApiKey) !== incomingGeminiKey) {
+                 const encryptedKey = encrypt(incomingGeminiKey);
+                 await Project.findByIdAndUpdate(project._id, { geminiApiKey: encryptedKey });
+                 project.geminiApiKey = encryptedKey;
                  if (project.apikey) {
                      cache.del("apikey_" + project.apikey);
                  }
                  if (authProject) {
-                     authProject.geminiApiKey = incomingGeminiKey;
+                     authProject.geminiApiKey = encryptedKey;
                  }
-                 console.log(`🔑 Automatically saved custom Gemini API Key to Project "${project.name}"`);
+                 console.log(`🔒 Securely encrypted and saved custom Gemini API Key to Project "${project.name}"`);
              }
          }
      }
@@ -207,7 +214,8 @@ res.status(200).json({
      testRunId,
      stagingBase64,
      productionBase64,
-     geminiApiKey
+     geminiApiKey,
+     stagingLayout
    );
   
 
