@@ -232,8 +232,11 @@ ${isPro ? `        with:
 
                   {/* Card header */}
                   <div className="px-5 py-4 border-b border-[#1a1a1d] flex items-center gap-3 bg-[#0a0a0b]">
-                    <div className="w-6 h-6 rounded-lg bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
-                      <LockKeyhole className="size-3 text-violet-400" />
+                    <div className="relative w-7 h-7 rounded-lg flex items-center justify-center">
+                      <div className="absolute inset-0 rounded-lg bg-yellow-400/20 blur-sm" />
+                      <div className="relative w-7 h-7 rounded-lg bg-yellow-500/10 border border-yellow-500/30 flex items-center justify-center">
+                        <Key className="size-3.5 text-yellow-400" />
+                      </div>
                     </div>
                     <div>
                       <p className="text-[12px] font-semibold text-[#e4e4e7]">Secret API Key</p>
@@ -323,8 +326,11 @@ ${isPro ? `        with:
 
                   {/* Card header */}
                   <div className="px-5 py-4 border-b border-[#1a1a1d] flex items-center gap-3 bg-[#0a0a0b]">
-                    <div className="w-6 h-6 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
-                      <Cpu className="size-3 text-cyan-400" />
+                    <div className="relative w-7 h-7 rounded-lg flex items-center justify-center">
+                      <div className="absolute inset-0 rounded-lg bg-yellow-400/20 blur-sm" />
+                      <div className="relative w-7 h-7 rounded-lg bg-yellow-500/10 border border-yellow-500/30 flex items-center justify-center">
+                        <Sparkles className="size-3.5 text-yellow-400" />
+                      </div>
                     </div>
                     <div>
                       <p className="text-[12px] font-semibold text-[#e4e4e7]">Custom Gemini API Key</p>
