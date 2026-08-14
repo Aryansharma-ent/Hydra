@@ -1,6 +1,7 @@
 'use client'
 
 import { Suspense, useState, useEffect } from 'react'
+// @ts-ignore
 import Spline from '@splinetool/react-spline'
 
 interface SplineSceneProps {

@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useRef, ReactNode } from 'react';
+import { useState, useEffect, type ReactNode } from 'react';
 import { 
-  Search, Menu, X, ChevronRight, Copy, Check, Terminal, 
-  Sparkles, AlertCircle, Info, Zap, FileCode2,
-  Cpu, Key, GitBranch, LayoutTemplate, Layers, CheckCircle2,
-  XCircle, Keyboard, ExternalLink, Command, ArrowRight, BookOpen,
-  Monitor, ShieldAlert, GitPullRequest, Code2, Globe, Camera,
-  Database, LayoutGrid, Crop, Rocket, Crown, Bot
+  Search, Menu, X, ChevronRight,
+  Sparkles, AlertCircle, Info, Zap,
+  Cpu, Layers, CheckCircle2,
+  XCircle, ArrowRight,
+  ShieldAlert, Crown, Bot,
+  Terminal, Check, Copy, LayoutTemplate
 } from 'lucide-react';
 import { FaGithub } from 'react-icons/fa';
 import architectureImg from '../assets/architecture.png';
