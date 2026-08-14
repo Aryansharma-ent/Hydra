@@ -1,6 +1,6 @@
 import Sidebar from "@/components/Dashboard/SideBar"
 import TopBar from "@/components/Dashboard/TopBar"
-import { Copy, Key, Terminal, AlertTriangle, Check, Loader2, Eye, EyeOff, ShieldCheck, GitBranch, ChevronDown, Sparkles, LockKeyhole, Cpu, GitPullRequest } from "lucide-react"
+import { Copy, Key, Terminal, AlertTriangle, Check, Loader2, Eye, EyeOff, ShieldCheck, GitBranch, ChevronDown, Cpu, LockKeyhole, GitPullRequest } from "lucide-react"
 import axios from 'axios'
 import { useEffect, useState } from "react"
 import { useParams, useLocation, useNavigate } from "react-router-dom"
@@ -329,7 +329,7 @@ ${isPro ? `        with:
                     <div className="relative w-7 h-7 rounded-lg flex items-center justify-center">
                       <div className="absolute inset-0 rounded-lg bg-yellow-400/20 blur-sm" />
                       <div className="relative w-7 h-7 rounded-lg bg-yellow-500/10 border border-yellow-500/30 flex items-center justify-center">
-                        <Sparkles className="size-3.5 text-yellow-400" />
+                        <Cpu className="size-3.5 text-yellow-400" />
                       </div>
                     </div>
                     <div>
@@ -412,8 +412,11 @@ ${isPro ? `        with:
                 {/* Card header */}
                 <div className="px-5 py-4 border-b border-[#1a1a1d] flex items-center justify-between bg-[#0a0a0b]">
                   <div className="flex items-center gap-3">
-                    <div className="w-6 h-6 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
-                      <GitPullRequest className="size-3 text-emerald-400" />
+                    <div className="relative w-7 h-7 rounded-lg flex items-center justify-center">
+                      <div className="absolute inset-0 rounded-lg bg-yellow-400/20 blur-sm" />
+                      <div className="relative w-7 h-7 rounded-lg bg-yellow-500/10 border border-yellow-500/30 flex items-center justify-center">
+                        <GitBranch className="size-3.5 text-yellow-400" />
+                      </div>
                     </div>
                     <div>
                       <p className="text-[12px] font-semibold text-[#e4e4e7]">GitHub Actions Workflow</p>
