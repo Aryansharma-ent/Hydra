@@ -5,7 +5,7 @@
 
   ### Automated Visual Regression Detection & Code Remediation Platform
 
-  [Live App](https://hydra-eta-gilt.vercel.app) • [Documentation](https://hydra-eta-gilt.vercel.app/docs) • [CLI on npm](https://www.npmjs.com/package/@itzaks/hydra-visual-cli) • [Architecture](#system-architecture) • [License](#license)
+  [Live App](https://hydra-visual-testing.vercel.app) • [Documentation](https://hydra-visual-testing.vercel.app/docs) • [CLI on npm](https://www.npmjs.com/package/@itzaks/hydra-visual-cli) • [Architecture](#system-architecture) • [License](#license)
 
   ---
 </div>
@@ -25,7 +25,7 @@
 
 ### Step 1 — Sign Up & Get Your Keys
 
-1. Go to **[hydra-eta-gilt.vercel.app](https://hydra-eta-gilt.vercel.app)** and create a free account.
+1. Go to **[hydra-eta-gilt.vercel.app](https://hydra-visual-testing.vercel.app)** and create a free account.
 2. Create a **Project** from your Dashboard.
 3. Copy your **Project ID** and **API Key** from Developer Settings.
 
@@ -56,10 +56,10 @@ npx @itzaks/hydra-visual-cli \
 ```
 
 That's it! Hydra will:
-- 📸 Capture screenshots of both environments
-- 🔍 Run pixel-level diff analysis
-- 🗺️ Map mismatches back to DOM elements
-- 📊 Display a full report link in your terminal
+- Capture screenshots of both environments
+- Run pixel-level diff analysis
+- Map mismatches back to DOM elements
+- Display a full report link in your terminal
 
 ---
 

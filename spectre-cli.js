@@ -304,7 +304,7 @@ function getJson(url) {
 
 async function run() {
     const baseUrl = (params.server || params.backend || process.env.HYDRA_SERVER_URL || process.env.SPECTRE_SERVER_URL || 'https://hydra-gjnx.onrender.com').replace(/\/$/, '');
-    const frontendUrl = (params.frontend || process.env.HYDRA_FRONTEND_URL || 'https://hydra-eta-gilt.vercel.app').replace(/\/$/, '');
+    const frontendUrl = (params.frontend || process.env.HYDRA_FRONTEND_URL || 'https://hydra-visual-testing.vercel.app').replace(/\/$/, '');
     console.log(`\n\x1b[36m Hydra AI: Triggering visual regression test...\x1b[0m`);
     console.log(`   Target Server: ${baseUrl}`);
     console.log(`   Project ID:    ${projectId}`);
