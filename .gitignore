@@ -19,6 +19,7 @@ backend/Public/screenshots/
 .tempmediaStorage/
 scratch/
 *.mp4
+!frontend/src/assets/video.mp4
 *.webm
 
 # ─── Environment Variables & Secrets ──────────────────────────────────────────
