@@ -5,7 +5,7 @@
 
   ### Automated Visual Regression Detection & Code Remediation Platform
 
-  [Documentation](https://github.com) • [CLI Specification](#cli-specification) • [Architecture](#system-architecture) • [License](#license)
+  [Live App](https://hydra-eta-gilt.vercel.app) • [Documentation](https://hydra-eta-gilt.vercel.app/docs) • [CLI on npm](https://www.npmjs.com/package/@itzaks/hydra-visual-cli) • [Architecture](#system-architecture) • [License](#license)
 
   ---
 </div>
@@ -21,59 +21,54 @@
 
 ---
 
-## Market Feature Comparison
-
-| Capabilities | Percy | Chromatic | Playwright / Cypress | Hydra (Open Source) | Hydra Pro |
-| :--- | :---: | :---: | :---: | :---: | :---: |
-| **Primary Focus** | Screenshot Diffing | Component Snapshots | E2E Assertions | Visual Inspection | Automated Remediation |
-| **Licensing** | Proprietary | Proprietary | Open Source | **Open Source (MIT)** | Managed SaaS |
-| **Sub-Pixel Detection** | Supported | Supported | Manual Config | **Supported** | **Supported** |
-| **DOM Element Isolation** | Unsupported | Unsupported | Unsupported | **Supported** | **Supported** |
-| **Automated Root-Cause Analysis** | Unsupported | Unsupported | Unsupported | **Supported** | **Supported** |
-| **Code-Level Patch Generation** | Unsupported | Unsupported | Unsupported | Unsupported | **Supported** |
-| **Candidate Branch Pull Requests**| Unsupported | Unsupported | Unsupported | Unsupported | **Supported** |
-| **Automated Localhost Tunneling** | Requires Proxy | Requires Proxy | Unsupported | **Native** | **Native** |
-
----
-
 ## Quick Start
 
-### Docker One-Command Launch
+### Step 1 — Sign Up & Get Your Keys
 
-Launch the complete containerized Hydra stack (Backend + Frontend) with 1 line:
-
-```bash
-docker compose up -d
-```
-
-#### Official Docker Hub Images
-- **Backend**: `yesitzaks/hydra-backend` (`docker pull yesitzaks/hydra-backend:latest`)
-- **Frontend**: `yesitzaks/hydra-frontend` (`docker pull yesitzaks/hydra-frontend:latest`)
+1. Go to **[hydra-eta-gilt.vercel.app](https://hydra-eta-gilt.vercel.app)** and create a free account.
+2. Create a **Project** from your Dashboard.
+3. Copy your **Project ID** and **API Key** from Developer Settings.
 
 ---
 
-### Executing via `npx`
-
-Hydra CLI can be executed directly within any terminal or runner environment without prior global installation:
+### Step 2 — Install the CLI
 
 ```bash
-npx @itzaks/hydra-visual-cli --project <PROJECT_ID> --key <API_KEY> --stagingUrl http://localhost:5173 --productionUrl https://example.com
+npm i @itzaks/hydra-visual-cli
 ```
 
-### Local Package Installation
-
-Install `hydra-cli` as a development dependency:
+Or run it directly without installing (great for CI pipelines):
 
 ```bash
-npm install --save-dev hydra-cli
+npx @itzaks/hydra-visual-cli --project <PROJECT_ID> --key <API_KEY> --stagingUrl http://localhost:5173 --productionUrl https://your-production-app.com
 ```
 
-Configure your package script in `package.json`:
+---
+
+### Step 3 — Run Your First Visual Test
+
+```bash
+npx @itzaks/hydra-visual-cli \
+  --project <PROJECT_ID> \
+  --key <API_KEY> \
+  --stagingUrl http://localhost:5173 \
+  --productionUrl https://your-production-app.com
+```
+
+That's it! Hydra will:
+- 📸 Capture screenshots of both environments
+- 🔍 Run pixel-level diff analysis
+- 🗺️ Map mismatches back to DOM elements
+- 📊 Display a full report link in your terminal
+
+---
+
+### Step 4 — Add to Your `package.json` Scripts (Optional)
 
 ```json
 {
   "scripts": {
-    "test:visual": "hydra --project <PROJECT_ID> --key <API_KEY>"
+    "test:visual": "hydra-visual-cli --project <PROJECT_ID> --key <API_KEY>"
   }
 }
 ```
@@ -91,17 +86,18 @@ Configure your package script in `package.json`:
 | `--stagingUrl` | Optional | Override staging URL for dynamic PR preview deployments. |
 | `--productionUrl` | Optional | Override production baseline URL for comparison. |
 | `--tunnel` | Optional | Forces local tunnel creation for `localhost` endpoints. |
+| `--geminiKey` | Optional | Bring your own Gemini API key for AI-powered root-cause analysis. |
 
 ### Exit Codes
 
 * `0`: Test suite completed successfully with 0 visual regressions detected.
-* `1`: Test suite executed and detected visual regressions exceeding tolerance thresholds, or CLI encountered a runtime error.
+* `1`: Visual regressions detected exceeding tolerance thresholds, or a runtime error occurred.
 
 ---
 
 ## Continuous Integration Setup
 
-### GitHub Actions Integration
+### GitHub Actions
 
 Create `.github/workflows/hydra.yml` in your repository:
 
@@ -128,10 +124,32 @@ jobs:
           node-version: 20
 
       - name: Execute Hydra Visual Inspection
-        run: npx hydra-cli --project ${{ secrets.HYDRA_PROJECT_ID }} --key ${{ secrets.HYDRA_API_KEY }} --stagingUrl ${{ steps.preview.outputs.url }} --productionUrl https://your-production-app.com
+        run: |
+          npx @itzaks/hydra-visual-cli \
+            --project ${{ secrets.HYDRA_PROJECT_ID }} \
+            --key ${{ secrets.HYDRA_API_KEY }} \
+            --stagingUrl ${{ steps.preview.outputs.url }} \
+            --productionUrl https://your-production-app.com
         env:
           HYDRA_API_KEY: ${{ secrets.HYDRA_API_KEY }}
 ```
+
+> **Tip**: Add `HYDRA_PROJECT_ID` and `HYDRA_API_KEY` to your GitHub repository **Secrets** (`Settings → Secrets → Actions`).
+
+---
+
+## Market Feature Comparison
+
+| Capabilities | Percy | Chromatic | Playwright / Cypress | Hydra (Open Source) | Hydra Pro |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| **Primary Focus** | Screenshot Diffing | Component Snapshots | E2E Assertions | Visual Inspection | Automated Remediation |
+| **Licensing** | Proprietary | Proprietary | Open Source | **Open Source (MIT)** | Managed SaaS |
+| **Sub-Pixel Detection** | Supported | Supported | Manual Config | **Supported** | **Supported** |
+| **DOM Element Isolation** | Unsupported | Unsupported | Unsupported | **Supported** | **Supported** |
+| **Automated Root-Cause Analysis** | Unsupported | Unsupported | Unsupported | **Supported** | **Supported** |
+| **Code-Level Patch Generation** | Unsupported | Unsupported | Unsupported | Unsupported | **Supported** |
+| **Candidate Branch Pull Requests**| Unsupported | Unsupported | Unsupported | Unsupported | **Supported** |
+| **Automated Localhost Tunneling** | Requires Proxy | Requires Proxy | Unsupported | **Native** | **Native** |
 
 ---
 
@@ -172,7 +190,7 @@ Hydra relies on a decoupled, multi-service inspection pipeline designed for high
 
 ---
 
-## Local Development & Setup
+## Self-Hosting / Local Development
 
 ### Prerequisites
 
@@ -197,8 +215,8 @@ IMAGEKIT_URL_ENDPOINT=your_imagekit_endpoint
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/hydra.git
-cd hydra
+git clone https://github.com/Aryansharma-ent/Hydra.git
+cd Hydra
 
 # Install backend dependencies
 cd backend && npm install
@@ -210,6 +228,15 @@ cd ../frontend && npm install
 cd ../backend && npm run dev
 cd ../frontend && npm run dev
 ```
+
+#### Docker (One-Command)
+
+```bash
+docker compose up -d
+```
+
+- **Backend image**: `docker pull yesitzaks/hydra-backend:latest`
+- **Frontend image**: `docker pull yesitzaks/hydra-frontend:latest`
 
 ---
 
