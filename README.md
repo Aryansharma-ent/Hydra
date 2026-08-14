@@ -25,7 +25,7 @@
 
 ### Step 1 — Sign Up & Get Your Keys
 
-1. Go to **[hydra-eta-gilt.vercel.app](https://hydra-visual-testing.vercel.app)** and create a free account.
+1. Go to **[hydra-visual-testing.vercel.app](https://hydra-visual-testing.vercel.app)** and create a free account.
 2. Create a **Project** from your Dashboard.
 3. Copy your **Project ID** and **API Key** from Developer Settings.
 
