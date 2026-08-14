@@ -1,6 +1,7 @@
 import Sidebar from "@/components/Dashboard/SideBar"
 import TopBar from "@/components/Dashboard/TopBar"
 import { Copy, Key, Terminal, AlertTriangle, Check, Loader2, Eye, EyeOff, ShieldCheck, GitBranch, ChevronDown, Cpu, LockKeyhole, GitPullRequest } from "lucide-react"
+import { RiKey2Line, RiCpuLine, RiGitBranchLine, RiInformationLine } from "react-icons/ri"
 import axios from 'axios'
 import { useEffect, useState } from "react"
 import { useParams, useLocation, useNavigate } from "react-router-dom"
@@ -235,7 +236,7 @@ ${isPro ? `        with:
                     <div className="relative w-7 h-7 rounded-lg flex items-center justify-center">
                       <div className="absolute inset-0 rounded-lg bg-yellow-400/20 blur-sm" />
                       <div className="relative w-7 h-7 rounded-lg bg-yellow-500/10 border border-yellow-500/30 flex items-center justify-center">
-                        <Key className="size-3.5 text-yellow-400" />
+                        <RiKey2Line className="size-4 text-yellow-400" />
                       </div>
                     </div>
                     <div>
@@ -329,7 +330,7 @@ ${isPro ? `        with:
                     <div className="relative w-7 h-7 rounded-lg flex items-center justify-center">
                       <div className="absolute inset-0 rounded-lg bg-yellow-400/20 blur-sm" />
                       <div className="relative w-7 h-7 rounded-lg bg-yellow-500/10 border border-yellow-500/30 flex items-center justify-center">
-                        <Cpu className="size-3.5 text-yellow-400" />
+                        <RiCpuLine className="size-4 text-yellow-400" />
                       </div>
                     </div>
                     <div>
@@ -371,7 +372,7 @@ ${isPro ? `        with:
 
                     {/* Help note */}
                     <div className="flex items-start gap-2.5 bg-cyan-500/5 border border-cyan-500/10 rounded-lg px-3 py-2.5">
-                      <Sparkles className="size-3.5 text-cyan-400/70 shrink-0 mt-0.5" />
+                      <RiInformationLine className="size-3.5 text-cyan-400/70 shrink-0 mt-0.5" />
                       <p className="text-[10px] text-cyan-400/70 leading-relaxed">
                         Optional. If empty, Hydra uses default server key. Get a free key at <a href="https://aistudio.google.com/" target="_blank" rel="noreferrer" className="underline hover:text-cyan-300 font-medium">aistudio.google.com</a>.
                       </p>
@@ -415,7 +416,7 @@ ${isPro ? `        with:
                     <div className="relative w-7 h-7 rounded-lg flex items-center justify-center">
                       <div className="absolute inset-0 rounded-lg bg-yellow-400/20 blur-sm" />
                       <div className="relative w-7 h-7 rounded-lg bg-yellow-500/10 border border-yellow-500/30 flex items-center justify-center">
-                        <GitBranch className="size-3.5 text-yellow-400" />
+                        <RiGitBranchLine className="size-4 text-yellow-400" />
                       </div>
                     </div>
                     <div>
