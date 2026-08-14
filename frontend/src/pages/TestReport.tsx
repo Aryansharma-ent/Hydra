@@ -1,4 +1,5 @@
 import axios from "axios"
+import { API_BASE_URL } from "@/config/api"
 import Sidebar from "../components/Dashboard/SideBar"
 import DebuggerHeader from "@/components/visual_debugger/DebuggerHeader"
 import DebuggerSubBar from "@/components/visual_debugger/DebuggerSubBar"
@@ -38,7 +39,7 @@ export default function TestReport() {
   
   const LoadTestData = async () => {
     try {
-      const res = await axios.get(`http://localhost:8000/api/tests/run/${runId}`)
+      const res = await axios.get(`${API_BASE_URL}/api/tests/run/${runId}`)
 
       if (res.data.success) {
         const data = res.data.data
@@ -78,7 +79,7 @@ export default function TestReport() {
     try {
       const token = localStorage.getItem("hydra_token");
       const res = await axios.post(
-        `http://localhost:8000/api/tests/run/${runId}/rerun`,
+        `${API_BASE_URL}/api/tests/run/${runId}/rerun`,
         {},
         {
           headers: {
@@ -111,7 +112,7 @@ export default function TestReport() {
     if (runId && runData?.status === 'RUNNING') {
       intervalId = setInterval(async () => {
         try {
-          const res = await axios.get(`http://localhost:8000/api/tests/run/${runId}`);
+          const res = await axios.get(`${API_BASE_URL}/api/tests/run/${runId}`);
           if (res.data.success) {
             setRundata(res.data.data);
           }

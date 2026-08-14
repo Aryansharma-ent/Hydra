@@ -19,6 +19,10 @@ app.use('/api/tests',TestRunRoutes)
 app.use('/api/projects',ProjectRoutes)
 app.use('/api/auth', AuthRoutes);
 
+app.get('/', (req, res) => {
+  res.status(200).json({ success: true, message: 'Hydra AI Visual Regression API Engine' });
+});
+
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'OK', message: 'Hydra API is healthy & active' });
 });

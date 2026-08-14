@@ -2,6 +2,7 @@ import { type TestRun } from "@/types"
 import { useState, useRef, useEffect, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { ZoomIn, ZoomOut, RotateCcw, CheckCircle2, Copy, Check } from "lucide-react"
+import { API_BASE_URL } from "@/config/api"
 
 interface VisualComparerProps {
   runData: TestRun
@@ -50,7 +51,7 @@ export default function VisualComparer({ runData, selectedBugIndex = null, onSel
       return imagePath
     }
     const cleanPath = imagePath.startsWith('/') ? imagePath.slice(1) : imagePath
-    return `http://localhost:8000/${cleanPath}`
+    return `${API_BASE_URL}/${cleanPath}`
   }
 
   const handleLoad = () => {

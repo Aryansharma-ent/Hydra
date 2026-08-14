@@ -9,6 +9,7 @@ import SubBar from "@/components/Dashboard/SubBar"
 import StatsRow from "@/components/Dashboard/StatsRow"
 import RecentRuns from "@/components/Dashboard/RecentRuns"
 import ConfirmDeleteModal from "@/components/Dashboard/ConfirmDeleteModal"
+import { API_BASE_URL } from "@/config/api"
 
 
 export default function Dashboard() {
@@ -37,7 +38,7 @@ const fetchProjects = async () => {
   try {
        const token = localStorage.getItem("hydra_token");
     
-    const res = await axios.get("http://localhost:8000/api/projects", {
+    const res = await axios.get(`${API_BASE_URL}/api/projects`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -71,7 +72,7 @@ const handleCreateProject = async(e : React.FormEvent) => {
 
     try {
       const token = localStorage.getItem("hydra_token");
-      const res = await axios.post("http://localhost:8000/api/projects",{
+      const res = await axios.post(`${API_BASE_URL}/api/projects`,{
         name,
         stagingUrl,
         productionUrl
@@ -110,7 +111,7 @@ const handleRunProject = async(e : React.FormEvent) => {
      try {
    
       const token = localStorage.getItem("hydra_token");
-      const res = await axios.put(`http://localhost:8000/api/projects/${selectedProject?._id}`,{
+      const res = await axios.put(`${API_BASE_URL}/api/projects/${selectedProject?._id}`,{
         stagingUrl,
         productionUrl
       },{
@@ -136,7 +137,7 @@ const handleRunProject = async(e : React.FormEvent) => {
     try {
    
       setShowRunTest(false)
-      const res = await axios.post("http://localhost:8000/api/tests/test-capture",{
+      const res = await axios.post(`${API_BASE_URL}/api/tests/test-capture`,{
         projectId : selectedProject?._id,
         stagingUrl,
         productionUrl
@@ -166,7 +167,7 @@ const handleRunProject = async(e : React.FormEvent) => {
  const fetchTestRun = async(projectId : string) => {
      try {
          const token = localStorage.getItem("hydra_token");
-      const res = await axios.get(`http://localhost:8000/api/projects/${projectId}/runs` ,{
+      const res = await axios.get(`${API_BASE_URL}/api/projects/${projectId}/runs` ,{
          headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -185,7 +186,7 @@ const handleRunProject = async(e : React.FormEvent) => {
   const handleDeleteProject = async () => {
     if (!projectToDelete) return
     const token = localStorage.getItem("hydra_token")
-    await axios.delete(`http://localhost:8000/api/projects/${projectToDelete._id}`, {
+    await axios.delete(`${API_BASE_URL}/api/projects/${projectToDelete._id}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
     if (selectedProject?._id === projectToDelete._id) {

@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom"
 import { jwtDecode } from "jwt-decode";
 import axios from "axios"
 import { ArrowRight, ShieldCheck, Eye, EyeOff, Loader2 } from "lucide-react"
+import { API_BASE_URL } from "../config/api";
 
 export default function Login() {
   const [showEmailForm, setShowEmailForm] = useState(false)
@@ -19,7 +20,7 @@ const handleEmailSubmit = async (e: React.FormEvent) => {
   setLoading(true);
   setErrorMessage("");
   try {
-    const res = await axios.post("http://localhost:8000/api/auth/login", {
+    const res = await axios.post(`${API_BASE_URL}/api/auth/login`, {
       email,
       password,
     });
@@ -58,7 +59,7 @@ const handleEmailSubmit = async (e: React.FormEvent) => {
           try {
             setLoading(true);
             const payload: any = jwtDecode(response.credential);
-            const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/auth/google`, {
+            const res = await axios.post(`${API_BASE_URL}/api/auth/google`, {
               googleId: payload.sub,
               email: payload.email,
               name: payload.name,

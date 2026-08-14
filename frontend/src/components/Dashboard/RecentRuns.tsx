@@ -3,6 +3,7 @@ import { Link } from "react-router-dom"
 import { ArrowRight, AlertTriangle, CheckCircle, RefreshCw, MoreVertical, Trash2 } from "lucide-react"
 import type { TestRun } from "@/types"
 import axios from "axios"
+import { API_BASE_URL } from "@/config/api"
 import ConfirmDeleteModal from "./ConfirmDeleteModal"
 
 interface RecentRunSubProps {
@@ -42,7 +43,7 @@ export default function RecentRuns({ RunData, stagingUrl, productionUrl, onRunDe
   const handleDeleteRun = async () => {
     if (!runToDelete) return
     const token = localStorage.getItem("hydra_token")
-    await axios.delete(`http://localhost:8000/api/tests/run/${runToDelete._id}`, {
+    await axios.delete(`${API_BASE_URL}/api/tests/run/${runToDelete._id}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
     setRunToDelete(null)

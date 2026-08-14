@@ -2,6 +2,7 @@ import { Link, useLocation, useParams } from "react-router-dom";
 import { LayoutGrid, Play, Key, BookOpen, Sparkles, Check, X, ShieldCheck, Loader2 } from "lucide-react";
 import { useState } from "react";
 import axios from "axios";
+import { API_BASE_URL } from "@/config/api";
 
 declare global {
   interface Window {
@@ -37,7 +38,7 @@ export default function Sidebar() {
 
       // 1. Create Razorpay order on backend
       const orderRes = await axios.post(
-        "http://localhost:8000/api/billing/create-order",
+        `${API_BASE_URL}/api/billing/create-order`,
         {},
         {
           headers: {
@@ -65,7 +66,7 @@ export default function Sidebar() {
           try {
             // 3. Verify payment signature on backend
             const verifyRes = await axios.post(
-              "http://localhost:8000/api/billing/verify-payment",
+              `${API_BASE_URL}/api/billing/verify-payment`,
               {
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_payment_id: response.razorpay_payment_id,

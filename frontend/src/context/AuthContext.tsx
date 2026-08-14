@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
+import { API_BASE_URL } from "../config/api";
 
 interface User {
   _id: string;
@@ -28,7 +29,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       localStorage.setItem("hydra_token", token);
       
-      axios.get("http://localhost:8000/api/auth/me")
+      axios.get(`${API_BASE_URL}/api/auth/me`)
         .then(res => {
           if (res.data.success) {
             setUser(res.data.data);

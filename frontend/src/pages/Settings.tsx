@@ -5,6 +5,7 @@ import axios from 'axios'
 import { useEffect, useState } from "react"
 import { useParams, useLocation, useNavigate } from "react-router-dom"
 import { type Project } from "../types"
+import { API_BASE_URL } from "@/config/api"
 
 export default function Settings() {
   const params = useParams();
@@ -37,7 +38,7 @@ export default function Settings() {
     try {
       const token = localStorage.getItem("hydra_token");
       const res = await axios.post(
-        `http://localhost:8000/api/projects/${selectedProject._id}/gemini-key`,
+        `${API_BASE_URL}/api/projects/${selectedProject._id}/gemini-key`,
         { geminiApiKey: geminiKeyInput },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -60,7 +61,7 @@ export default function Settings() {
     const getProjects = async () => {
       try {
         const token = localStorage.getItem("hydra_token");
-        const res = await axios.get("http://localhost:8000/api/projects", {
+        const res = await axios.get(`${API_BASE_URL}/api/projects`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -86,7 +87,7 @@ export default function Settings() {
     try {
       const token = localStorage.getItem("hydra_token");
       const res = await axios.post(
-        `http://localhost:8000/api/projects/${selectedProject._id}/generate-key`,
+        `${API_BASE_URL}/api/projects/${selectedProject._id}/generate-key`,
         {},
         {
           headers: {

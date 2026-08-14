@@ -2,6 +2,7 @@ import { Send, Loader2, ChevronRight, ChevronDown, Copy, Check } from "lucide-re
 import { useState, useRef, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import axios from "axios"
+import { API_BASE_URL } from "@/config/api"
 import type { TestRun } from "@/types"
 
 interface Message {
@@ -268,7 +269,7 @@ export default function ChatSidebar({ runData, chatMessages, setChatMessages, se
 
       const token = localStorage.getItem("hydra_token");
       const res = await axios.post(
-        `http://localhost:8000/api/tests/run/${runData._id}/chat`,
+        `${API_BASE_URL}/api/tests/run/${runData._id}/chat`,
         {
           message: userMessage,
           history,
