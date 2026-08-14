@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 const { rejects } = require('assert')
 const http = require('http')
+const https = require('https')
 const fs = require('fs')
 const path = require('path')
 let localtunnel;
@@ -242,46 +243,53 @@ if (!projectId || !apiKey) {
 
 //POST request using Node's built-in http module
 
-function postJson(url,headers,body){
-    return new Promise((resolve,reject)=>{
-        const u = new URL(url)
+function postJson(url, headers, body) {
+    return new Promise((resolve, reject) => {
+        const u = new URL(url);
+        const isHttps = u.protocol === 'https:';
+        const transport = isHttps ? https : http;
+        const bodyStr = JSON.stringify(body);
         const options = {
-            hostname : u.hostname,
-            port : u.port || 80,
-            path : u.pathname,
-            method : 'POST',
-            headers : {
-                 'Content-Type' : 'application/json',
-                 ...headers
+            hostname: u.hostname,
+            port: u.port || (isHttps ? 443 : 80),
+            path: u.pathname + (u.search || ''),
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Content-Length': Buffer.byteLength(bodyStr),
+                ...headers
             }
         };
 
-        const req = http.request(options, (res) => {
-            let data = ''
-            res.on('data',chunk => data += chunk)
-            res.on('end', ()=>{
+        const req = transport.request(options, (res) => {
+            let data = '';
+            res.on('data', chunk => data += chunk);
+            res.on('end', () => {
                 try {
                     const parsed = JSON.parse(data);
-                    if(res.statusCode >= 400){
-                        reject(new Error(parsed.message || `HTTP ${res.statusCode}`))
-                    }else{
-                        resolve(parsed)
+                    if (res.statusCode >= 400) {
+                        reject(new Error(parsed.message || `HTTP ${res.statusCode}`));
+                    } else {
+                        resolve(parsed);
                     }
                 } catch (e) {
-                    reject(new Error(`failed to parse response ${data} `))
+                    reject(new Error(`Failed to parse response: ${data}`));
                 }
             });
         });
-        req.on('error',reject);
-        req.write(JSON.stringify(body))
+        req.on('error', reject);
+        req.write(bodyStr);
         req.end();
-    })
+    });
 }
 
 
 function getJson(url) {
     return new Promise((resolve, reject) => {
-        http.get(url, (res) => {
+        const u = new URL(url);
+        const isHttps = u.protocol === 'https:';
+        const transport = isHttps ? https : http;
+        transport.get(url, (res) => {
             let data = '';
             res.on('data', chunk => data += chunk);
             res.on('end', () => {
