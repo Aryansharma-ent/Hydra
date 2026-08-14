@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@fontsource-variable/geist": "^5.2.9",
+    "@itzaks/hydra-visual-cli": "^1.1.6",
     "@types/three": "^0.185.4",
     "axios": "^1.18.0",
     "class-variance-authority": "^0.7.1",

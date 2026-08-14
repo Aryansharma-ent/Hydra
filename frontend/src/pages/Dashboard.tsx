@@ -9,6 +9,7 @@ import SubBar from "@/components/Dashboard/SubBar"
 import StatsRow from "@/components/Dashboard/StatsRow"
 import RecentRuns from "@/components/Dashboard/RecentRuns"
 import ConfirmDeleteModal from "@/components/Dashboard/ConfirmDeleteModal"
+import CinematicLoading from "@/components/common/CinematicLoading"
 import { API_BASE_URL } from "@/config/api"
 
 
@@ -266,7 +267,9 @@ useEffect(()=>{
         <div className="flex-1 flex min-h-0">
           {/* Middle: Stats grid & runs list */}
           <main className="flex-1 p-6 overflow-y-auto flex flex-col gap-6">
-            {loading ? (<p>loading.....</p>) : selectedProject ? (
+            {loading ? (
+              <CinematicLoading title="Loading workspace" subtitle="Fetching projects and test run metrics..." />
+            ) : selectedProject ? (
               <>
             <StatsRow
              runs={run}
