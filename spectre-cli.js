@@ -303,9 +303,11 @@ function getJson(url) {
 
 
 async function run() {
-    const baseUrl = 'http://localhost:8000';
+    const baseUrl = (params.server || params.backend || process.env.HYDRA_SERVER_URL || process.env.SPECTRE_SERVER_URL || 'https://hydra-gjnx.onrender.com').replace(/\/$/, '');
+    const frontendUrl = (params.frontend || process.env.HYDRA_FRONTEND_URL || 'https://hydra-eta-gilt.vercel.app').replace(/\/$/, '');
     console.log(`\n\x1b[36m Hydra AI: Triggering visual regression test...\x1b[0m`);
-    console.log(`   Project ID: ${projectId}`);
+    console.log(`   Target Server: ${baseUrl}`);
+    console.log(`   Project ID:    ${projectId}`);
 
     // Expose localhost staging URL if needed (pass --tunnel to trigger remote localtunnel)
     const forceTunnel = Boolean(params.tunnel || params.useTunnel);
@@ -516,7 +518,7 @@ async function run() {
                 console.log(`\n\x1b[32m✔ Visual Regression Test PASSED!\x1b[0m`);
                 console.log(`   Mismatch Percentage: ${run.mismatchPercentage.toFixed(2)}%`);
                 console.log(`   No layout drifts detected.`);
-                console.log(`\n   View report: http://localhost:5173/runs/${runId}?projectId=${projectId}`);
+                console.log(`\n   View report: ${frontendUrl}/runs/${runId}?projectId=${projectId}`);
                 process.exit(0);
             } else if (run.status === 'FAILED') {
                 console.error(`\n\x1b[31m❌ Visual Regression Test FAILED\x1b[0m`);
@@ -529,7 +531,7 @@ async function run() {
                         console.log(`   ${idx + 1}. Selector: "${bug.element}" -> ${bug.description}`);
                     });
                 }
-                console.log(`\n View report: http://localhost:5173/runs/${runId}?projectId=${projectId}\n`);
+                console.log(`\n   View report: ${frontendUrl}/runs/${runId}?projectId=${projectId}\n`);
 
                 // checki g pro tier flag for Auto-Healing Subagent
                 if (run.isPro) {
