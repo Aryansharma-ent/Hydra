@@ -1,6 +1,6 @@
 {
   "name": "@itzaks/hydra-visual-cli",
-  "version": "1.1.6",
+  "version": "1.1.7",
   "description": "CLI tool for Hydra AI — Automated Visual Regression Testing & Auto-Healing Platform",
   "publishConfig": {
     "access": "public"
