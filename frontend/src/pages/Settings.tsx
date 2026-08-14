@@ -233,11 +233,8 @@ ${isPro ? `        with:
 
                   {/* Card header */}
                   <div className="px-5 py-4 border-b border-[#1a1a1d] flex items-center gap-3 bg-[#0a0a0b]">
-                    <div className="relative w-7 h-7 rounded-lg flex items-center justify-center">
-                      <div className="absolute inset-0 rounded-lg bg-yellow-400/20 blur-sm" />
-                      <div className="relative w-7 h-7 rounded-lg bg-yellow-500/10 border border-yellow-500/30 flex items-center justify-center">
-                        <RiKey2Line className="size-4 text-yellow-400" />
-                      </div>
+                    <div className="inline-flex shrink-0 h-10 w-10 items-center justify-center border border-amber-300/25 bg-amber-400/[0.06] shadow-[0_0_20px_rgba(253,224,71,0.18)]">
+                      <RiKey2Line size={18} className="text-amber-200 drop-shadow-[0_0_8px_rgba(254,240,138,0.7)]" />
                     </div>
                     <div>
                       <p className="text-[12px] font-semibold text-[#e4e4e7]">Secret API Key</p>
@@ -327,11 +324,8 @@ ${isPro ? `        with:
 
                   {/* Card header */}
                   <div className="px-5 py-4 border-b border-[#1a1a1d] flex items-center gap-3 bg-[#0a0a0b]">
-                    <div className="relative w-7 h-7 rounded-lg flex items-center justify-center">
-                      <div className="absolute inset-0 rounded-lg bg-yellow-400/20 blur-sm" />
-                      <div className="relative w-7 h-7 rounded-lg bg-yellow-500/10 border border-yellow-500/30 flex items-center justify-center">
-                        <RiCpuLine className="size-4 text-yellow-400" />
-                      </div>
+                    <div className="inline-flex shrink-0 h-10 w-10 items-center justify-center border border-amber-300/25 bg-amber-400/[0.06] shadow-[0_0_20px_rgba(253,224,71,0.18)]">
+                      <RiCpuLine size={18} className="text-amber-200 drop-shadow-[0_0_8px_rgba(254,240,138,0.7)]" />
                     </div>
                     <div>
                       <p className="text-[12px] font-semibold text-[#e4e4e7]">Custom Gemini API Key</p>
@@ -413,11 +407,8 @@ ${isPro ? `        with:
                 {/* Card header */}
                 <div className="px-5 py-4 border-b border-[#1a1a1d] flex items-center justify-between bg-[#0a0a0b]">
                   <div className="flex items-center gap-3">
-                    <div className="relative w-7 h-7 rounded-lg flex items-center justify-center">
-                      <div className="absolute inset-0 rounded-lg bg-yellow-400/20 blur-sm" />
-                      <div className="relative w-7 h-7 rounded-lg bg-yellow-500/10 border border-yellow-500/30 flex items-center justify-center">
-                        <RiGitBranchLine className="size-4 text-yellow-400" />
-                      </div>
+                    <div className="inline-flex shrink-0 h-10 w-10 items-center justify-center border border-amber-300/25 bg-amber-400/[0.06] shadow-[0_0_20px_rgba(253,224,71,0.18)]">
+                      <RiGitBranchLine size={18} className="text-amber-200 drop-shadow-[0_0_8px_rgba(254,240,138,0.7)]" />
                     </div>
                     <div>
                       <p className="text-[12px] font-semibold text-[#e4e4e7]">GitHub Actions Workflow</p>
