@@ -307,25 +307,18 @@ export default function Sidebar() {
                     <span>Current Active Plan</span>
                   </div>
                 ) : (
-                  <button
-                    onClick={handleUpgradeToPro}
-                    disabled={loading}
-                    className="mt-6 w-full py-2.5 px-4 text-xs font-bold text-white bg-violet-600 hover:bg-violet-500 rounded-lg flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md shadow-violet-600/30 disabled:opacity-50"
-                  >
-                    {loading ? (
-                      <><Loader2 className="size-4 animate-spin" /> Opening Razorpay...</>
-                    ) : (
-                      <>Pay with UPI / Cards <Sparkles className="size-3.5" /></>
-                    )}
-                  </button>
+                  <div className="mt-6 w-full py-2.5 px-4 text-xs font-semibold text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded-lg flex items-center justify-center gap-2">
+                    <Loader2 className="size-3.5 animate-spin" />
+                    <span>Payments coming soon — currently being set up</span>
+                  </div>
                 )}
               </div>
             </div>
 
-            {/* Footer Guarantee */}
+            {/* Footer Notice */}
             <div className="flex items-center justify-center gap-2 pt-2 text-[10px] text-[#71717a]">
-              <ShieldCheck className="size-3.5 text-emerald-400" />
-              <span>Instant checkout via Razorpay (UPI, Cards, Netbanking). Cancel anytime.</span>
+              <ShieldCheck className="size-3.5 text-amber-400" />
+              <span>Pro billing is being finalized. Check back soon — we will notify you when it is live.</span>
             </div>
           </div>
         </div>
