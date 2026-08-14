@@ -60,7 +60,7 @@ export default function Sidebar() {
         currency: currency,
         name: "Hydra AI",
         description: "Hydra Pro Monthly Subscription",
-        image: "/src/assets/hydralogo.png",
+        image: "/hydralogo.png",
         order_id: orderId,
         handler: async (response: any) => {
           try {
@@ -121,7 +121,7 @@ export default function Sidebar() {
             <Link to="/dashboard" className="text-3xl tracking-wider text-white-400 font font-bold flex justify-center">
               <span className="rounded"></span>
               <div className="flex justify-center items-center gap-2 font-sans font-boldonse leading-[0.3rem] text-white">
-                <img className="h-[40px]" src="/src/assets/hydralogo.png" alt="" />
+                <img className="h-[40px]" src="/hydralogo.png" alt="" />
                <span className="text-xl"> Hydra </span>
               </div>
             </Link>
@@ -248,7 +248,7 @@ export default function Sidebar() {
             {/* Header */}
             <div className="flex flex-col gap-1 text-center">
               <div className="mx-auto w-12 h-12 rounded-xl overflow-hidden border border-[#27272a] flex items-center justify-center mb-2 shadow-md">
-                <img src="/src/assets/hydralogo.png" className="w-full h-full object-cover" alt="Hydra Logo" />
+                <img src="/hydralogo.png" className="w-full h-full object-cover" alt="Hydra Logo" />
               </div>
               <h2 className="text-xl font-bold text-white tracking-tight">Supercharge your Visual Testing</h2>
               <p className="text-xs text-[#a1a1aa]">

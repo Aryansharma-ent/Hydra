@@ -303,7 +303,7 @@ export default function ChatSidebar({ runData, chatMessages, setChatMessages, se
       <div className="h-10 px-4  flex items-center justify-between shrink-0 bg-[#09090b]/90 backdrop-blur-md z-10">
         <div className="flex items-center gap-2">
           <div className="w-5.5 h-5.5 rounded-md bg-[#121215]  border-[#27272a] flex items-center justify-center p-0.5">
-            <img src="/src/assets/hydralogo.png" className="w-full h-full object-contain" alt="Hydra Logo" />
+            <img src="/hydralogo.png" className="w-full h-full object-contain" alt="Hydra Logo" />
           </div>
           <span className="text-[12px] font-semibold text-white tracking-wide">Hydra</span>
         </div>
@@ -433,7 +433,7 @@ export default function ChatSidebar({ runData, chatMessages, setChatMessages, se
               className="flex gap-2.5 items-start"
             >
               <div className="size-5 rounded-md bg-gradient-to-br from-violet-500/20 to-indigo-500/20 border border-violet-500/15 flex items-center justify-center shrink-0 mt-0.5">
-               <img src="/src/assets/hydralogo.png" alt="" />
+               <img src="/hydralogo.png" alt="" />
               </div>
               <div className="flex-1 min-w-0 text-[11px] text-[#a1a1aa] leading-relaxed">
                 <FormattedMessage text={msg.text} />

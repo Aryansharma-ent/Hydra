@@ -166,7 +166,7 @@ export default function TestReport() {
                 transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
                 className="w-12 h-12 rounded-xl bg-[#121215] border border-[#27272a] flex items-center justify-center p-2 shadow-lg shadow-violet-500/5"
               >
-                <img src="/src/assets/hydralogo.png" className="w-full h-full object-contain animate-pulse" alt="Hydra Logo" />
+                <img src="/hydralogo.png" className="w-full h-full object-contain animate-pulse" alt="Hydra Logo" />
               </motion.div>
 
               {/* Title */}
