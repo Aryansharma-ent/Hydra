@@ -37,22 +37,19 @@
 npm i @itzaks/hydra-visual-cli
 ```
 
-Or run it directly without installing (great for CI pipelines):
-
-```bash
-npx @itzaks/hydra-visual-cli --project <PROJECT_ID> --key <API_KEY> --stagingUrl http://localhost:5173 --productionUrl https://your-production-app.com
-```
-
 ---
 
 ### Step 3 — Run Your First Visual Test
 
+> **Note**: `--geminiKey` is required. Hydra uses Google Gemini for root-cause analysis and AI-powered diff interpretation. Get a free key at [aistudio.google.com](https://aistudio.google.com).
+
 ```bash
-npx @itzaks/hydra-visual-cli \
-  --project <PROJECT_ID> \
-  --key <API_KEY> \
+npx --package=@itzaks/hydra-visual-cli hydra-visual-cli \
+  --project <YOUR_PROJECT_ID> \
+  --key <YOUR_API_KEY> \
+  --geminiKey <YOUR_GEMINI_KEY> \
   --stagingUrl http://localhost:5173 \
-  --productionUrl https://your-production-app.com
+  --productionUrl https://your-app.com
 ```
 
 That's it! Hydra will:
@@ -68,7 +65,7 @@ That's it! Hydra will:
 ```json
 {
   "scripts": {
-    "test:visual": "hydra-visual-cli --project <PROJECT_ID> --key <API_KEY>"
+    "test:visual": "npx --package=@itzaks/hydra-visual-cli hydra-visual-cli --project <YOUR_PROJECT_ID> --key <YOUR_API_KEY> --geminiKey <YOUR_GEMINI_KEY> --stagingUrl http://localhost:5173 --productionUrl https://your-app.com"
   }
 }
 ```
@@ -125,16 +122,17 @@ jobs:
 
       - name: Execute Hydra Visual Inspection
         run: |
-          npx @itzaks/hydra-visual-cli \
+          npx --package=@itzaks/hydra-visual-cli hydra-visual-cli \
             --project ${{ secrets.HYDRA_PROJECT_ID }} \
             --key ${{ secrets.HYDRA_API_KEY }} \
+            --geminiKey ${{ secrets.GEMINI_API_KEY }} \
             --stagingUrl ${{ steps.preview.outputs.url }} \
             --productionUrl https://your-production-app.com
         env:
           HYDRA_API_KEY: ${{ secrets.HYDRA_API_KEY }}
 ```
 
-> **Tip**: Add `HYDRA_PROJECT_ID` and `HYDRA_API_KEY` to your GitHub repository **Secrets** (`Settings → Secrets → Actions`).
+> **Tip**: Add `HYDRA_PROJECT_ID`, `HYDRA_API_KEY`, and `GEMINI_API_KEY` to your GitHub repository **Secrets** (`Settings → Secrets → Actions`).
 
 ---
 
